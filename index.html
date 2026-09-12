@@ -1026,19 +1026,21 @@ function tableRowsHTMLByIndices(fields, pIdx, sIdx, indices) {
 
 function buildPrintView() {
   const host = document.getElementById('printView');
+  if (!host) return;
   host.innerHTML = '';
+
   PRINT_GROUPS.forEach(group => {
     const sheet = document.createElement('div');
     sheet.className = 'sheet';
     sheet.innerHTML += printHeaderHTML();
-    
+
     group.parts.forEach(pIdx => {
       const part = DATA[pIdx];
       let i = 0;
       while (i < part.sections.length) {
         const sec = part.sections[i];
 
-        // A. SOROLOGIAS (3 COLUNAS)
+        // 1. SOROLOGIAS (3 Colunas lado a lado)
         if (pIdx === 0 && sec.title.includes("Sorologias maternas — 1º trimestre")) {
           let rowHTML = '<div class="p-row">';
           for (let s = 0; s < 3; s++) {
@@ -1056,7 +1058,7 @@ function buildPrintView() {
           continue;
         }
 
-        // B. HISTÓRIA MÉDICA E HÁBITOS DE VIDA (2 COLUNAS)
+        // 2. HISTÓRIA MÉDICA E HÁBITOS DE VIDA (2 Colunas lado a lado)
         if (pIdx === 0 && sec.title.includes("História médica pregressa")) {
           let rowHTML = '<div class="p-row">';
           for (let s = 0; s < 2; s++) {
@@ -1074,39 +1076,36 @@ function buildPrintView() {
           continue;
         }
 
-        // C. EXAME FÍSICO DA 1ª HORA E FICHA DE ALTA (AGRUPAMENTO EM 2 COLUNAS)
-        // Agrupa de 2 em 2 as seções do exame físico a partir de "Exame neurológico"
-        if ((pIdx === 1 || pIdx === 2) && sec.title.includes("Exame neurológico")) {
-          while (i < part.sections.length) {
-            let rowHTML = '<div class="p-row">';
-            for (let s = 0; s < 2; s++) {
-              const currentSec = part.sections[i + s];
-              if (currentSec) {
-                rowHTML += '<div class="p-col-2"><div class="p-section">';
-                rowHTML += '<div class="p-band">' + currentSec.title + '</div>';
-                if (currentSec.note) { rowHTML += '<div class="p-note">' + currentSec.note.replace(/</g, '&lt;') + '</div>'; }
-                rowHTML += '<table class="p-table"><tbody>';
-                
-                if (pIdx === 2 && currentSec.title === "Dados de alta do RN") {
-                  const btcKey = findFieldKeyInPart(2, currentSec.title, 'Bilirrubina transcutânea (BTC)');
-                  const btcInfo = btcKey ? btcScreeningInfo(answers[btcKey]) : null;
-                  rowHTML += tableRowsHTML(currentSec.fields, pIdx, i + s);
-                  rowHTML += '<tr><td colspan="6" class="lbl">Triagem BTC (AAP 2022)</td><td colspan="18" class="val">' + (btcInfo ? btcInfo.text.replace(/\n/g, ' — ') : '&nbsp;') + '</td></tr>';
-                } else {
-                  rowHTML += tableRowsHTML(currentSec.fields, pIdx, i + s);
-                }
-                
-                rowHTML += '</tbody></table></div></div>';
+        // 3. SEÇÕES DO EXAME FÍSICO E ALTA (Emparelhadas de 2 em 2 colunas a partir do Exame Neurológico)
+        if ((pIdx === 1 || pIdx === 2) && i >= 2) {
+          let rowHTML = '<div class="p-row">';
+          for (let s = 0; s < 2; s++) {
+            const currentSec = part.sections[i + s];
+            if (currentSec) {
+              rowHTML += '<div class="p-col-2"><div class="p-section">';
+              rowHTML += '<div class="p-band">' + currentSec.title + '</div>';
+              if (currentSec.note) { rowHTML += '<div class="p-note">' + currentSec.note.replace(/</g, '&lt;') + '</div>'; }
+              rowHTML += '<table class="p-table"><tbody>';
+              
+              if (pIdx === 2 && currentSec.title === "Dados de alta do RN") {
+                const btcKey = findFieldKeyInPart(2, currentSec.title, 'Bilirrubina transcutânea (BTC)');
+                const btcInfo = btcKey ? btcScreeningInfo(answers[btcKey]) : null;
+                rowHTML += tableRowsHTML(currentSec.fields, pIdx, i + s);
+                rowHTML += '<tr><td colspan="6" class="lbl">Triagem BTC (AAP 2022)</td><td colspan="18" class="val">' + (btcInfo ? btcInfo.text.replace(/\n/g, ' — ') : '&nbsp;') + '</td></tr>';
+              } else {
+                rowHTML += tableRowsHTML(currentSec.fields, pIdx, i + s);
               }
+              
+              rowHTML += '</tbody></table></div></div>';
             }
-            rowHTML += '</div>';
-            sheet.innerHTML += rowHTML;
-            i += 2;
           }
+          rowHTML += '</div>';
+          sheet.innerHTML += rowHTML;
+          i += 2;
           continue;
         }
 
-        // D. DEMAIS SEÇÕES (LARGURA TOTAL)
+        // 4. RESTANTE DAS SEÇÕES (LARGURA TOTAL 100%)
         let sectionHTML = '<div class="p-section">';
         sectionHTML += '<div class="p-band">' + sec.title + '</div>';
         if (sec.note) { sectionHTML += '<div class="p-note">' + sec.note.replace(/</g, '&lt;') + '</div>'; }
@@ -1147,14 +1146,6 @@ function buildPrintView() {
     sheet.appendChild(sig);
     host.appendChild(sheet);
   });
-}
-
-    const sig = document.createElement('div');
-    sig.className = 'sig';
-    sig.innerHTML = '<span class="line"></span>Assinatura do médico responsável';
-    sheet.appendChild(sig);
-host.appendChild(sheet);
-});
 }
 function setPrintDocumentTitle(){
 const motherName = (answers['0_0_0'] || 'RN').trim();
