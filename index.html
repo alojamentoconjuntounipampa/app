@@ -1099,18 +1099,19 @@ const altaDate = altaDateKey ? answers[altaDateKey] : '';
 if(altaDate){ const [y,m,d] = altaDate.split('-'); dateStr = d+'-'+m+'-'+y; }
 else { const now = new Date(); dateStr = String(now.getDate()).padStart(2,'0')+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+now.getFullYear(); }
   document.title = 'RN de ' + motherName + ' e ' + dateStr;
-}
+  }
+} // <- Esta chave fecha a função buildPrintView() no lugar correto!
 
-// 1. Primeiro desenha toda a estrutura da página
+// 1. Inicializa a interface principal
 renderBuilder();
 
-// 2. Depois inicializa a calculadora no local correto dentro do formulário
-gaCalcEl = document.getElementById('gaCalc');
+// 2. Coloca a calculadora no elemento #gaCalc correto
+const gaCalcEl = document.getElementById('gaCalc');
 if (gaCalcEl) {
   setupGaCalc();
 }
 
-// 3. Atualiza o evento do botão para GERAR o resumo antes de mandar imprimir
+// 3. Associa o evento de clique ao botão de impressão
 const btnPrint = document.getElementById('btnPrint');
 if (btnPrint) {
   btnPrint.addEventListener('click', () => {
