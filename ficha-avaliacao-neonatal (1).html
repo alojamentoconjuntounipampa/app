@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ficha de Avaliação Neonatal — Alojamento Conjunto</title>
+<style>
+:root{
+--ink:#1B3A4B; --ink-soft:#3F5A68; --paper:#FAFAF7; --paper-line:#DCD6C8;
+--accent:#0F6E63; --accent-soft:#E4EFE9; --warn:#9C5B2E; --warn-bg:#FBF0E6;
+--radius:3px;
+}
+*{box-sizing:border-box;}
+body{ margin:0; font-family:"Iowan Old Style","Georgia",serif; background:#EFECE3; color:var(--ink); }
+header.app-header{ background:var(--ink); color:#F2EFE6; padding:18px 24px; position:sticky; top:0; z-index:20; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+header.app-header h1{ font-size:1.05rem; margin:0 0 2px 0; font-weight:600; letter-spacing:.2px; }
+header.app-header p{ margin:0; font-size:.78rem; color:#C9D6D2; font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; }
+.actions{display:flex; gap:8px; font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; flex-wrap:wrap;}
+button{ font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; cursor:pointer; border-radius:var(--radius); border:1px solid transparent; font-size:.82rem; padding:8px 14px; transition:background .15s ease; }
+.btn-primary{background:var(--accent); color:#fff;}
+.btn-primary:hover{background:#0B5850;}
+.btn-ghost{background:transparent; color:#F2EFE6; border-color:#5A7069;}
+.btn-ghost:hover{background:rgba(255,255,255,.08);}
+.btn-secondary{background:#fff; color:var(--ink); border-color:var(--paper-line);}
+.btn-secondary:hover{background:var(--accent-soft);}
+.btn-mini{background:var(--accent-soft); color:#0B5850; border-color:#BEDCD1; font-size:.72rem; padding:5px 10px;}
+.btn-mini:hover{background:#D3E9E0;}
+main{max-width:960px; margin:0 auto; padding:20px 16px 80px;}
+.tabs{ display:flex; gap:4px; margin-bottom:18px; font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; border-bottom:1px solid var(--paper-line); overflow-x:auto; }
+.tab-btn{ background:none; border:none; border-bottom:2px solid transparent; padding:10px 4px; margin-right:20px; font-size:.88rem; color:var(--ink-soft); border-radius:0; white-space:nowrap; }
+.tab-btn.active{ color:var(--ink); border-bottom-color:var(--accent); font-weight:600; }
+.intro{ font-size:.85rem; color:var(--ink-soft); font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; margin:0 0 18px; line-height:1.5; max-width:66ch; }
+section.card{ background:var(--paper); border:1px solid var(--paper-line); border-radius:var(--radius); margin-bottom:14px; overflow:hidden; }
+section.card > .card-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; background:#F1EEE3; border-bottom:1px solid var(--paper-line); padding:9px 14px; }
+section.card > .card-head h2{ font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; font-size:.76rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); margin:0; }
+.calc-card{ background:#fff; border:1px solid var(--accent); border-radius:6px; margin-bottom:14px; overflow:hidden; }
+.calc-card > h2{ font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; font-size:.85rem; color:#fff; background:var(--accent); margin:0; padding:10px 14px; }
+.calc-body{padding:14px; font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;}
+.calc-sub{margin-bottom:16px; padding-bottom:14px; border-bottom:1px dashed var(--paper-line);}
+.calc-sub:last-child{border-bottom:none; margin-bottom:0; padding-bottom:0;}
+.calc-sub h3{font-size:.82rem; margin:0 0 8px; color:var(--ink);}
+.calc-row{display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; margin-bottom:8px;}
+.calc-field{display:flex; flex-direction:column; gap:3px;}
+.calc-field label{font-size:.72rem; color:var(--ink-soft);}
+.calc-field input, .calc-field select{ font-size:.85rem; padding:7px 8px; border-radius:var(--radius); border:1px solid var(--paper-line); font-family:inherit; }
+.calc-result{ font-size:.85rem; background:var(--accent-soft); color:#0B5850; border-radius:var(--radius); padding:8px 10px; font-weight:600; }
+.calc-hint{font-size:.72rem; color:var(--ink-soft); margin-top:4px;}
+.note-box{ margin:12px 14px 0; background:var(--warn-bg); border:1px solid #E7CFB4; border-radius:var(--radius); padding:10px 12px; font-size:.76rem; color:var(--warn); font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.45; white-space:pre-line; }
+.field-row{ display:grid; grid-template-columns:240px 1fr; gap:10px; align-items:start; padding:8px 14px; border-top:1px solid #ECE7DA; font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; }
+.field-row:first-of-type{border-top:none;}
+.field-label{font-size:.85rem; color:var(--ink); padding-top:7px;}
+.field-inputs{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
+.field-inputs .sub{display:flex; flex-direction:column; gap:3px;}
+.field-inputs .sub label{font-size:.68rem; color:var(--ink-soft);}
+.field-row select, .field-row input{ font-size:.83rem; padding:7px 9px; border-radius:var(--radius); border:1px solid var(--paper-line); background:#fff; color:var(--ink); width:100%; max-width:260px; font-family:inherit; }
+.field-row select{ cursor:pointer; }
+.follow-input{display:none; max-width:260px;}
+.follow-input.show{display:block;}
+.bilirubin-result{ flex-basis:100%; font-size:.74rem; line-height:1.4; white-space:pre-line; border-radius:var(--radius); padding:7px 10px; margin-top:4px; border:1px solid transparent; }
+.bilirubin-result.info{ background:#E7F1F7; color:#1B4A66; border-color:#BFDCEC; }
+.bilirubin-result.success{ background:var(--accent-soft); color:#0B5850; border-color:#BEDCD1; }
+.bilirubin-result.warning{ background:var(--warn-bg); color:var(--warn); border-color:#E7CFB4; }
+.bilirubin-result.danger{ background:#FBE6E6; color:#9C2E2E; border-color:#EFC0C0; }
+footer.hint{ font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; font-size:.76rem; color:var(--ink-soft); text-align:center; margin-top:20px; }
+@media (max-width:640px){
+.field-row{grid-template-columns:1fr; gap:6px;}
+.field-label{padding-top:0;}
+header.app-header{padding:12px 14px;}
+header.app-header h1{font-size:.95rem;}
+.actions{width:100%;}
+.actions button{flex:1; text-align:center;}
+main{padding:14px 10px 70px;}
+.calc-row{flex-direction:column; align-items:stretch;}
+.calc-field input, .calc-field select{max-width:none;}
+}
+#printView{display:none;}
+.sheet{ background:#fff; max-width:800px; margin:0 auto 24px; padding:14px 20px; border:1px solid var(--paper-line); box-shadow:0 2px 10px rgba(0,0,0,.06); font-size:.68rem; font-family:Georgia,serif; }
+.print-header{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+.print-header .ph-logo{flex-shrink:0;}
+.print-header .ph-logo svg{width:44px; height:44px;}
+.print-header .ph-text{ text-align:center; flex:1; }
+.print-header .ph-text .ph-title{font-size:.95rem; font-weight:bold; margin:0;}
+.print-header .ph-text .ph-sub{font-size:.78rem; margin:1px 0 0;}
+.print-header .ph-text .ph-hosp{font-size:.62rem; color:#3F5A68; margin:2px 0 0; font-family:-apple-system,Helvetica,Arial,sans-serif;}
+.p-section{margin-bottom:0; break-inside:avoid;}
+.p-band{ background:#E619B0; color:#fff; font-weight:bold; text-align:center; font-size:.72rem; padding:3px 6px; border:1px solid #000; text-transform:none; }
+.p-note{ font-size:.58rem; font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; color:var(--ink-soft); padding:3px 6px; border:1px solid #000; border-top:none; white-space:pre-line; }
+.p-table{ width:100%; border-collapse:collapse; margin-bottom:0; }
+.p-table td{ border:1px solid #000; padding:2.5px 6px; font-size:.66rem; vertical-align:top; }
+.p-table td.lbl{ font-weight:bold; white-space:nowrap; width:1%; }
+.p-table td.val{ }
+.sig{ margin-top:14px; text-align:center; font-size:.68rem; }
+.sig .line{display:block; border-top:1px solid #333; width:200px; margin:20px auto 4px;}
+.print-hint{ text-align:center; font-size:.76rem; color:var(--ink-soft); font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; margin:-8px 0 20px; }
+@page{ margin:10mm; }
+@media print{
+body{background:#fff;}
+header.app-header, .tabs, .intro, footer.hint, #builder, .no-print, .print-hint{display:none !important;}
+#printView{display:block !important;}
+.sheet{box-shadow:none; border:none; margin:0; max-width:100%; page-break-after:always;}
+.sheet:last-child{page-break-after:auto;}
+}
+</style>
+</head>
+<body>
+<header class="app-header">
+<div>
+<h1>Ficha de Avaliação Neonatal — Alojamento Conjunto</h1>
+<p id="headerSub">Preencha os campos selecionando as opções e gere o resumo para impressão</p>
+</div>
+<div class="actions">
+<button class="btn-ghost" id="btnBackToEdit" style="display:none;">← Voltar a preencher</button>
+<button class="btn-primary" id="btnGenerate">Gerar resumo para impressão</button>
+<button class="btn-secondary" id="btnPrint" style="display:none;">Imprimir / Salvar PDF</button>
+</div>
+</header>
+<main>
+<div id="builder">
+<p class="intro">A maioria dos campos já vem com caixinha de seleção. Alguns abrem uma caixinha extra quando você escolhe certas respostas (ex.: "Sim", "Outro" ou "R").</p>
+<div class="tabs">
+<button class="tab-btn active" data-part="0">Dados da mãe</button>
+<button class="tab-btn" data-part="1">RN — 1ª hora de vida</button>
+<button class="tab-btn" data-part="2">Alta hospitalar</button>
+</div>
+<div id="gaCalc" class="calc-card">
+<h2>Calculadora de Idade Gestacional</h2>
+<div class="calc-body">
+<div class="calc-row">
+<div class="calc-field"><label>Data de nascimento do RN</label><input type="date" id="calcBirthDate"></div>
+</div>
+<div class="calc-sub">
+<h3>Por Data da Última Menstruação (DUM)</h3>
+<div class="calc-row">
+<div class="calc-field"><label>Data da última menstruação</label><input type="date" id="dumDate"></div>
+</div>
+<div class="calc-result" id="dumResult">Preencha a DUM e a data de nascimento para calcular.</div>
+</div>
+<div class="calc-sub">
+<h3>Por Ultrassom (US)</h3>
+<div class="calc-row">
+<div class="calc-field"><label>Data do ultrassom</label><input type="date" id="usDate"></div>
+<div class="calc-field"><label>IG no US — semanas</label><select id="usWeeksAtScan"></select></div>
+<div class="calc-field"><label>dias</label><select id="usDaysAtScan"></select></div>
+</div>
+<div class="calc-result" id="usResult">Preencha os dados do ultrassom e a data de nascimento para calcular.</div>
+</div>
+</div>
+</div>
+<div id="sectionsHost"></div>
+</div>
+<div id="printView"></div>
+<p class="print-hint" id="printHintText" style="display:none;">Para salvar como PDF: clique em "Imprimir / Salvar PDF" e, na janela de impressão, escolha "Salvar como PDF" como destino.</p>
+<footer class="hint">Assinatura do médico responsável ao final de cada parte da ficha.</footer>
+<div class="no-print" style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; font-size:.72rem; color:#3F5A68; max-width:700px; margin:24px auto 0; padding:14px 16px; border-top:1px solid #DCD6C8;">
+<strong style="display:block; margin-bottom:4px; color:#1B3A4B;">Criado por Gabriel Dutra Simões — UNIPAMPA, Curso de Medicina</strong>
+<div style="margin-bottom:4px;">Fontes e parâmetros clínicos utilizados:</div>
+<ul style="margin:0; padding-left:18px; line-height:1.6;">
+<li>Protocolo de hipoglicemia neonatal (rastreio por Dextro/HGT) e coleta precoce de exames — protocolo institucional de referência.</li>
+<li>Indicação de profilaxia intraparto para Estreptococo do Grupo B (SGB) — critérios gerais SBP / FEBRASGO (confirmar sempre com protocolo institucional vigente).</li>
+<li>Percentil do perímetro cefálico (PC) e do peso ao nascer — INTERGROWTH-21st (Villar J et al., Lancet 2014;384:857-68), tabelas oficiais de 33+0 a 42+6 semanas, por sexo.</li>
+<li>Perímetro torácico (PT): não há tabela internacional oficial de percentil por IG equivalente ao INTERGROWTH-21st; a ficha mostra apenas a relação clínica PC/PT (checagem comparativa), não um percentil.</li>
+<li>Triagem de bilirrubina transcutânea (BTC) e fatores de risco de neurotoxicidade — AAP 2022 (Kemper AR et al., Pediatrics 2022;150(3):e2022058859), válido para RN ≥35 semanas.</li>
+<li><em>Importante:</em> o limiar exato de fototerapia (curvas por IG/idade em horas/fator de risco) NÃO é calculado automaticamente nesta ficha, pois a diretriz AAP 2022 publica esses limiares apenas como curvas gráficas, sem tabela numérica oficial simples. Utilize a calculadora oficial (PediTools, https://peditools.org/bili2022/) para obter o limiar exato e registre o resultado no campo "Avaliação AAP 2022".</li>
+</ul>
+</div>
+</main>
+<script>
+function range(a,b){ let r=[]; for(let i=a;i<=b;i++) r.push(String(i)); return r; }
+const SN = ["Não","Sim"];
+const AUSPRES = ["Ausente","Presente"];
+const NORMAL_ALTERADO = ["Normal","Alterado"];
+const REALIZADO = ["Realizada","Não realizada"];
+const RNR = ["R","NR","Não realizado"];
+const BLOOD = ["A+","A-","B+","B-","AB+","AB-","O+","O-"];
+function apgar(){ return range(0,10); }
+function T(l){ return {l, t:'text'}; }
+function N(l){ return {l, t:'number'}; }
+function D(l){ return {l, t:'date'}; }
+function H(l){ return {l, t:'time'}; }
+function S(l,o){ return {l, t:'select', o}; }
+function Sf(l,o,follow){ return {l, t:'select', o, follow}; }
+function Sn(l,o,normal){ return {l, t:'select', o, normal}; }
+function Sx(field,sex){ field.sex=sex; return field; }
+function G(l,items,fmt){ return {l, t:'group', items, fmt}; }
+const HIV_FOLLOW = {when:['R'], sub:{l:'Carga viral', t:'text'}};
+const DATA = [
+{ label: "Ficha de avaliação neonatal — Dados maternos", tabLabel:"Dados da mãe", sections: [
+{title:"Dados da mãe", fields:[
+T("Nome"), N("Idade"),
+G("Histórico gestacional",[{l:"Gesta",t:'text'},{l:"Pv",t:'select',o:range(0,10)},{l:"Pc",t:'select',o:range(0,10)},{l:"A",t:'select',o:range(0,10)}], vs => "G:"+(vs[0]||'-')+" Pv:"+(vs[1]||'-')+" Pc:"+(vs[2]||'-')+" A:"+(vs[3]||'-')),
+S("Filhos vivos",range(0,10)),
+S("Grupo sanguíneo (mãe)",BLOOD),
+S("Grupo sanguíneo do pai",BLOOD.concat(["Desconhecido"]))
+]},
+{title:"Sorologias maternas — 1º trimestre", quickNormal:true, fields:[
+Sn("HBsAg",RNR,"NR"), Sn("HCV",RNR,"NR"), Sn("Toxoplasmose - IgG",RNR,"NR"), Sn("Toxoplasmose - IgM",RNR,"NR"),
+T("Toxoplasmose - Avidez (se IgM R)"),
+Sf("HIV (± CV)",RNR,HIV_FOLLOW),
+Sn("Chagas - IgG",RNR,"NR"), Sn("Chagas - IgM",RNR,"NR"),
+Sn("Sífilis - VDRL",RNR,"NR"), Sn("Sífilis - Teste rápido (TR)",RNR,"NR")
+]},
+{title:"Sorologias maternas — 2º trimestre", quickNormal:true, fields:[
+Sn("HBsAg",RNR,"NR"), Sn("HCV",RNR,"NR"), Sn("Toxoplasmose - IgG",RNR,"NR"), Sn("Toxoplasmose - IgM",RNR,"NR"),
+T("Toxoplasmose - Avidez (se IgM R)"),
+Sf("HIV (± CV)",RNR,HIV_FOLLOW),
+Sn("Chagas - IgG",RNR,"NR"), Sn("Chagas - IgM",RNR,"NR"),
+Sn("Sífilis - VDRL",RNR,"NR"), Sn("Sífilis - Teste rápido (TR)",RNR,"NR")
+]},
+{title:"Sorologias maternas — 3º trimestre", quickNormal:true, fields:[
+Sn("HBsAg",RNR,"NR"), Sn("HCV",RNR,"NR"), Sn("Toxoplasmose - IgG",RNR,"NR"), Sn("Toxoplasmose - IgM",RNR,"NR"),
+Sf("HIV (± CV)",RNR,HIV_FOLLOW),
+Sn("Chagas - IgG",RNR,"NR"), Sn("Chagas - IgM",RNR,"NR"),
+Sn("Sífilis - VDRL",RNR,"NR"), Sn("Sífilis - Teste rápido (TR)",RNR,"NR"),
+Sn("SGB (swab reto-vaginal)",RNR,"NR"),
+S("Indicação de profilaxia intraparto para SGB?",["Sim","Não","Não se aplica"])
+], note:"Indicação de profilaxia intraparto para SGB (SBP/FEBRASGO): SGB positivo na gestação atual (35-37 sem); bacteriúria por SGB na gestação atual; filho anterior com doença invasiva por SGB; SGB desconhecido + algum fator de risco (trabalho de parto <37 semanas, bolsa rota ≥18h, febre intraparto ≥38°C). Confirme sempre com o protocolo institucional vigente."},
+{title:"Sorologias coletadas na maternidade", quickNormal:true, fields:[
+Sn("HBsAg",RNR,"NR"), Sn("HCV",RNR,"NR"),
+Sf("HIV (± CV)",RNR,HIV_FOLLOW),
+Sn("Sífilis - VDRL",RNR,"NR"), Sn("Sífilis - Teste rápido (TR)",RNR,"NR")
+]},
+{title:"História médica pregressa", fields:[T("Comorbidades"),T("Medicações de uso prévio"),T("Intercorrências em gestações anteriores")]},
+{title:"Hábitos de vida", fields:[S("Tabagismo",["Não","Sim - ativo","Sim - passivo"]),S("Etilismo",SN),S("Uso de drogas",SN)]},
+{title:"História da gestação atual", fields:[
+T("Intercorrências na gestação atual"),
+S("US morfológico",["Normal","Alterado","Não realizado"]),
+S("Ecocardiograma fetal",["Normal","Alterado","Não realizado"]),
+S("Uso de corticoide (doses)",["Não","Sim - 1 dose","Sim - esquema completo (2 doses)"]),
+S("Bolsa rota (horas)",["Menor que 18 horas","Maior que 18 horas"]),
+T("Medicações utilizadas na gestação")
+]}
+] },
+{ label: "Ficha de avaliação neonatal — RN, 1ª hora de vida", tabLabel:"RN — 1ª hora de vida", sections: [
+{title:"Dados de nascimento e exame físico da 1ª hora", fields:[
+T("Nome do RN"), T("IG"), T("IG presumida (Capurro)"),
+D("Data"), H("Horário"),
+N("Peso (g)"),
+S("Sexo",["Masculino","Feminino","Ambíguo"]),
+Object.assign(S("Peso x IG (percentil)",["PIG","AIG","GIG"]), {warnOn:['PIG','GIG'], warnMsg:'⚠️ Necessita HGT (protocolo de hipoglicemia) — ver seção "Rastreio de hipoglicemia e infecção".'}),
+N("Comprimento (cm)"), N("PC (cm)"), N("PT (cm)"),
+S("Apgar 1º min",apgar()), S("Apgar 5º min",apgar()), S("Apgar 10º min",apgar()),
+S("Pele a pele",SN),
+S("Aspiração",["Não","Sim - orofaringe","Sim - traqueal"]),
+T("Reanimação (descrever)"),
+S("Tipo de parto",["Cesárea","Parto vaginal"]),
+T("Motivo do tipo de parto"),
+S("Uso de fórceps / vácuo extrator",["Não","Fórceps","Vácuo extrator"]),
+Sf("Intercorrências durante o parto",SN,{when:['Sim'],sub:{l:'Qual intercorrência?',t:'text'}}),
+S("Apresentação do RN",["Cefálica","Pélvica","Córmica"]),
+S("Aspecto do líquido amniótico",["Claro","Meconial fluido","Meconial espesso","Sanguinolento","Fétido"]),
+S("Nº de circulares de cordão",["0","1","2","3 ou mais"])
+], note:"Percentis de peso e PC calculados automaticamente (INTERGROWTH-21st, Villar et al., Lancet 2014) a partir da IG por DUM/US e do sexo — a classificação PIG/AIG/GIG é sugerida automaticamente, mas a confirmação final é do médico responsável. Não há tabela internacional oficial de percentil de PT por IG; para o PT é mostrada apenas a relação PC/PT (checagem comparativa)."},
+{title:"Rastreio de hipoglicemia e infecção", fields:[S("Necessita Dextro (HGT)?",SN),S("Necessita coleta de exames precoce?",SN)], note:"Dextro: RN GIG, macrossômico, filho de mãe DM, PIG, prematuro ou baixo peso → 1ª h + 3/3h. Cortes: <24h = 40 · 24–48h = 50 · >48h = 60. Se hipoglicemia sintomática, push Glicose 10% 2ml/kg EV e comunicar UTI Neo.\nColeta precoce: triagem infecciosa após 6h de vida se bolsa rota >18h, sinais de corioamnionite, ou SGB positivo/desconhecido sem profilaxia adequada (Hemograma + PCR). Incompatibilidade sanguínea: tipagem de cordão + hemograma, BT/frações, reticulócitos e Coombs direto."},
+{title:"Exame neurológico", fields:[
+S("Tônus",["Normotônico","Hipotônico","Hipertônico"]),
+S("Choro",["Forte e vigoroso","Fraco","Ausente"]),
+S("Atividade",["Ativo","Hipoativo","Letárgico","Aleatória"]),
+S("Tremores",["Tremor essencial","Tremor patológico","Ausente","Presente"])
+]},
+{title:"Cabeça e pescoço", fields:[
+G("Fontanela anterior",[{l:"Estado",t:'select',o:["Normotensa","Abaulada","Deprimida","Não palpável"]},{l:"Dimensões (cm)",t:'text'}], vs => vs[0] ? vs[0] + (vs[1] ? " ("+vs[1]+" cm)" : '') : ''),
+G("Fontanela posterior",[{l:"Estado",t:'select',o:["Normotensa","Abaulada","Deprimida","Não palpável"]},{l:"Dimensões (cm)",t:'text'}], vs => vs[0] ? vs[0] + (vs[1] ? " ("+vs[1]+" cm)" : '') : ''),
+S("Fácie típica",["Típica","Atípica"]),
+S("Bossa",AUSPRES),
+S("Distócia de ombro",SN),
+S("Sinal da tecla (clavícula)",AUSPRES),
+T("Más formações")
+]},
+{title:"Pele", quickNormal:true, fields:[Sn("Coloração",["Rosada","Pálida","Cianótica","Ictérica","Acrocianose"],"Rosada"),Sn("Hematomas",AUSPRES,"Ausente"),T("Outros achados")]},
+{title:"Tórax e sinais vitais", quickNormal:true, fields:[
+Sf("Ausculta cardíaca",["Normal (sem sopros)","Sopro presente","Outro"],{when:['Outro'],sub:{l:'Descrever',t:'text'}}),
+N("FC"),
+Sf("Ausculta pulmonar",["MV presente bilateral","Estertores","Roncos","Diminuído","Outro"],{when:['Outro'],sub:{l:'Descrever',t:'text'}}),
+N("FR"),
+Sn("Esforço respiratório",["Ausente","Presente (leve)","Presente (moderado/grave)"],"Ausente"),
+Sn("Pulso braquial",["Presente e simétrico","Diminuído","Ausente"],"Presente e simétrico"),
+Sn("Pulso femoral",["Presente e simétrico","Diminuído","Ausente"],"Presente e simétrico")
+]},
+{title:"Abdome", quickNormal:true, fields:[
+Sn("Ausculta abdominal",["RHA presentes","RHA ausentes","RHA aumentados"],"RHA presentes"),
+Sn("Organomegalia",AUSPRES,"Ausente"),
+Sn("Coto umbilical",["2 artérias e 1 veia (normal)","Artéria umbilical única"],"2 artérias e 1 veia (normal)"),
+T("Outros achados")
+]},
+{title:"Genitália e ânus", quickNormal:true, fields:[
+Sx(Sn("Testículos tópicos (masc.)",["Sim","Não - criptorquidia"],"Sim"),'M'),
+Sx(Sn("Saída da uretra (masc.)",["Tópica","Hipospádia","Epispádia"],"Tópica"),'M'),
+Sx(Sn("Hidrocele / hérnia (masc.)",["Ausente","Hidrocele","Hérnia inguinal"],"Ausente"),'M'),
+Sx(Sn("Presença de sinéquia (fem.)",AUSPRES,"Ausente"),'F'),
+Sn("Ânus pérvio",SN,"Sim"),
+T("Outros achados"),
+T("Genitália ambígua (descrever)")
+]},
+{title:"Eliminações fisiológicas", quickNormal:true, fields:[
+Sn("Diurese",["Presente nas primeiras 24h","Ausente"],"Presente nas primeiras 24h"),
+Sn("Mecônio",["Eliminado nas primeiras 24h","Ausente"],"Eliminado nas primeiras 24h")
+]},
+{title:"Músculo-esquelético", quickNormal:true, fields:[
+Sn("Má formação aparente",AUSPRES,"Ausente"),
+Sn("Má formação em coluna",AUSPRES,"Ausente"),
+Sn("Simetria de membros",["Simétricos","Assimétricos"],"Simétricos"),
+Sn("Manobras de Ortolani e Barlow (D/E)",["Negativas bilateralmente","Positiva à direita","Positiva à esquerda","Positiva bilateral"],"Negativas bilateralmente")
+]},
+{title:"Reflexos primitivos", quickNormal:true, fields:[
+Sn("Busca",AUSPRES,"Presente"),
+Sn("Sucção reflexa",["Presente","Ausente"],"Presente"),
+Sn("Moro",["Presente e simétrico","Assimétrico","Ausente"],"Presente e simétrico"),
+Sn("Preensão palmar",["Presente","Ausente"],"Presente")
+]},
+{title:"Profilaxia neonatal", quickNormal:true, fields:[
+Sn("Vitamina K (Kanakion)",REALIZADO,"Realizada"),
+Sn("Vacina Hepatite B",REALIZADO,"Realizada"),
+Sn("Profilaxia de conjuntivite (PVPI)",REALIZADO,"Realizada"),
+T("Intercorrências na 1ª hora")
+]}
+] },
+{ label: "Exame físico de alta hospitalar", tabLabel:"Alta hospitalar", sections: [
+{title:"Dados gerais de alta", fields:[
+Object.assign(N("Horas de vida"), {auto:'hoursFromBirth'}),
+N("Peso atual (g)"),
+N("Perda ponderal (g)"),
+Object.assign(N("Perda ponderal (%)"), {auto:'weightLoss'})
+]},
+{title:"Exame neurológico", fields:[
+S("Tônus",["Normotônico","Hipotônico","Hipertônico"]),
+S("Choro",["Forte e vigoroso","Fraco","Ausente"]),
+S("Atividade",["Ativo","Hipoativo","Letárgico","Aleatória"]),
+S("Tremores",["Tremor essencial","Tremor patológico","Ausente","Presente"])
+]},
+{title:"Cabeça e pescoço", fields:[
+G("Fontanela anterior",[{l:"Estado",t:'select',o:["Normotensa","Abaulada","Deprimida","Não palpável"]},{l:"Dimensões (cm)",t:'text'}], vs => vs[0] ? vs[0] + (vs[1] ? " ("+vs[1]+" cm)" : '') : ''),
+G("Fontanela posterior",[{l:"Estado",t:'select',o:["Normotensa","Abaulada","Deprimida","Não palpável"]},{l:"Dimensões (cm)",t:'text'}], vs => vs[0] ? vs[0] + (vs[1] ? " ("+vs[1]+" cm)" : '') : ''),
+S("Suturas",["Justapostas","Sobrepostas","Diástase"]),
+S("Bossa",AUSPRES),
+S("Fácie típica",["Típica","Atípica"]),
+S("Implantação de orelha",["Normal","Baixa implantação"]),
+S("Alterações lábio-palatinas",AUSPRES),
+S("Sinal da tecla (clavícula)",AUSPRES)
+]},
+{title:"Pele", quickNormal:true, fields:[
+Sn("Turgor",["Normal","Diminuído"],"Normal"),
+Sn("Coloração",["Rosada","Pálida","Cianótica","Ictérica","Acrocianose"],"Rosada"),
+Sn("Icterícia",AUSPRES,"Ausente"),
+Sn("Zona de Kramer",["Zona 1","Zona 2","Zona 3","Zona 4","Zona 5","Não se aplica"],"Não se aplica"),
+Sn("Mucosas",["Coradas","Hipocoradas"],"Coradas"),
+Sn("Mancha mongólica",AUSPRES,"Ausente"),
+Sn("Hematomas",AUSPRES,"Ausente"),
+Sn("Eritema tóxico",AUSPRES,"Ausente"),
+Sn("Hemangioma",AUSPRES,"Ausente"),
+Sn("Mancha salmão",AUSPRES,"Ausente"),
+T("Outros achados")
+]},
+{title:"Tórax e abdome", quickNormal:true, fields:[
+T("Ausculta cardíaca e FC"),T("Ausculta pulmonar e FR"),
+Sn("Ginecomastia",AUSPRES,"Ausente"),
+Sn("Mamilo acessório",AUSPRES,"Ausente"),
+Sn("Tiragem",AUSPRES,"Ausente"),
+Sn("Gemência",AUSPRES,"Ausente"),
+Sn("Ausculta abdominal",["RHA presentes","RHA ausentes","RHA aumentados"],"RHA presentes"),
+Sn("Organomegalia",AUSPRES,"Ausente"),
+Sn("Distensão",AUSPRES,"Ausente"),
+Sn("Cólica",AUSPRES,"Ausente"),
+Sn("Aparência do coto",["Em mumificação normal","Sinais de infecção (onfalite)"],"Em mumificação normal")
+]},
+{title:"Genitália e ânus", quickNormal:true, fields:[
+Sx(Sn("Testículos tópicos (masc.)",["Sim","Não - criptorquidia"],"Sim"),'M'),
+Sx(Sn("Fimose (Kayaba)",[
+"Grau I — prepúcio retrai facilmente, mas há constrição na base da glande",
+"Grau II — retração parcial; o meato uretral não fica totalmente exposto",
+"Grau III — retração parcial; apenas o meato uretral fica visível",
+"Grau IV — retração mínima; não é possível expor nem o meato uretral",
+"Grau V — não há retração do prepúcio"
+],"Grau I — prepúcio retrai facilmente, mas há constrição na base da glande"),'M'),
+Sx(Sn("Presença de sinéquia (fem.)",AUSPRES,"Ausente"),'F'),
+Sx(Sn("Saída da uretra",["Tópica","Hipospádia","Epispádia"],"Tópica"),'M'),
+Sx(Sn("Hidrocele / hérnia",["Ausente","Hidrocele","Hérnia inguinal"],"Ausente"),'M'),
+Sn("Ânus pérvio",SN,"Sim"),
+Sn("Edema",AUSPRES,"Ausente"),
+T("Outros achados"),
+T("Genitália ambígua (descrever)")
+]},
+{title:"Eliminações fisiológicas", quickNormal:true, fields:[Sn("Diurese",["Presente","Ausente"],"Presente"),Sn("Mecônio",["Eliminado","Ausente"],"Eliminado")]},
+{title:"Músculo-esquelético", quickNormal:true, fields:[
+Sn("Má formação aparente",AUSPRES,"Ausente"),
+Sn("Má formação em coluna",AUSPRES,"Ausente"),
+Sn("Simetria de membros",["Simétricos","Assimétricos"],"Simétricos"),
+Sn("Pulso braquial",["Presente e simétrico","Diminuído","Ausente"],"Presente e simétrico"),
+Sn("Pulso femoral",["Presente e simétrico","Diminuído","Ausente"],"Presente e simétrico"),
+Sn("Manobra de Ortolani e Barlow",["Negativas bilateralmente","Positiva à direita","Positiva à esquerda","Positiva bilateral"],"Negativas bilateralmente")
+]},
+{title:"Reflexos primitivos", quickNormal:true, fields:[
+Sn("Busca",["Presente","Ausente"],"Presente"),
+Sn("Sucção reflexa",["Presente","Ausente"],"Presente"),
+Sn("Moro",["Presente e simétrico","Assimétrico","Ausente"],"Presente e simétrico"),
+Sn("Esgrimista",["Presente","Ausente"],"Presente"),
+Sn("Preensão palmar",["Presente","Ausente"],"Presente"),
+Sn("Preensão plantar",["Presente","Ausente"],"Presente"),
+Sn("Cutâneo-plantar",["Em flexão","Em extensão (Babinski)"],"Em flexão"),
+Sn("Marcha reflexa",["Presente","Ausente"],"Presente"),
+Sn("Apoio plantar",["Presente","Ausente"],"Presente"),
+Sn("Galant",["Presente","Ausente"],"Presente"),
+Sn("Placing (maca/escada)",["Presente","Ausente"],"Presente")
+]},
+{title:"Triagem neonatal", fields:[S("Teste do coraçãozinho",NORMAL_ALTERADO),T("Interpretação (coraçãozinho)"),S("Teste do olhinho",["Normal (reflexo vermelho presente)","Alterado"]),T("Interpretação (olhinho)")]},
+{title:"Dados de alta do RN", fields:[
+D("Data de alta"),
+N("Peso de alta (g)"),
+N("Bilirrubina transcutânea (BTC)"),
+N("Bilirrubina total sérica (BT)"),
+S("Outros fatores de risco para neurotoxicidade",[
+"Não",
+"Doença hemolítica isoimune / DAT positivo",
+"Deficiência de G6PD",
+"Outra doença hemolítica",
+"Sepse",
+"Instabilidade clínica significativa nas últimas 24 h",
+"Albumina <3,0 g/dL"
+]),
+S("Avaliação AAP 2022 (conforme calculadora oficial)",[
+"Sem indicação de fototerapia",
+"Indicação de fototerapia",
+"Escalonamento de cuidado / avaliar exsanguineotransfusão",
+"Não avaliado / RN <35 semanas"
+])
+], note:"BTC é triagem, não decide fototerapia. AAP 2022 (Kemper AR et al., Pediatrics 2022;150(3):e2022058859) recomenda confirmar com BT sérica quando BTC ≥15 mg/dL ou dentro de 3 mg/dL do limiar de fototerapia. Os limiares oficiais são publicados como curvas gráficas por IG/idade em horas/fator de risco (não uma tabela numérica simples) — confirme o limiar exato e a indicação na calculadora oficial (PediTools/BiliTool, AAP 2022) e registre o resultado abaixo. Válido para RN ≥35 semanas; não usar para RN <35 semanas."},
+{title:"Amamentação", fields:[S("Tipo de amamentação",["Aleitamento materno exclusivo (AME)","Leite materno + Fórmula","Apenas fórmula"])]},
+{title:"Encerramento", fields:[S("Profilaxias neonatais realizadas",["Sim - todas realizadas","Não - pendências (descrever)"]),T("Intercorrências na internação"),T("Orientações de alta")]}
+] }
+];
+const PRINT_GROUPS = [
+{label:"Ficha de avaliação neonatal — Admissão", parts:[0,1]},
+{label:"Exame físico de alta hospitalar", parts:[2]}
+];
+// ==================== EXTENSÃO ADITIVA ====================
+// 1) Percentil do perímetro cefálico (PC) ao nascer — INTERGROWTH-21st
+//    Fonte oficial: Villar J, Cheikh Ismail L, Victora CG, et al. International standards for
+//    newborn weight, length, and head circumference by gestational age and sex: the Newborn
+//    Cross-Sectional Study of the INTERGROWTH-21st Project. Lancet 2014;384(9946):857-68.
+//    Valores por semana+dia de IG (33+0 a 42+6), sexo, em cm. Cada linha: [P3,P5,P10,P50,P90,P95,P97].
+const IG21_HC_MIN_DAYS = 33*7;
+const IG21_HC_MAX_DAYS = 42*7+6;
+const IG21_HC_BOYS = [
+[28.2,28.6,29.1,30.9,32.7,33.3,33.6],[28.4,28.7,29.2,31.0,32.8,33.3,33.7],[28.5,28.8,29.3,31.1,32.9,33.4,33.8],[28.5,28.9,29.4,31.1,32.9,33.5,33.8],[28.6,29.0,29.5,31.2,33.0,33.6,33.9],[28.7,29.1,29.6,31.3,33.1,33.6,34.0],[28.8,29.2,29.7,31.4,33.2,33.7,34.1],
+[28.9,29.3,29.8,31.5,33.2,33.8,34.1],[29.0,29.4,29.9,31.6,33.3,33.8,34.2],[29.1,29.4,29.9,31.6,33.4,33.9,34.3],[29.2,29.5,30.0,31.7,33.5,34.0,34.3],[29.3,29.6,30.1,31.8,33.5,34.0,34.4],[29.4,29.7,30.2,31.9,33.6,34.1,34.5],[29.5,29.8,30.3,31.9,33.7,34.2,34.5],
+[29.6,29.9,30.4,32.0,33.7,34.2,34.6],[29.7,30.0,30.5,32.1,33.8,34.3,34.6],[29.7,30.1,30.5,32.2,33.9,34.4,34.7],[29.8,30.1,30.6,32.2,33.9,34.4,34.8],[29.9,30.2,30.7,32.3,34.0,34.5,34.8],[30.0,30.3,30.8,32.4,34.1,34.6,34.9],[30.1,30.4,30.9,32.5,34.1,34.6,35.0],
+[30.2,30.5,30.9,32.5,34.2,34.7,35.0],[30.2,30.5,31.0,32.6,34.3,34.8,35.1],[30.3,30.6,31.1,32.7,34.3,34.8,35.1],[30.4,30.7,31.2,32.8,34.4,34.9,35.2],[30.5,30.8,31.2,32.8,34.4,34.9,35.3],[30.5,30.9,31.3,32.9,34.5,35.0,35.3],[30.6,30.9,31.4,33.0,34.6,35.1,35.4],
+[30.7,31.0,31.5,33.0,34.6,35.1,35.4],[30.8,31.1,31.5,33.1,34.7,35.2,35.5],[30.8,31.2,31.6,33.2,34.8,35.2,35.6],[30.9,31.2,31.7,33.2,34.8,35.3,35.6],[31.0,31.3,31.7,33.3,34.9,35.3,35.7],[31.1,31.4,31.8,33.3,34.9,35.4,35.7],[31.1,31.4,31.9,33.4,35.0,35.5,35.8],
+[31.2,31.5,32.0,33.5,35.0,35.5,35.8],[31.3,31.6,32.0,33.5,35.1,35.6,35.9],[31.4,31.6,32.1,33.6,35.2,35.6,35.9],[31.4,31.7,32.2,33.7,35.2,35.7,36.0],[31.5,31.8,32.2,33.7,35.3,35.7,36.0],[31.6,31.9,32.3,33.8,35.3,35.8,36.1],[31.6,31.9,32.4,33.8,35.4,35.8,36.2],
+[31.7,32.0,32.4,33.9,35.4,35.9,36.2],[31.8,32.1,32.5,34.0,35.5,36.0,36.3],[31.8,32.1,32.6,34.0,35.5,36.0,36.3],[31.9,32.2,32.6,34.1,35.6,36.1,36.4],[32.0,32.2,32.7,34.1,35.7,36.1,36.4],[32.0,32.3,32.7,34.2,35.7,36.2,36.5],[32.1,32.4,32.8,34.3,35.8,36.2,36.5],
+[32.2,32.4,32.9,34.3,35.8,36.3,36.6],[32.2,32.5,32.9,34.4,35.9,36.3,36.6],[32.3,32.6,33.0,34.4,35.9,36.4,36.7],[32.3,32.6,33.0,34.5,36.0,36.4,36.7],[32.4,32.7,33.1,34.5,36.0,36.5,36.8],[32.5,32.7,33.2,34.6,36.1,36.5,36.8],[32.5,32.8,33.2,34.7,36.1,36.6,36.9],
+[32.6,32.9,33.3,34.7,36.2,36.6,36.9],[32.6,32.9,33.3,34.8,36.2,36.7,37.0],[32.7,33.0,33.4,34.8,36.3,36.7,37.0],[32.8,33.0,33.5,34.9,36.3,36.8,37.1],[32.8,33.1,33.5,34.9,36.4,36.8,37.1],[32.9,33.2,33.6,35.0,36.4,36.9,37.2],[32.9,33.2,33.6,35.0,36.5,36.9,37.2],
+[33.0,33.3,33.7,35.1,36.5,37.0,37.2],[33.1,33.3,33.7,35.1,36.6,37.0,37.3],[33.1,33.4,33.8,35.2,36.6,37.0,37.3],[33.2,33.4,33.8,35.2,36.7,37.1,37.4],[33.2,33.5,33.9,35.3,36.7,37.1,37.4],[33.3,33.6,34.0,35.3,36.8,37.2,37.5],[33.3,33.6,34.0,35.4,36.8,37.2,37.5]
+];
+const IG21_HC_GIRLS = [
+[27.9,28.3,28.8,30.5,32.2,32.8,33.1],[28.0,28.4,28.9,30.6,32.3,32.9,33.2],[28.1,28.5,29.0,30.6,32.4,32.9,33.3],[28.2,28.6,29.1,30.7,32.5,33.0,33.4],[28.3,28.7,29.2,30.8,32.6,33.1,33.4],[28.4,28.8,29.3,30.9,32.6,33.2,33.5],[28.5,28.9,29.4,31.0,32.7,33.2,33.6],
+[28.6,29.0,29.4,31.1,32.8,33.3,33.7],[28.7,29.1,29.5,31.2,32.9,33.4,33.7],[28.8,29.2,29.6,31.2,32.9,33.5,33.8],[28.9,29.2,29.7,31.3,33.0,33.5,33.9],[29.0,29.3,29.8,31.4,33.1,33.6,33.9],[29.1,29.4,29.9,31.5,33.2,33.7,34.0],[29.2,29.5,30.0,31.6,33.2,33.7,34.1],
+[29.3,29.6,30.1,31.6,33.3,33.8,34.1],[29.4,29.7,30.1,31.7,33.4,33.9,34.2],[29.5,29.8,30.2,31.8,33.4,33.9,34.3],[29.5,29.9,30.3,31.9,33.5,34.0,34.3],[29.6,29.9,30.4,31.9,33.6,34.0,34.4],[29.7,30.0,30.5,32.0,33.6,34.1,34.4],[29.8,30.1,30.5,32.1,33.7,34.2,34.5],
+[29.9,30.2,30.6,32.1,33.7,34.2,34.6],[29.9,30.3,30.7,32.2,33.8,34.3,34.6],[30.0,30.3,30.8,32.3,33.9,34.3,34.7],[30.1,30.4,30.8,32.4,33.9,34.4,34.7],[30.2,30.5,30.9,32.4,34.0,34.5,34.8],[30.3,30.6,31.0,32.5,34.0,34.5,34.8],[30.3,30.6,31.1,32.5,34.1,34.6,34.9],
+[30.4,30.7,31.1,32.6,34.2,34.6,34.9],[30.5,30.8,31.2,32.7,34.2,34.7,35.0],[30.5,30.8,31.3,32.7,34.3,34.7,35.1],[30.6,30.9,31.3,32.8,34.3,34.8,35.1],[30.7,31.0,31.4,32.9,34.4,34.8,35.2],[30.7,31.0,31.5,32.9,34.4,34.9,35.2],[30.8,31.1,31.5,33.0,34.5,34.9,35.3],
+[30.9,31.2,31.6,33.0,34.5,35.0,35.3],[30.9,31.2,31.7,33.1,34.6,35.0,35.4],[31.0,31.3,31.7,33.1,34.6,35.1,35.4],[31.1,31.4,31.8,33.2,34.7,35.1,35.4],[31.1,31.4,31.8,33.3,34.7,35.2,35.5],[31.2,31.5,31.9,33.3,34.8,35.2,35.5],[31.3,31.5,32.0,33.4,34.8,35.3,35.6],
+[31.3,31.6,32.0,33.4,34.9,35.3,35.6],[31.4,31.7,32.1,33.5,34.9,35.4,35.7],[31.4,31.7,32.1,33.5,35.0,35.4,35.7],[31.5,31.8,32.2,33.6,35.0,35.5,35.8],[31.6,31.8,32.2,33.6,35.1,35.5,35.8],[31.6,31.9,32.3,33.7,35.1,35.5,35.8],[31.7,31.9,32.3,33.7,35.2,35.6,35.9],
+[31.7,32.0,32.4,33.8,35.2,35.6,35.9],[31.8,32.0,32.4,33.8,35.2,35.7,36.0],[31.8,32.1,32.5,33.9,35.3,35.7,36.0],[31.9,32.1,32.6,33.9,35.3,35.8,36.0],[31.9,32.2,32.6,34.0,35.4,35.8,36.1],[32.0,32.3,32.6,34.0,35.4,35.8,36.1],[32.0,32.3,32.7,34.0,35.4,35.9,36.2],
+[32.1,32.3,32.7,34.1,35.5,35.9,36.2],[32.1,32.4,32.8,34.1,35.5,35.9,36.2],[32.2,32.4,32.8,34.2,35.6,36.0,36.3],[32.2,32.5,32.9,34.2,35.6,36.0,36.3],[32.3,32.5,32.9,34.3,35.6,36.1,36.3],[32.3,32.6,33.0,34.3,35.7,36.1,36.4],[32.4,32.6,33.0,34.3,35.7,36.1,36.4],
+[32.4,32.7,33.1,34.4,35.7,36.2,36.4],[32.5,32.7,33.1,34.4,35.8,36.2,36.5],[32.5,32.8,33.1,34.5,35.8,36.2,36.5],[32.5,32.8,33.2,34.5,35.9,36.3,36.5],[32.6,32.8,33.2,34.5,35.9,36.3,36.6],[32.6,32.9,33.3,34.6,35.9,36.3,36.6],[32.7,32.9,33.3,34.6,36.0,36.4,36.6]
+];
+function ig21HcPercentileText(sexo, gaWeeks, gaDays, pcCm){
+if(!sexo || sexo==='Ambíguo' || gaWeeks==null || pcCm===''||pcCm===undefined||pcCm===null || isNaN(Number(pcCm))) return null;
+const totalDays = gaWeeks*7 + (gaDays||0);
+if(totalDays < IG21_HC_MIN_DAYS || totalDays > IG21_HC_MAX_DAYS){
+return {cls:'info', text:'IG fora da faixa 33+0–42+6 semanas coberta pela tabela INTERGROWTH-21st usada nesta ficha.'};
+}
+const table = sexo==='Masculino' ? IG21_HC_BOYS : IG21_HC_GIRLS;
+const row = table[totalDays - IG21_HC_MIN_DAYS];
+const [p3,p5,p10,p50,p90,p95,p97] = row;
+const pc = Number(pcCm);
+let faixa, cls;
+if(pc < p3){ faixa = '< P3 (possível microcefalia para a IG)'; cls='warning'; }
+else if(pc < p10){ faixa = 'entre P3 e P10'; cls='info'; }
+else if(pc < p50){ faixa = 'entre P10 e P50'; cls='success'; }
+else if(pc < p90){ faixa = 'entre P50 e P90'; cls='success'; }
+else if(pc < p97){ faixa = 'entre P90 e P97'; cls='info'; }
+else { faixa = '≥ P97 (possível macrocefalia para a IG)'; cls='warning'; }
+return {cls, text:'INTERGROWTH-21st · PC ao nascer: '+faixa+' (IG usada: '+gaWeeks+'s'+(gaDays||0)+'d · P50 de referência: '+p50.toFixed(1)+' cm)'};
+}
+function getGaForCalc(){ return gaDum || gaUs || null; }
+
+// 1b) Percentil de peso ao nascer — INTERGROWTH-21st (mesma fonte da tabela de PC acima).
+//     Tabela oficial em kg, por sexo, de 33+0 a 42+6 semanas.
+const IG21_BW_BOYS = [
+[1.18,1.28,1.43,1.95,2.52,2.70,2.82],[1.22,1.32,1.47,1.99,2.56,2.74,2.86],[1.26,1.36,1.51,2.03,2.60,2.77,2.90],[1.30,1.40,1.55,2.07,2.64,2.81,2.93],[1.34,1.44,1.59,2.11,2.67,2.85,2.97],[1.38,1.48,1.63,2.15,2.71,2.89,3.01],[1.42,1.52,1.67,2.18,2.75,2.93,3.05],
+[1.45,1.55,1.71,2.22,2.79,2.96,3.08],[1.49,1.59,1.74,2.26,2.82,3.00,3.12],[1.53,1.63,1.78,2.29,2.86,3.03,3.15],[1.56,1.66,1.82,2.33,2.89,3.07,3.19],[1.60,1.70,1.85,2.36,2.93,3.10,3.22],[1.63,1.73,1.89,2.40,2.96,3.14,3.26],[1.67,1.77,1.92,2.43,3.00,3.17,3.29],
+[1.70,1.80,1.95,2.47,3.03,3.20,3.32],[1.74,1.84,1.99,2.50,3.06,3.24,3.36],[1.77,1.87,2.02,2.53,3.09,3.27,3.39],[1.80,1.90,2.05,2.56,3.13,3.30,3.42],[1.83,1.94,2.09,2.60,3.16,3.33,3.45],[1.87,1.97,2.12,2.63,3.19,3.36,3.48],[1.90,2.00,2.15,2.66,3.22,3.39,3.51],
+[1.93,2.03,2.18,2.69,3.25,3.42,3.54],[1.96,2.06,2.21,2.72,3.28,3.45,3.57],[1.99,2.09,2.24,2.75,3.31,3.48,3.60],[2.02,2.12,2.27,2.78,3.34,3.51,3.63],[2.05,2.15,2.30,2.81,3.37,3.54,3.66],[2.08,2.18,2.33,2.84,3.39,3.57,3.69],[2.11,2.21,2.36,2.86,3.42,3.60,3.72],
+[2.13,2.24,2.38,2.89,3.45,3.62,3.74],[2.16,2.26,2.41,2.92,3.48,3.65,3.77],[2.19,2.29,2.44,2.95,3.50,3.68,3.80],[2.22,2.32,2.47,2.97,3.53,3.70,3.82],[2.24,2.34,2.49,3.00,3.55,3.73,3.85],[2.27,2.37,2.52,3.02,3.58,3.75,3.87],[2.29,2.39,2.54,3.05,3.61,3.78,3.90],
+[2.32,2.42,2.57,3.07,3.63,3.80,3.92],[2.34,2.44,2.59,3.10,3.65,3.83,3.95],[2.37,2.47,2.62,3.12,3.68,3.85,3.97],[2.39,2.49,2.64,3.15,3.70,3.87,3.99],[2.42,2.52,2.67,3.17,3.72,3.90,4.02],[2.44,2.54,2.69,3.19,3.75,3.92,4.04],[2.46,2.56,2.71,3.22,3.77,3.94,4.06],
+[2.49,2.59,2.73,3.24,3.79,3.96,4.08],[2.51,2.61,2.76,3.26,3.81,3.99,4.10],[2.53,2.63,2.78,3.28,3.83,4.01,4.12],[2.55,2.65,2.80,3.30,3.86,4.03,4.15],[2.57,2.67,2.82,3.32,3.88,4.05,4.17],[2.59,2.69,2.84,3.34,3.90,4.07,4.19],[2.61,2.71,2.86,3.36,3.92,4.09,4.21],
+[2.63,2.73,2.88,3.38,3.94,4.11,4.22],[2.65,2.75,2.90,3.40,3.95,4.13,4.24],[2.67,2.77,2.92,3.42,3.97,4.15,4.26],[2.69,2.79,2.94,3.44,3.99,4.16,4.28],[2.71,2.81,2.96,3.46,4.01,4.18,4.30],[2.73,2.83,2.98,3.48,4.03,4.20,4.32],[2.75,2.85,2.99,3.49,4.04,4.22,4.33],
+[2.76,2.86,3.01,3.51,4.06,4.23,4.35],[2.78,2.88,3.03,3.53,4.08,4.25,4.37],[2.80,2.90,3.05,3.55,4.09,4.27,4.38],[2.82,2.91,3.06,3.56,4.11,4.28,4.40],[2.83,2.93,3.08,3.58,4.13,4.30,4.42],[2.85,2.95,3.09,3.59,4.14,4.31,4.43],[2.86,2.96,3.11,3.61,4.16,4.33,4.45],
+[2.88,2.98,3.12,3.62,4.17,4.34,4.46],[2.89,2.99,3.14,3.64,4.19,4.36,4.47],[2.91,3.01,3.15,3.65,4.20,4.37,4.49],[2.92,3.02,3.17,3.67,4.21,4.39,4.50],[2.94,3.04,3.18,3.68,4.23,4.40,4.52],[2.95,3.05,3.20,3.69,4.24,4.41,4.53],[2.96,3.06,3.21,3.71,4.25,4.43,4.54]
+];
+const IG21_BW_GIRLS = [
+[1.20,1.29,1.41,1.86,2.35,2.51,2.61],[1.24,1.33,1.45,1.90,2.40,2.55,2.66],[1.28,1.37,1.49,1.94,2.44,2.59,2.70],[1.32,1.40,1.53,1.98,2.48,2.63,2.74],[1.36,1.44,1.57,2.02,2.52,2.67,2.78],[1.39,1.48,1.61,2.06,2.56,2.72,2.82],[1.43,1.52,1.65,2.09,2.60,2.75,2.86],
+[1.47,1.55,1.68,2.13,2.64,2.79,2.90],[1.50,1.59,1.72,2.17,2.67,2.83,2.94],[1.54,1.62,1.75,2.20,2.71,2.87,2.98],[1.57,1.66,1.79,2.24,2.75,2.91,3.01],[1.61,1.69,1.82,2.28,2.79,2.94,3.05],[1.64,1.73,1.86,2.31,2.82,2.98,3.09],[1.67,1.76,1.89,2.35,2.86,3.02,3.12],
+[1.71,1.79,1.92,2.38,2.89,3.05,3.16],[1.74,1.83,1.96,2.41,2.93,3.09,3.19],[1.77,1.86,1.99,2.45,2.96,3.12,3.23],[1.80,1.89,2.02,2.48,2.99,3.15,3.26],[1.83,1.92,2.05,2.51,3.03,3.19,3.30],[1.86,1.95,2.08,2.54,3.06,3.22,3.33],[1.89,1.98,2.11,2.57,3.09,3.25,3.36],
+[1.92,2.01,2.14,2.60,3.12,3.28,3.39],[1.95,2.04,2.17,2.63,3.15,3.31,3.42],[1.98,2.07,2.20,2.66,3.18,3.34,3.45],[2.00,2.09,2.23,2.69,3.21,3.37,3.48],[2.03,2.12,2.25,2.72,3.24,3.40,3.51],[2.06,2.15,2.28,2.75,3.27,3.43,3.54],[2.08,2.17,2.31,2.77,3.30,3.46,3.57],
+[2.11,2.20,2.33,2.80,3.32,3.49,3.60],[2.14,2.23,2.36,2.83,3.35,3.52,3.63],[2.16,2.25,2.38,2.85,3.38,3.54,3.65],[2.18,2.27,2.41,2.88,3.40,3.57,3.68],[2.21,2.30,2.43,2.90,3.43,3.60,3.71],[2.23,2.32,2.46,2.93,3.46,3.62,3.73],[2.25,2.35,2.48,2.95,3.48,3.65,3.76],
+[2.28,2.37,2.50,2.97,3.51,3.67,3.78],[2.30,2.39,2.53,3.00,3.53,3.69,3.81],[2.32,2.41,2.55,3.02,3.55,3.72,3.83],[2.34,2.43,2.57,3.04,3.58,3.74,3.85],[2.36,2.45,2.59,3.06,3.60,3.76,3.88],[2.38,2.47,2.61,3.09,3.62,3.79,3.90],[2.40,2.50,2.63,3.11,3.64,3.81,3.92],
+[2.42,2.51,2.65,3.13,3.66,3.83,3.94],[2.44,2.53,2.67,3.15,3.68,3.85,3.96],[2.46,2.55,2.69,3.17,3.70,3.87,3.99],[2.48,2.57,2.71,3.19,3.72,3.89,4.01],[2.50,2.59,2.73,3.21,3.74,3.91,4.03],[2.51,2.61,2.74,3.22,3.76,3.93,4.04],[2.53,2.62,2.76,3.24,3.78,3.95,4.06],
+[2.55,2.64,2.78,3.26,3.80,3.97,4.08],[2.56,2.66,2.80,3.28,3.82,3.99,4.10],[2.58,2.67,2.81,3.29,3.84,4.00,4.12],[2.60,2.69,2.83,3.31,3.85,4.02,4.14],[2.61,2.70,2.84,3.33,3.87,4.04,4.15],[2.63,2.72,2.86,3.34,3.89,4.05,4.17],[2.64,2.73,2.87,3.36,3.90,4.07,4.19],
+[2.65,2.75,2.89,3.37,3.92,4.09,4.20],[2.67,2.76,2.90,3.39,3.93,4.10,4.22],[2.68,2.77,2.91,3.40,3.95,4.12,4.23],[2.69,2.79,2.93,3.41,3.96,4.13,4.25],[2.71,2.80,2.94,3.43,3.97,4.15,4.26],[2.72,2.81,2.95,3.44,3.99,4.16,4.27],[2.73,2.82,2.96,3.45,4.00,4.17,4.29],
+[2.74,2.84,2.98,3.46,4.01,4.19,4.30],[2.75,2.85,2.99,3.48,4.03,4.20,4.31],[2.76,2.86,3.00,3.49,4.04,4.21,4.33],[2.77,2.87,3.01,3.50,4.05,4.22,4.34],[2.78,2.88,3.02,3.51,4.06,4.23,4.35],[2.79,2.89,3.03,3.52,4.07,4.24,4.36],[2.80,2.90,3.04,3.53,4.08,4.26,4.37]
+];
+function ig21WeightPercentileInfo(sexo, gaWeeks, gaDays, pesoG){
+if(!sexo || sexo==='Ambíguo' || gaWeeks==null || pesoG===''||pesoG===undefined||pesoG===null || isNaN(Number(pesoG))) return null;
+const totalDays = gaWeeks*7 + (gaDays||0);
+if(totalDays < IG21_HC_MIN_DAYS || totalDays > IG21_HC_MAX_DAYS){
+return {cls:'info', text:'IG fora da faixa 33+0–42+6 semanas coberta pela tabela INTERGROWTH-21st usada nesta ficha.', suggestedClass:null};
+}
+const table = sexo==='Masculino' ? IG21_BW_BOYS : IG21_BW_GIRLS;
+const row = table[totalDays - IG21_HC_MIN_DAYS];
+const [p3,p5,p10,p50,p90,p95,p97] = row;
+const pesoKg = Number(pesoG)/1000;
+let faixa, cls, suggestedClass;
+if(pesoKg < p10){ faixa = '< P10 (Pequeno para a IG — PIG)'; cls='warning'; suggestedClass='PIG'; }
+else if(pesoKg > p90){ faixa = '> P90 (Grande para a IG — GIG)'; cls='warning'; suggestedClass='GIG'; }
+else { faixa = 'entre P10 e P90 (Adequado para a IG — AIG)'; cls='success'; suggestedClass='AIG'; }
+let extra = '';
+if(pesoKg < p3) extra = ' · abaixo de P3';
+else if(pesoKg > p97) extra = ' · acima de P97';
+return {cls, text:'INTERGROWTH-21st · Peso ao nascer: '+faixa+extra+' (IG usada: '+gaWeeks+'s'+(gaDays||0)+'d · P50 de referência: '+p50.toFixed(2)+' kg)', suggestedClass};
+}
+
+// 1c) Perímetro torácico (PT) — NÃO existe padrão internacional oficial equivalente ao
+//     INTERGROWTH-21st para PT ao nascer por IG/sexo (o projeto Villar et al. 2014 cobre apenas
+//     peso, comprimento e PC). Por isso, em vez de uma tabela de percentil fabricada, esta ficha
+//     usa a relação clínica consagrada: em RN a termo o PC costuma ser cerca de 1–3 cm MAIOR que
+//     o PT; PT ≥ PC (ou diferenças muito grandes) merece nova aferição/avaliação clínica.
+function ptComparisonInfo(pcCm, ptCm){
+if(pcCm===''||pcCm===undefined||pcCm===null||isNaN(Number(pcCm))) return null;
+if(ptCm===''||ptCm===undefined||ptCm===null||isNaN(Number(ptCm))) return null;
+const pc = Number(pcCm), pt = Number(ptCm);
+const diff = pc - pt;
+let cls, txt;
+if(diff < 0){ cls='warning'; txt='PT ('+pt.toFixed(1)+' cm) maior que o PC ('+pc.toFixed(1)+' cm) — incomum ao nascer; reavaliar as medidas.'; }
+else if(diff > 4){ cls='info'; txt='Diferença PC−PT de '+diff.toFixed(1)+' cm, acima do habitual (1–3 cm) — correlacionar clinicamente.'; }
+else { cls='success'; txt='PC−PT: '+diff.toFixed(1)+' cm — dentro da relação habitual ao nascer (PC cerca de 1–3 cm maior que o PT).'; }
+return {cls, text:'Relação PC/PT: '+txt+' (Não há tabela internacional oficial de percentil de PT por IG; esta é uma checagem comparativa, não um percentil.)'};
+}
+
+// 3) Ferramenta automatizada AAP 2022 — integração com a API pública da PediTools
+//    (https://peditools.org/bili2022/), implementação oficial das curvas do guideline
+//    (Kemper AR et al., Pediatrics 2022;150(3):e2022058859), válida para RN ≥35 semanas.
+//    Documentação da API: https://peditools.org/bili2022/bili2022_api.html
+//    A ficha monta automaticamente a URL a partir da IG, horas de vida, bilirrubina (BT
+//    preferencialmente, ou BTC) e fatores de risco já preenchidos, e abre a calculadora oficial
+//    já preenchida em nova aba — sem exigir que o profissional redigite os dados. O resultado
+//    (a indicação em si) continua vindo da ferramenta oficial, não de um cálculo interno desta
+//    ficha, para não expor um limiar não verificado.
+function getPeditoolsRequest(){
+const ga = getGaForCalc();
+if(!ga) return {error:'Preencha a IG (calculadora de DUM ou US, no topo da 1ª aba) antes de calcular.'};
+if(ga.weeks < 35) return {error:'IG <35 semanas — a AAP 2022 / PediTools vale apenas para RN ≥35 semanas. Use protocolo específico de prematuro.'};
+const gaWeeks = Math.min(ga.weeks, 40);
+const hoursKey = findFieldKey('Dados gerais de alta','Horas de vida');
+const hours = hoursKey ? answers[hoursKey] : '';
+if(hours===''||hours===undefined||hours===null||isNaN(Number(hours))) return {error:'Preencha "Horas de vida" (aba Alta hospitalar) antes de calcular — use o botão "Calcular agora" daquele campo.'};
+const btKey = findFieldKey('Dados de alta do RN','Bilirrubina total sérica (BT)');
+const btcKey = findFieldKey('Dados de alta do RN','Bilirrubina transcutânea (BTC)');
+const riskKey = findFieldKey('Dados de alta do RN','Outros fatores de risco para neurotoxicidade');
+const bt = btKey ? answers[btKey] : '';
+const btc = btcKey ? answers[btcKey] : '';
+let bili = '', biliSource = null;
+if(bt!==''&&bt!==undefined&&bt!==null){ bili = bt; biliSource = 'BT sérica'; }
+else if(btc!==''&&btc!==undefined&&btc!==null){ bili = btc; biliSource = 'BTC (apenas triagem — confirme com BT sérica se indicado)'; }
+const riskVal = riskKey ? answers[riskKey] : '';
+let risk = 'both';
+if(riskVal === 'Não') risk = 'none';
+else if(riskVal) risk = 'any';
+let url = 'https://peditools.org/bili2022/api/?ga='+encodeURIComponent(gaWeeks)+'&age='+encodeURIComponent(Math.round(Number(hours)))+'&risk='+risk;
+if(bili!==''){ url += '&bili='+encodeURIComponent(bili); }
+return {url, biliSource, gaWeeks, hours};
+}
+function attachPeditoolsAutoButton(container){
+const btn = document.createElement('button'); btn.className='btn-mini'; btn.type='button';
+btn.textContent = '⚙️ Calcular automaticamente na PediTools (AAP 2022)';
+const statusEl = document.createElement('div'); statusEl.className='bilirubin-result'; statusEl.style.display='none';
+btn.addEventListener('click', () => {
+const r = getPeditoolsRequest();
+if(r.error){ statusEl.style.display='block'; statusEl.className='bilirubin-result warning'; statusEl.textContent = r.error; return; }
+statusEl.style.display='block'; statusEl.className='bilirubin-result success';
+statusEl.textContent = 'Abrindo a PediTools com IG '+r.gaWeeks+' sem, '+r.hours+'h de vida'+(r.biliSource ? ' e '+r.biliSource : ' (sem bilirrubina — mostrará só os limiares)')+' já preenchidos. Confira o resultado na aba que abrir e registre-o no campo "Avaliação AAP 2022" abaixo.';
+window.open(r.url, '_blank', 'noopener');
+});
+container.appendChild(btn); container.appendChild(statusEl);
+}
+
+// 2) Triagem de bilirrubina — AAP 2022 (Kemper AR et al. Pediatrics. 2022;150(3):e2022058859), RN ≥35 semanas
+//    A diretriz publica os limiares de fototerapia como curvas gráficas (Fig. 2 sem fatores de
+//    neurotoxicidade / Fig. 3 com fatores), específicas por IG e idade em horas — não existe uma
+//    tabela numérica oficial simples. Para não incorporar um valor de limiar não verificado a uma
+//    ferramenta clínica real, esta ficha NÃO calcula o limiar de fototerapia por conta própria.
+//    Em vez disso, aplica a regra de triagem por BTC (essa sim publicada de forma inequívoca) e
+//    direciona o profissional à calculadora oficial (PediTools, implementação do AAP 2022:
+//    https://peditools.org/bili2022/) para obter o limiar exato e a indicação, que devem ser
+//    registrados manualmente no campo "Avaliação AAP 2022" desta ficha.
+function btcScreeningInfo(btc){
+const v = Number(btc);
+if(btc===''||btc===undefined||btc===null||isNaN(v)) return null;
+if(v >= 15){
+return {cls:'warning', text:'🟠 SOLICITAR BILIRRUBINA TOTAL SÉRICA (BT)\nBTC: '+v.toFixed(1)+' mg/dL — AAP 2022: BTC ≥15 mg/dL deve sempre ser confirmada com BT sérica.'};
+}
+return {cls:'info', text:'BTC: '+v.toFixed(1)+' mg/dL. AAP 2022 também recomenda confirmar com BT sérica quando a BTC estiver a até 3 mg/dL do limiar de fototerapia da IG/idade em horas do RN — confira o limiar exato na calculadora oficial (link abaixo).'};
+}
+// ==================== FIM DA EXTENSÃO ADITIVA (definições) ====================
+
+const answers = {};
+let gaDum = null, gaUs = null;
+let currentPart = 0;
+function findFieldKeyInPart(partIdx, sectionTitle, fieldLabel){
+const part = DATA[partIdx];
+for(let sIdx=0; sIdx<part.sections.length; sIdx++){
+if(part.sections[sIdx].title === sectionTitle){
+const fields = part.sections[sIdx].fields;
+for(let fIdx=0; fIdx<fields.length; fIdx++){
+if(fields[fIdx].l === fieldLabel) return partIdx+'_'+sIdx+'_'+fIdx;
+}
+}
+}
+return null;
+}
+function findFieldKey(sectionTitle, fieldLabel){
+for(let p=0;p<DATA.length;p++){
+const k = findFieldKeyInPart(p, sectionTitle, fieldLabel);
+if(k) return k;
+}
+return null;
+}
+const BIRTH_DATE_KEY = findFieldKey("Dados de nascimento e exame físico da 1ª hora","Data");
+const BIRTH_TIME_KEY = findFieldKey("Dados de nascimento e exame físico da 1ª hora","Horário");
+const SEX_KEY = findFieldKey("Dados de nascimento e exame físico da 1ª hora","Sexo");
+const BIRTH_WEIGHT_KEY = findFieldKey("Dados de nascimento e exame físico da 1ª hora","Peso (g)");
+const CURRENT_WEIGHT_KEY = findFieldKey("Dados gerais de alta","Peso atual (g)");
+const WEIGHT_LOSS_G_KEY = findFieldKey("Dados gerais de alta","Perda ponderal (g)");
+const WEIGHT_LOSS_PCT_KEY = findFieldKey("Dados gerais de alta","Perda ponderal (%)");
+function fieldVisible(field){
+if(!field.sex) return true;
+const sexo = answers[SEX_KEY];
+if(!sexo || sexo === 'Ambíguo') return true;
+return (field.sex==='M' && sexo==='Masculino') || (field.sex==='F' && sexo==='Feminino');
+}
+function utcDay(dateStr){ if(!dateStr) return null; const [y,m,d]=dateStr.split('-').map(Number); return Date.UTC(y,m-1,d); }
+function daysBetween(dateStrA, dateStrB){ const a=utcDay(dateStrA), b=utcDay(dateStrB); if(a===null||b===null) return null; return Math.round((b-a)/86400000); }
+let calcBirthDateInput, dumDateInput, dumResultEl, usDateInput, usWeeksSel, usDaysSel, usResultEl;
+function recomputeGaDum(){
+const dum = dumDateInput.value; const birth = answers[BIRTH_DATE_KEY];
+if(!dum || !birth){ dumResultEl.textContent='Preencha a DUM e a data de nascimento para calcular.'; gaDum=null; return; }
+const diff = daysBetween(dum, birth);
+if(diff===null || diff<0){ dumResultEl.textContent='Datas inválidas — confira a DUM e a data de nascimento.'; gaDum=null; return; }
+const weeks=Math.floor(diff/7), days=diff%7;
+gaDum={weeks,days};
+dumResultEl.textContent = 'Idade gestacional na data do parto: '+weeks+' semanas e '+days+' dia(s)';
+}
+function recomputeGaUs(){
+const us = usDateInput.value; const w = usWeeksSel.value; const d = usDaysSel.value; const birth = answers[BIRTH_DATE_KEY];
+if(!us || w==='' || d==='' || !birth){ usResultEl.textContent='Preencha os dados do ultrassom e a data de nascimento para calcular.'; gaUs=null; return; }
+const elapsed = daysBetween(us, birth);
+if(elapsed===null || elapsed<0){ usResultEl.textContent='Datas inválidas — confira as datas.'; gaUs=null; return; }
+const totalDays = Number(w)*7+Number(d)+elapsed;
+const weeks=Math.floor(totalDays/7), days=totalDays%7;
+gaUs={weeks,days};
+usResultEl.textContent = 'Idade gestacional na data do parto: '+weeks+' semanas e '+days+' dia(s)';
+}
+function setupGaCalc(){
+calcBirthDateInput = document.getElementById('calcBirthDate');
+dumDateInput = document.getElementById('dumDate');
+dumResultEl = document.getElementById('dumResult');
+usDateInput = document.getElementById('usDate');
+usWeeksSel = document.getElementById('usWeeksAtScan');
+usDaysSel = document.getElementById('usDaysAtScan');
+usResultEl = document.getElementById('usResult');
+const wBlank = document.createElement('option'); wBlank.value=''; wBlank.textContent='—'; usWeeksSel.appendChild(wBlank);
+range(12,40).forEach(w=>{ const o=document.createElement('option'); o.value=w; o.textContent=w; usWeeksSel.appendChild(o); });
+const dBlank = document.createElement('option'); dBlank.value=''; dBlank.textContent='—'; usDaysSel.appendChild(dBlank);
+range(0,6).forEach(d=>{ const o=document.createElement('option'); o.value=d; o.textContent=d; usDaysSel.appendChild(o); });
+calcBirthDateInput.addEventListener('change', () => {
+answers[BIRTH_DATE_KEY] = calcBirthDateInput.value;
+recomputeGaDum(); recomputeGaUs();
+if(currentPart===1) renderBuilder();
+});
+dumDateInput.addEventListener('change', recomputeGaDum);
+usDateInput.addEventListener('change', recomputeGaUs);
+usWeeksSel.addEventListener('change', recomputeGaUs);
+usDaysSel.addEventListener('change', recomputeGaUs);
+}
+function makeInput(fieldDef, key){
+let input;
+if(fieldDef.t === 'select'){
+input = document.createElement('select');
+const blank = document.createElement('option'); blank.value=''; blank.textContent='— selecione —'; input.appendChild(blank);
+fieldDef.o.forEach(o=>{ const opt=document.createElement('option'); opt.value=o; opt.textContent=o; input.appendChild(opt); });
+} else {
+input = document.createElement('input');
+input.type = fieldDef.t==='number'?'number':(fieldDef.t==='date'?'date':(fieldDef.t==='time'?'time':'text'));
+}
+input.value = answers[key] || '';
+const sync = () => { answers[key] = input.value; };
+input.addEventListener('input', sync);
+input.addEventListener('change', sync);
+return input;
+}
+let gaCalcEl;
+function renderBuilder(){
+const host = document.getElementById('sectionsHost');
+if(gaCalcEl && gaCalcEl.parentNode) gaCalcEl.parentNode.removeChild(gaCalcEl);
+host.innerHTML = '';
+const part = DATA[currentPart];
+part.sections.forEach((sec, sIdx) => {
+const card = document.createElement('section'); card.className = 'card';
+const head = document.createElement('div'); head.className='card-head';
+const h2 = document.createElement('h2'); h2.textContent = sec.title; head.appendChild(h2);
+if(sec.quickNormal){
+const btn = document.createElement('button'); btn.className='btn-mini'; btn.textContent='Marcar tudo normal'; btn.type='button';
+btn.addEventListener('click', () => {
+sec.fields.forEach((f,fIdx) => { if(f.normal){ answers[currentPart+'_'+sIdx+'_'+fIdx] = f.normal; } });
+renderBuilder();
+});
+head.appendChild(btn);
+}
+card.appendChild(head);
+if(sec.note){ const note = document.createElement('div'); note.className='note-box'; note.textContent=sec.note; card.appendChild(note); }
+sec.fields.forEach((field, fIdx) => {
+if(!fieldVisible(field)) return;
+const baseKey = currentPart+'_'+sIdx+'_'+fIdx;
+const row = document.createElement('div'); row.className = 'field-row';
+const lbl = document.createElement('div'); lbl.className = 'field-label'; lbl.textContent = field.l; row.appendChild(lbl);
+const inputsWrap = document.createElement('div'); inputsWrap.className = 'field-inputs';
+if(field.t === 'group'){
+field.items.forEach((item, iIdx) => {
+const subWrap = document.createElement('div'); subWrap.className = 'sub';
+const subLbl = document.createElement('label'); subLbl.textContent = item.l; subWrap.appendChild(subLbl);
+const subInput = makeInput(item, baseKey+'_'+iIdx); subWrap.appendChild(subInput);
+inputsWrap.appendChild(subWrap);
+});
+} else {
+const input = makeInput(field, baseKey);
+inputsWrap.appendChild(input);
+if(field.auto === 'hoursFromBirth'){
+const btn = document.createElement('button'); btn.className='btn-mini'; btn.type='button'; btn.textContent='Calcular agora';
+btn.addEventListener('click', () => {
+const bd = answers[BIRTH_DATE_KEY], bt = answers[BIRTH_TIME_KEY];
+if(!bd){ alert('Preencha primeiro a Data de nascimento na aba "RN — 1ª hora de vida" (ou na calculadora de IG).'); return; }
+const birthDT = new Date(bd + 'T' + (bt || '00:00') + ':00');
+const now = new Date();
+const hours = Math.max(0, Math.round((now - birthDT) / 3600000));
+input.value = hours; answers[baseKey] = String(hours);
+});
+inputsWrap.appendChild(btn);
+}
+if(field.auto === 'weightLoss'){
+const btn = document.createElement('button'); btn.className='btn-mini'; btn.type='button'; btn.textContent='Calcular automaticamente';
+btn.addEventListener('click', () => {
+const bw = Number(answers[BIRTH_WEIGHT_KEY]); const cw = Number(answers[CURRENT_WEIGHT_KEY]);
+if(!bw || !cw){ alert('Preencha o Peso (g) ao nascer (aba RN) e o Peso atual (g) (nesta aba) primeiro.'); return; }
+const lossG = bw - cw; const lossPct = (lossG / bw * 100).toFixed(1);
+answers[WEIGHT_LOSS_G_KEY] = String(lossG); answers[WEIGHT_LOSS_PCT_KEY] = String(lossPct);
+renderBuilder();
+});
+inputsWrap.appendChild(btn);
+}
+if(field.warnOn){
+const warnEl = document.createElement('div'); warnEl.style.cssText='font-size:.72rem;color:#9C5B2E;margin-top:4px;flex-basis:100%;';
+const toggleWarn = () => { warnEl.textContent = field.warnOn.includes(input.value) ? field.warnMsg : ''; };
+input.addEventListener('change', toggleWarn); toggleWarn();
+inputsWrap.appendChild(warnEl);
+}
+if(field.l === 'IG' && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
+const gaInfo = document.createElement('div'); gaInfo.style.cssText='font-size:.74rem;color:#0B5850;margin-top:4px;flex-basis:100%;';
+gaInfo.textContent = 'IG calculada — DUM: ' + (gaDum ? gaDum.weeks+'s '+gaDum.days+'d' : '—') + ' · US: ' + (gaUs ? gaUs.weeks+'s '+gaUs.days+'d' : '—');
+inputsWrap.appendChild(gaInfo);
+}
+if(field.l === 'IG presumida (Capurro)' && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
+const capurroLink = document.createElement('a'); capurroLink.href='https://pedb.com.br/calculadoras/capurro'; capurroLink.target='_blank'; capurroLink.rel='noopener';
+capurroLink.className='btn-mini'; capurroLink.style.cssText='display:inline-block;text-decoration:none;'; capurroLink.textContent='Calcular Capurro →';
+inputsWrap.appendChild(capurroLink);
+}
+if(field.l === 'Peso (g)' && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
+const wBox = document.createElement('div'); wBox.className='bilirubin-result'; wBox.style.display='none';
+const pctgKey = findFieldKeyInPart(currentPart, sec.title, 'Peso x IG (percentil)');
+const hgtKey = findFieldKeyInPart(currentPart, 'Rastreio de hipoglicemia e infecção', 'Necessita Dextro (HGT)?');
+const computeInfo = () => {
+const sexo = answers[SEX_KEY];
+const ga = getGaForCalc();
+return ga ? ig21WeightPercentileInfo(sexo, ga.weeks, ga.days, input.value) : null;
+};
+const showInfo = () => {
+const info = computeInfo();
+if(!info){ wBox.style.display='none'; wBox.className='bilirubin-result'; return; }
+wBox.style.display='block'; wBox.className='bilirubin-result '+info.cls; wBox.textContent = info.text;
+};
+const applyAuto = () => {
+const info = computeInfo();
+if(!info || !info.suggestedClass || !pctgKey) return;
+answers[pctgKey] = info.suggestedClass;
+if((info.suggestedClass==='PIG' || info.suggestedClass==='GIG') && hgtKey && !answers[hgtKey]){
+answers[hgtKey] = 'Sim';
+}
+renderBuilder();
+};
+input.addEventListener('input', showInfo);
+input.addEventListener('change', () => { showInfo(); applyAuto(); });
+showInfo();
+inputsWrap.appendChild(wBox);
+}
+if(field.l === 'PT (cm)' && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
+const ptBox = document.createElement('div'); ptBox.className='bilirubin-result'; ptBox.style.display='none';
+const pcKey = findFieldKeyInPart(currentPart, sec.title, 'PC (cm)');
+const updatePt = () => {
+const info = pcKey ? ptComparisonInfo(answers[pcKey], input.value) : null;
+if(!info){ ptBox.style.display='none'; ptBox.className='bilirubin-result'; return; }
+ptBox.style.display='block'; ptBox.className='bilirubin-result '+info.cls; ptBox.textContent = info.text;
+};
+input.addEventListener('input', updatePt); input.addEventListener('change', updatePt);
+updatePt();
+inputsWrap.appendChild(ptBox);
+}
+if(field.l === 'PC (cm)' && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
+const pcBox = document.createElement('div'); pcBox.className='bilirubin-result'; pcBox.style.display='none';
+const updatePc = () => {
+const sexo = answers[SEX_KEY];
+const ga = getGaForCalc();
+const info = ga ? ig21HcPercentileText(sexo, ga.weeks, ga.days, input.value) : null;
+if(!info){ pcBox.style.display='none'; pcBox.className='bilirubin-result'; return; }
+pcBox.style.display='block'; pcBox.className='bilirubin-result '+info.cls; pcBox.textContent = info.text;
+};
+input.addEventListener('input', updatePc); input.addEventListener('change', updatePc);
+updatePc();
+inputsWrap.appendChild(pcBox);
+}
+if(field.l === 'Bilirrubina transcutânea (BTC)' && sec.title === 'Dados de alta do RN'){
+const btcBox = document.createElement('div'); btcBox.className='bilirubin-result'; btcBox.style.display='none';
+const toolWrap = document.createElement('div'); toolWrap.style.cssText='flex-basis:100%;margin-top:4px;';
+attachPeditoolsAutoButton(toolWrap);
+const updateBtc = () => {
+const info = btcScreeningInfo(input.value);
+if(!info){ btcBox.style.display='none'; btcBox.className='bilirubin-result'; return; }
+btcBox.style.display='block'; btcBox.className='bilirubin-result '+info.cls; btcBox.textContent = info.text;
+};
+input.addEventListener('input', updateBtc); input.addEventListener('change', updateBtc);
+updateBtc();
+inputsWrap.appendChild(btcBox);
+inputsWrap.appendChild(toolWrap);
+}
+if(field.l === 'Bilirrubina total sérica (BT)' && sec.title === 'Dados de alta do RN'){
+const btHint = document.createElement('div'); btHint.style.cssText='font-size:.72rem;color:var(--ink-soft);margin-top:4px;flex-basis:100%;';
+btHint.textContent = 'Clique abaixo para calcular automaticamente na ferramenta oficial (AAP 2022) e registre o resultado no campo "Avaliação AAP 2022".';
+const toolWrap2 = document.createElement('div'); toolWrap2.style.cssText='flex-basis:100%;margin-top:4px;';
+attachPeditoolsAutoButton(toolWrap2);
+inputsWrap.appendChild(btHint);
+inputsWrap.appendChild(toolWrap2);
+}
+if(field.l === 'Data' && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
+input.addEventListener('change', () => {
+if(calcBirthDateInput) calcBirthDateInput.value = input.value;
+recomputeGaDum(); recomputeGaUs();
+});
+}
+if(field.l === 'Sexo' && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
+input.addEventListener('change', renderBuilder);
+}
+if(field.follow){
+const followInput = makeInput(field.follow.sub, baseKey+'_follow');
+followInput.classList.add('follow-input');
+followInput.placeholder = field.follow.sub.l;
+const toggle = () => { if(field.follow.when.includes(input.value)) followInput.classList.add('show'); else followInput.classList.remove('show'); };
+input.addEventListener('change', toggle); toggle();
+inputsWrap.appendChild(followInput);
+}
+}
+row.appendChild(inputsWrap);
+card.appendChild(row);
+});
+host.appendChild(card);
+if(currentPart===0 && sIdx===0 && gaCalcEl){ host.appendChild(gaCalcEl); }
+});
+}
+document.querySelectorAll('.tab-btn').forEach(btn => {
+btn.addEventListener('click', () => {
+document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
+currentPart = Number(btn.dataset.part);
+renderBuilder();
+});
+});
+function fieldPrintValue(field, baseKey){
+if(field.t === 'group'){
+const vals = field.items.map((it,iIdx) => answers[baseKey+'_'+iIdx] || '');
+return field.fmt ? field.fmt(vals) : vals.filter(Boolean).join(' / ');
+}
+const main = answers[baseKey] || '';
+if(field.follow && main && field.follow.when.includes(main)){
+const fv = answers[baseKey+'_follow'] || '';
+return fv ? main + ' — ' + fv : main;
+}
+return main;
+}
+const UNIPAMPA_LOGO_IMG = '<img src="data:image/png;base64,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" alt="UNIPAMPA" style="width:70px;height:auto;display:block;">';
+function printHeaderHTML(){
+return '<div class="print-header">' +
+'<div class="ph-logo">'+UNIPAMPA_LOGO_IMG+'</div>' +
+'<div class="ph-text">' +
+'<p class="ph-title">Ficha de avaliação neonatal</p>' +
+'<p class="ph-sub">Alojamento Conjunto</p>' +
+'<p class="ph-hosp">Hospital Santa Casa de Uruguaiana — Serviço de Pediatria · UNIPAMPA, Curso de Medicina</p>' +
+'</div>' +
+'<div class="ph-logo" style="width:44px;"></div>' +
+'</div>';
+}
+function tableRowsHTML(fields, pIdx, sIdx){
+let rows = '';
+fields.forEach((field, fIdx) => {
+if(!fieldVisible(field)) return;
+const baseKey = pIdx+'_'+sIdx+'_'+fIdx;
+const value = fieldPrintValue(field, baseKey);
+rows += '<tr><td class="lbl">'+field.l+'</td><td class="val">'+(value || '&nbsp;')+'</td></tr>';
+});
+return rows;
+}
+function tableRowsHTMLByIndices(fields, pIdx, sIdx, indices){
+let rows = '';
+indices.forEach(fIdx => {
+const field = fields[fIdx];
+if(!field || !fieldVisible(field)) return;
+const baseKey = pIdx+'_'+sIdx+'_'+fIdx;
+const value = fieldPrintValue(field, baseKey);
+rows += '<tr><td class="lbl">'+field.l+'</td><td class="val">'+(value || '&nbsp;')+'</td></tr>';
+});
+return rows;
+}
+function buildPrintView(){
+const host = document.getElementById('printView');
+host.innerHTML = '';
+PRINT_GROUPS.forEach(group => {
+const sheet = document.createElement('div'); sheet.className='sheet';
+sheet.innerHTML += printHeaderHTML();
+group.parts.forEach(pIdx => {
+const part = DATA[pIdx];
+part.sections.forEach((sec, sIdx) => {
+let sectionHTML = '<div class="p-section">';
+sectionHTML += '<div class="p-band">'+sec.title+'</div>';
+if(sec.note){ sectionHTML += '<div class="p-note">'+sec.note.replace(/</g,'&lt;')+'</div>'; }
+sectionHTML += '<table class="p-table"><tbody>';
+if(pIdx===0 && sec.title==="Dados da mãe"){
+sectionHTML += tableRowsHTMLByIndices(sec.fields, pIdx, sIdx, [0,1,2,3]);
+sectionHTML += '<tr><td class="lbl">IG por DUM</td><td class="val">'+(gaDum? gaDum.weeks+'s '+gaDum.days+'d' : '&nbsp;')+'</td></tr>';
+sectionHTML += '<tr><td class="lbl">IG por US</td><td class="val">'+(gaUs? gaUs.weeks+'s '+gaUs.days+'d' : '&nbsp;')+'</td></tr>';
+sectionHTML += tableRowsHTMLByIndices(sec.fields, pIdx, sIdx, [4,5]);
+} else {
+sectionHTML += tableRowsHTML(sec.fields, pIdx, sIdx);
+}
+if(pIdx===1 && sec.title==="Dados de nascimento e exame físico da 1ª hora"){
+const pcKey = findFieldKeyInPart(1, sec.title, 'PC (cm)');
+const ptKey = findFieldKeyInPart(1, sec.title, 'PT (cm)');
+const pesoKey = findFieldKeyInPart(1, sec.title, 'Peso (g)');
+const ga = getGaForCalc();
+const pcInfo = (pcKey && ga) ? ig21HcPercentileText(answers[SEX_KEY], ga.weeks, ga.days, answers[pcKey]) : null;
+const wInfo = (pesoKey && ga) ? ig21WeightPercentileInfo(answers[SEX_KEY], ga.weeks, ga.days, answers[pesoKey]) : null;
+const ptInfo = (pcKey && ptKey) ? ptComparisonInfo(answers[pcKey], answers[ptKey]) : null;
+sectionHTML += '<tr><td class="lbl">Peso — INTERGROWTH-21st</td><td class="val">'+(wInfo ? wInfo.text : '&nbsp;')+'</td></tr>';
+sectionHTML += '<tr><td class="lbl">PC — INTERGROWTH-21st</td><td class="val">'+(pcInfo ? pcInfo.text : '&nbsp;')+'</td></tr>';
+sectionHTML += '<tr><td class="lbl">Relação PC/PT</td><td class="val">'+(ptInfo ? ptInfo.text : '&nbsp;')+'</td></tr>';
+}
+if(pIdx===2 && sec.title==="Dados de alta do RN"){
+const btcKey = findFieldKeyInPart(2, sec.title, 'Bilirrubina transcutânea (BTC)');
+const btcInfo = btcKey ? btcScreeningInfo(answers[btcKey]) : null;
+sectionHTML += '<tr><td class="lbl">Triagem BTC (AAP 2022)</td><td class="val">'+(btcInfo ? btcInfo.text.replace(/\n/g,' — ') : '&nbsp;')+'</td></tr>';
+}
+sectionHTML += '</tbody></table></div>';
+sheet.innerHTML += sectionHTML;
+});
+});
+const sig = document.createElement('div'); sig.className='sig';
+sig.innerHTML = '<span class="line"></span>Assinatura do médico responsável';
+sheet.appendChild(sig);
+host.appendChild(sheet);
+});
+}
+function setPrintDocumentTitle(){
+const motherName = (answers['0_0_0'] || 'RN').trim();
+let dateStr;
+const altaDateKey = findFieldKey("Dados de alta do RN","Data de alta");
+const altaDate = altaDateKey ? answers[altaDateKey] : '';
+if(altaDate){ const [y,m,d] = altaDate.split('-'); dateStr = d+'-'+m+'-'+y; }
+else { const now = new Date(); dateStr = String(now.getDate()).padStart(2,'0')+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+now.getFullYear(); }
+document.title = 'RN de ' + motherName + ' e ' + dateStr;
+}
+document.getElementById('btnGenerate').addEventListener('click', () => {
+buildPrintView();
+setPrintDocumentTitle();
+document.getElementById('builder').style.display='none';
+document.getElementById('printView').style.display='block';
+document.getElementById('printHintText').style.display='block';
+document.getElementById('btnGenerate').style.display='none';
+document.getElementById('btnBackToEdit').style.display='inline-block';
+document.getElementById('btnPrint').style.display='inline-block';
+document.getElementById('headerSub').textContent='Resumo gerado — pronto para impressão / PDF';
+window.scrollTo(0,0);
+});
+document.getElementById('btnBackToEdit').addEventListener('click', () => {
+document.title = 'Ficha de Avaliação Neonatal — Alojamento Conjunto';
+document.getElementById('builder').style.display='block';
+document.getElementById('printView').style.display='none';
+document.getElementById('printHintText').style.display='none';
+document.getElementById('btnGenerate').style.display='inline-block';
+document.getElementById('btnBackToEdit').style.display='none';
+document.getElementById('btnPrint').style.display='none';
+document.getElementById('headerSub').textContent='Preencha os campos selecionando as opções e gere o resumo para impressão';
+});
+document.getElementById('btnPrint').addEventListener('click', () => window.print());
+setupGaCalc();
+gaCalcEl = document.getElementById('gaCalc');
+renderBuilder();
+</script>
+</body>
+</html>
