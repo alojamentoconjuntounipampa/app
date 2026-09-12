@@ -116,12 +116,53 @@ main{padding:14px 10px 70px;}
 .sig .line{display:block; border-top:1px solid #333; width:200px; margin:20px auto 4px;}
 .print-hint{ text-align:center; font-size:.76rem; color:var(--ink-soft); font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; margin:-8px 0 20px; }
 @page{ margin:10mm; }
-@media print{
-body{background:#fff;}
-header.app-header, .tabs, .intro, footer.hint, #builder, .no-print, .print-hint{display:none !important;}
-#printView{display:block !important;}
-.sheet{box-shadow:none; border:none; margin:0; max-width:100%; page-break-after:always;}
-.sheet:last-child{page-break-after:auto;}
+@media print {
+  /* Força a cor do texto para preto puro em todo o documento impresso */
+  *, *::before, *::after {
+    color: #000 !important;
+    text-shadow: none !important;
+  }
+
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  /* Oculta os elementos da interface na hora de imprimir */
+  header.app-header, .tabs, .intro, footer.hint, #builder, .no-print, .print-hint {
+    display: none !important;
+  }
+
+  #printView {
+    display: block !important;
+  }
+
+  .sheet {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    page-break-after: always;
+  }
+
+  .sheet:last-child {
+    page-break-after: auto;
+  }
+
+  /* Mantém o contraste das faixas e linhas de tabela */
+  .p-band {
+    background-color: #e0e0e0 !important;
+    color: #000 !important;
+    border: 1px solid #000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .p-table td {
+    border: 1px solid #000 !important;
+    color: #000 !important;
+  }
 }
 </style>
 </head>
