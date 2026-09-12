@@ -251,6 +251,16 @@ main{padding:14px 10px 70px;}
 </div>
 </main>
 <script>
+  /* Garante espaço suficiente para os nomes das sorologias não cortarem */
+.p-col-3 .p-table td.lbl {
+  width: 65% !important;
+  font-size: 0.62rem !important;
+  white-space: normal !important;
+}
+
+.p-col-3 .p-table td.val {
+  width: 35% !important;
+}
 function range(a,b){ let r=[]; for(let i=a;i<=b;i++) r.push(String(i)); return r; }
 const SN = ["Não","Sim"];
 const AUSPRES = ["Ausente","Presente"];
@@ -1040,19 +1050,32 @@ function buildPrintView() {
       while (i < part.sections.length) {
         const sec = part.sections[i];
 
-        // 1. SOROLOGIAS (3 Colunas lado a lado)
+        // 1. SOROLOGIAS (3 Colunas lado a lado + Nota SGB abaixo)
         if (pIdx === 0 && sec.title.includes("Sorologias maternas — 1º trimestre")) {
           let rowHTML = '<div class="p-row">';
+          let sgbNoteText = '';
+        
           for (let s = 0; s < 3; s++) {
             const currentSec = part.sections[i + s];
             if (currentSec) {
+              // Captura a nota de SGB se existir no 3º trimestre
+              if (currentSec.note) { sgbNoteText = currentSec.note; }
+        
               rowHTML += '<div class="p-col-3"><div class="p-section">';
-              rowHTML += '<div class="p-band">' + currentSec.title + '</div>';
-              if (currentSec.note) { rowHTML += '<div class="p-note">' + currentSec.note.replace(/</g, '&lt;') + '</div>'; }
+              rowHTML += '<div class="p-band">' + currentSec.title.split(' — ')[1] + '</div>'; // Exibe apenas "1º trimestre", "2º trimestre", "3º trimestre"
               rowHTML += '<table class="p-table"><tbody>' + tableRowsHTML(currentSec.fields, pIdx, i + s) + '</tbody></table></div></div>';
             }
           }
           rowHTML += '</div>';
+        
+          // Adiciona a nota de indicação do SGB em uma tabela separada abaixo das colunas
+          if (sgbNoteText) {
+            rowHTML += '<div class="p-section" style="margin-top: 4px;">';
+            rowHTML += '<div class="p-band">Indicação de profilaxia intraparto para SGB (SBP/FEBRASGO)</div>';
+            rowHTML += '<div class="p-note" style="padding: 4px 6px; font-size: 0.65rem; text-align: justify;">' + sgbNoteText.replace(/</g, '&lt;') + '</div>';
+            rowHTML += '</div>';
+          }
+        
           sheet.innerHTML += rowHTML;
           i += 3;
           continue;
