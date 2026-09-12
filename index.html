@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ficha de Avaliação Neonatal — Alojamento Conjunto</title>
 <style>
+  .p-col-3 .p-table td.lbl {
+  width: 65% !important;
+  font-size: 0.62rem !important;
+  white-space: normal !important;
+}
+
+.p-col-3 .p-table td.val {
+  width: 35% !important;
+}
 :root{
 --ink:#1B3A4B; --ink-soft:#3F5A68; --paper:#FAFAF7; --paper-line:#DCD6C8;
 --accent:#0F6E63; --accent-soft:#E4EFE9; --warn:#9C5B2E; --warn-bg:#FBF0E6;
@@ -251,16 +260,6 @@ main{padding:14px 10px 70px;}
 </div>
 </main>
 <script>
-  /* Garante espaço suficiente para os nomes das sorologias não cortarem */
-.p-col-3 .p-table td.lbl {
-  width: 65% !important;
-  font-size: 0.62rem !important;
-  white-space: normal !important;
-}
-
-.p-col-3 .p-table td.val {
-  width: 35% !important;
-}
 function range(a,b){ let r=[]; for(let i=a;i<=b;i++) r.push(String(i)); return r; }
 const SN = ["Não","Sim"];
 const AUSPRES = ["Ausente","Presente"];
@@ -1051,7 +1050,7 @@ function buildPrintView() {
       while (i < part.sections.length) {
         const sec = part.sections[i];
 
-        // 1. SOROLOGIAS MATERNAS (3 Colunas Lado a Lado + Nota SGB abaixo)
+        // 1. SOROLOGIAS MATERNAS (3 Colunas + Nota SGB)
         if (pIdx === 0 && sec.title.includes("Sorologias maternas — 1º trimestre")) {
           let rowHTML = '<div class="p-row">';
           let sgbNoteText = '';
@@ -1081,7 +1080,7 @@ function buildPrintView() {
           continue;
         }
 
-        // 2. HISTÓRIA MÉDICA E HÁBITOS DE VIDA (2 Colunas Lado a Lado)
+        // 2. HISTÓRIA MÉDICA E HÁBITOS DE VIDA (2 Colunas)
         if (pIdx === 0 && sec.title.includes("História médica pregressa")) {
           let rowHTML = '<div class="p-row">';
           for (let s = 0; s < 2; s++) {
@@ -1099,7 +1098,7 @@ function buildPrintView() {
           continue;
         }
 
-        // 3. EXAME FÍSICO 1ª HORA E ALTA (Emparelhados de 2 em 2 colunas a partir do Exame Neurológico)
+        // 3. EXAME FÍSICO 1ª HORA E ALTA (2 Colunas a partir do Exame Neurológico)
         if ((pIdx === 1 || pIdx === 2) && sec.title.includes("Exame neurológico")) {
           while (i < part.sections.length) {
             let rowHTML = '<div class="p-row">';
@@ -1127,10 +1126,10 @@ function buildPrintView() {
             sheet.innerHTML += rowHTML;
             i += 2;
           }
-          break; // Garante a saída segura do loop para não travar a página
+          break;
         }
 
-        // 4. RESTANTE DAS SEÇÕES (Largura Total)
+        // 4. DEMAIS SEÇÕES (Largura Total)
         let sectionHTML = '<div class="p-section">';
         sectionHTML += '<div class="p-band">' + sec.title + '</div>';
         if (sec.note) { sectionHTML += '<div class="p-note">' + sec.note.replace(/</g, '&lt;') + '</div>'; }
