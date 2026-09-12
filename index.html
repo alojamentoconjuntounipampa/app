@@ -85,10 +85,33 @@ main{padding:14px 10px 70px;}
 .p-section{margin-bottom:0; break-inside:avoid;}
 .p-band{ background:#E619B0; color:#fff; font-weight:bold; text-align:center; font-size:.72rem; padding:3px 6px; border:1px solid #000; text-transform:none; }
 .p-note{ font-size:.58rem; font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; color:var(--ink-soft); padding:3px 6px; border:1px solid #000; border-top:none; white-space:pre-line; }
-.p-table{ width:100%; border-collapse:collapse; margin-bottom:0; }
-.p-table td{ border:1px solid #000; padding:2.5px 6px; font-size:.66rem; vertical-align:top; }
-.p-table td.lbl{ font-weight:bold; white-space:nowrap; width:1%; }
-.p-table td.val{ }
+.p-table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  margin-bottom: 0; 
+  table-layout: fixed; /* Força a divisão proporcional das 24 colunas */
+}
+.p-table td { 
+  border: 1px solid #000; 
+  padding: 2px 4px; 
+  font-size: .62rem; 
+  vertical-align: middle; 
+  word-wrap: break-word; 
+}
+.p-table td.lbl { 
+  font-weight: bold; 
+  background-color: #f7f7f7; 
+}
+.grid-24 { 
+  height: 0; 
+  line-height: 0; 
+}
+.grid-24 td { 
+  border: none !important; 
+  padding: 0 !important; 
+  height: 0 !important; 
+  width: 4.166% !important; 
+}
 .sig{ margin-top:14px; text-align:center; font-size:.68rem; }
 .sig .line{display:block; border-top:1px solid #333; width:200px; margin:20px auto 4px;}
 .print-hint{ text-align:center; font-size:.76rem; color:var(--ink-soft); font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; margin:-8px 0 20px; }
@@ -915,72 +938,81 @@ return '<div class="print-header">' +
 '<div class="ph-logo" style="width:44px;"></div>' +
 '</div>';
 }
-function tableRowsHTML(fields, pIdx, sIdx){
-let rows = '';
-fields.forEach((field, fIdx) => {
-if(!fieldVisible(field)) return;
-const baseKey = pIdx+'_'+sIdx+'_'+fIdx;
-const value = fieldPrintValue(field, baseKey);
-rows += '<tr><td class="lbl">'+field.l+'</td><td class="val">'+(value || '&nbsp;')+'</td></tr>';
-});
-return rows;
+function tableRowsHTML(fields, pIdx, sIdx) {
+  let rows = '<tr class="grid-24">' + '<td></td>'.repeat(24) + '</tr>';
+  fields.forEach((field, fIdx) => {
+    if (!fieldVisible(field)) return;
+    const baseKey = pIdx + '_' + sIdx + '_' + fIdx;
+    const value = fieldPrintValue(field, baseKey);
+    rows += '<tr><td colspan="6" class="lbl">' + field.l + '</td><td colspan="18" class="val">' + (value || '&nbsp;') + '</td></tr>';
+  });
+  return rows;
 }
-function tableRowsHTMLByIndices(fields, pIdx, sIdx, indices){
-let rows = '';
-indices.forEach(fIdx => {
-const field = fields[fIdx];
-if(!field || !fieldVisible(field)) return;
-const baseKey = pIdx+'_'+sIdx+'_'+fIdx;
-const value = fieldPrintValue(field, baseKey);
-rows += '<tr><td class="lbl">'+field.l+'</td><td class="val">'+(value || '&nbsp;')+'</td></tr>';
-});
-return rows;
+
+function tableRowsHTMLByIndices(fields, pIdx, sIdx, indices) {
+  let rows = '<tr class="grid-24">' + '<td></td>'.repeat(24) + '</tr>';
+  indices.forEach(fIdx => {
+    const field = fields[fIdx];
+    if (!field || !fieldVisible(field)) return;
+    const baseKey = pIdx + '_' + sIdx + '_' + fIdx;
+    const value = fieldPrintValue(field, baseKey);
+    rows += '<tr><td colspan="6" class="lbl">' + field.l + '</td><td colspan="18" class="val">' + (value || '&nbsp;') + '</td></tr>';
+  });
+  return rows;
 }
-function buildPrintView(){
-const host = document.getElementById('printView');
-host.innerHTML = '';
-PRINT_GROUPS.forEach(group => {
-const sheet = document.createElement('div'); sheet.className='sheet';
-sheet.innerHTML += printHeaderHTML();
-group.parts.forEach(pIdx => {
-const part = DATA[pIdx];
-part.sections.forEach((sec, sIdx) => {
-let sectionHTML = '<div class="p-section">';
-sectionHTML += '<div class="p-band">'+sec.title+'</div>';
-if(sec.note){ sectionHTML += '<div class="p-note">'+sec.note.replace(/</g,'&lt;')+'</div>'; }
-sectionHTML += '<table class="p-table"><tbody>';
-if(pIdx===0 && sec.title==="Dados da mãe"){
-sectionHTML += tableRowsHTMLByIndices(sec.fields, pIdx, sIdx, [0,1,2,3]);
-sectionHTML += '<tr><td class="lbl">IG por DUM</td><td class="val">'+(gaDum? gaDum.weeks+'s '+gaDum.days+'d' : '&nbsp;')+'</td></tr>';
-sectionHTML += '<tr><td class="lbl">IG por US</td><td class="val">'+(gaUs? gaUs.weeks+'s '+gaUs.days+'d' : '&nbsp;')+'</td></tr>';
-sectionHTML += tableRowsHTMLByIndices(sec.fields, pIdx, sIdx, [4,5]);
-} else {
-sectionHTML += tableRowsHTML(sec.fields, pIdx, sIdx);
-}
-if(pIdx===1 && sec.title==="Dados de nascimento e exame físico da 1ª hora"){
-const pcKey = findFieldKeyInPart(1, sec.title, 'PC (cm)');
-const ptKey = findFieldKeyInPart(1, sec.title, 'PT (cm)');
-const pesoKey = findFieldKeyInPart(1, sec.title, 'Peso (g)');
-const ga = getGaForCalc();
-const pcInfo = (pcKey && ga) ? ig21HcPercentileText(answers[SEX_KEY], ga.weeks, ga.days, answers[pcKey]) : null;
-const wInfo = (pesoKey && ga) ? ig21WeightPercentileInfo(answers[SEX_KEY], ga.weeks, ga.days, answers[pesoKey]) : null;
-const ptInfo = (pcKey && ptKey) ? ptComparisonInfo(answers[pcKey], answers[ptKey]) : null;
-sectionHTML += '<tr><td class="lbl">Peso — INTERGROWTH-21st</td><td class="val">'+(wInfo ? wInfo.text : '&nbsp;')+'</td></tr>';
-sectionHTML += '<tr><td class="lbl">PC — INTERGROWTH-21st</td><td class="val">'+(pcInfo ? pcInfo.text : '&nbsp;')+'</td></tr>';
-sectionHTML += '<tr><td class="lbl">Relação PC/PT</td><td class="val">'+(ptInfo ? ptInfo.text : '&nbsp;')+'</td></tr>';
-}
-if(pIdx===2 && sec.title==="Dados de alta do RN"){
-const btcKey = findFieldKeyInPart(2, sec.title, 'Bilirrubina transcutânea (BTC)');
-const btcInfo = btcKey ? btcScreeningInfo(answers[btcKey]) : null;
-sectionHTML += '<tr><td class="lbl">Triagem BTC (AAP 2022)</td><td class="val">'+(btcInfo ? btcInfo.text.replace(/\n/g,' — ') : '&nbsp;')+'</td></tr>';
-}
-sectionHTML += '</tbody></table></div>';
-sheet.innerHTML += sectionHTML;
-});
-});
-const sig = document.createElement('div'); sig.className='sig';
-sig.innerHTML = '<span class="line"></span>Assinatura do médico responsável';
-sheet.appendChild(sig);
+
+function buildPrintView() {
+  const host = document.getElementById('printView');
+  host.innerHTML = '';
+  PRINT_GROUPS.forEach(group => {
+    const sheet = document.createElement('div');
+    sheet.className = 'sheet';
+    sheet.innerHTML += printHeaderHTML();
+    group.parts.forEach(pIdx => {
+      const part = DATA[pIdx];
+      part.sections.forEach((sec, sIdx) => {
+        let sectionHTML = '<div class="p-section">';
+        sectionHTML += '<div class="p-band">' + sec.title + '</div>';
+        if (sec.note) { sectionHTML += '<div class="p-note">' + sec.note.replace(/</g, '&lt;') + '</div>'; }
+        sectionHTML += '<table class="p-table"><tbody>';
+        
+        if (pIdx === 0 && sec.title === "Dados da mãe") {
+          sectionHTML += '<tr class="grid-24">' + '<td></td>'.repeat(24) + '</tr>';
+          sectionHTML += tableRowsHTMLByIndices(sec.fields, pIdx, sIdx, [0, 1, 2, 3]);
+          sectionHTML += '<tr><td colspan="6" class="lbl">IG por DUM</td><td colspan="18" class="val">' + (gaDum ? gaDum.weeks + 's ' + gaDum.days + 'd' : '&nbsp;') + '</td></tr>';
+          sectionHTML += '<tr><td colspan="6" class="lbl">IG por US</td><td colspan="18" class="val">' + (gaUs ? gaUs.weeks + 's ' + gaUs.days + 'd' : '&nbsp;') + '</td></tr>';
+          sectionHTML += tableRowsHTMLByIndices(sec.fields, pIdx, sIdx, [4, 5]);
+        } else {
+          sectionHTML += tableRowsHTML(sec.fields, pIdx, sIdx);
+        }
+        
+        if (pIdx === 1 && sec.title === "Dados de nascimento e exame físico da 1ª hora") {
+          const pcKey = findFieldKeyInPart(1, sec.title, 'PC (cm)');
+          const ptKey = findFieldKeyInPart(1, sec.title, 'PT (cm)');
+          const pesoKey = findFieldKeyInPart(1, sec.title, 'Peso (g)');
+          const ga = getGaForCalc();
+          const pcInfo = (pcKey && ga) ? ig21HcPercentileText(answers[SEX_KEY], ga.weeks, ga.days, answers[pcKey]) : null;
+          const wInfo = (pesoKey && ga) ? ig21WeightPercentileInfo(answers[SEX_KEY], ga.weeks, ga.days, answers[pesoKey]) : null;
+          const ptInfo = (pcKey && ptKey) ? ptComparisonInfo(answers[pcKey], answers[ptKey]) : null;
+          sectionHTML += '<tr><td colspan="6" class="lbl">Peso — INTERGROWTH-21st</td><td colspan="18" class="val">' + (wInfo ? wInfo.text : '&nbsp;') + '</td></tr>';
+          sectionHTML += '<tr><td colspan="6" class="lbl">PC — INTERGROWTH-21st</td><td colspan="18" class="val">' + (pcInfo ? pcInfo.text : '&nbsp;') + '</td></tr>';
+          sectionHTML += '<tr><td colspan="6" class="lbl">Relação PC/PT</td><td colspan="18" class="val">' + (ptInfo ? ptInfo.text : '&nbsp;') + '</td></tr>';
+        }
+        
+        if (pIdx === 2 && sec.title === "Dados de alta do RN") {
+          const btcKey = findFieldKeyInPart(2, sec.title, 'Bilirrubina transcutânea (BTC)');
+          const btcInfo = btcKey ? btcScreeningInfo(answers[btcKey]) : null;
+          sectionHTML += '<tr><td colspan="6" class="lbl">Triagem BTC (AAP 2022)</td><td colspan="18" class="val">' + (btcInfo ? btcInfo.text.replace(/\n/g, ' — ') : '&nbsp;') + '</td></tr>';
+        }
+        
+        sectionHTML += '</tbody></table></div>';
+        sheet.innerHTML += sectionHTML;
+      });
+    });
+    const sig = document.createElement('div');
+    sig.className = 'sig';
+    sig.innerHTML = '<span class="line"></span>Assinatura do médico responsável';
+    sheet.appendChild(sig);
 host.appendChild(sheet);
 });
 }
