@@ -5,14 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ficha de Avaliação Neonatal — Alojamento Conjunto</title>
 <style>
-  .p-col-3 .p-table td.lbl {
-  width: 65% !important;
-  font-size: 0.62rem !important;
-  white-space: normal !important;
-}
+  /* Previne corte de texto nas tabelas de 3 colunas */
+.p-col-3 .p-table td.lbl { width: 75% !important; font-size: 0.60rem !important; white-space: normal !important; word-break: break-word !important; }
+.p-col-3 .p-table td.val { width: 25% !important; text-align: center !important; }
 
-.p-col-3 .p-table td.val {
-  width: 35% !important;
+/* Otimização da folha de impressão para não deixar espaços vazios */
+@media print {
+  @page { size: A4 portrait; margin: 6mm 8mm; }
+  .sheet { padding: 0 !important; margin: 0 !important; width: 100% !important; height: auto !important; min-height: 285mm !important; }
+  .p-section { margin-bottom: 3px !important; break-inside: avoid; }
+  .p-row { margin-bottom: 3px !important; gap: 4px !important; display: flex !important; flex-wrap: nowrap !important; break-inside: avoid; }
+  .p-band { padding: 2px 4px !important; font-size: 0.68rem !important; font-weight: bold; background: #eee !important; color: #000 !important; border: 1px solid #000 !important; }
+  .p-table td { padding: 1.5px 3px !important; font-size: 0.60rem !important; line-height: 1.1 !important; }
 }
 :root{
 --ink:#1B3A4B; --ink-soft:#3F5A68; --paper:#FAFAF7; --paper-line:#DCD6C8;
@@ -1050,7 +1054,7 @@ function buildPrintView() {
       while (i < part.sections.length) {
         const sec = part.sections[i];
 
-        // 1. SOROLOGIAS MATERNAS (3 Colunas + Nota SGB)
+        // 1. SOROLOGIAS MATERNAS (3 COLUNAS COM TÍTULO DE SGB NO 3º TRI + NOTA SGB ABAIXO)
         if (pIdx === 0 && sec.title.includes("Sorologias maternas — 1º trimestre")) {
           let rowHTML = '<div class="p-row">';
           let sgbNoteText = '';
@@ -1060,18 +1064,34 @@ function buildPrintView() {
             if (currentSec) {
               if (currentSec.note) { sgbNoteText = currentSec.note; }
               const titleShort = currentSec.title.includes("—") ? currentSec.title.split("—")[1].trim() : currentSec.title;
-              
+
               rowHTML += '<div class="p-col-3"><div class="p-section">';
               rowHTML += '<div class="p-band">' + titleShort + '</div>';
-              rowHTML += '<table class="p-table"><tbody>' + tableRowsHTML(currentSec.fields, pIdx, i + s) + '</tbody></table></div></div>';
+              rowHTML += '<table class="p-table"><tbody>';
+
+              // Renderiza as linhas dos campos e insere o título do SGB no 3º trimestre
+              currentSec.fields.forEach((f, fIdx) => {
+                const fKey = part.part + '||' + currentSec.title + '||' + f.name;
+                const val = answers[fKey] || '';
+                
+                // Se for o campo de SGB no 3º Trimestre, insere uma linha de título separadora
+                if (s === 2 && f.name.includes("SGB")) {
+                  rowHTML += '<tr><td colspan="2" class="p-band" style="text-align:center; font-size:0.58rem; background:#ddd !important; padding:1px !important;">STREPTOCOCCUS AGALACTIAE (SGB)</td></tr>';
+                }
+
+                rowHTML += '<tr><td class="lbl">' + f.name + '</td><td class="val">' + (val || '&nbsp;') + '</td></tr>';
+              });
+
+              rowHTML += '</tbody></table></div></div>';
             }
           }
           rowHTML += '</div>';
 
+          // Quadro com o texto de diretriz do SGB em largura total
           if (sgbNoteText) {
-            rowHTML += '<div class="p-section" style="margin-top: 4px;">';
+            rowHTML += '<div class="p-section" style="margin-top:2px;">';
             rowHTML += '<div class="p-band">Indicação de profilaxia intraparto para SGB (SBP/FEBRASGO)</div>';
-            rowHTML += '<div class="p-note" style="padding: 4px 6px; font-size: 0.65rem; text-align: justify;">' + sgbNoteText.replace(/</g, '&lt;') + '</div>';
+            rowHTML += '<div class="p-note" style="padding:3px 5px; font-size:0.60rem; text-align:justify; line-height:1.1;">' + sgbNoteText.replace(/</g, '&lt;') + '</div>';
             rowHTML += '</div>';
           }
 
@@ -1080,7 +1100,7 @@ function buildPrintView() {
           continue;
         }
 
-        // 2. HISTÓRIA MÉDICA E HÁBITOS DE VIDA (2 Colunas)
+        // 2. HISTÓRIA MÉDICA E HÁBITOS DE VIDA (2 COLUNAS)
         if (pIdx === 0 && sec.title.includes("História médica pregressa")) {
           let rowHTML = '<div class="p-row">';
           for (let s = 0; s < 2; s++) {
@@ -1098,7 +1118,7 @@ function buildPrintView() {
           continue;
         }
 
-        // 3. EXAME FÍSICO 1ª HORA E ALTA (2 Colunas a partir do Exame Neurológico)
+        // 3. EXAME FÍSICO E ALTA (2 COLUNAS DE FORMA FLUIDA)
         if ((pIdx === 1 || pIdx === 2) && sec.title.includes("Exame neurológico")) {
           while (i < part.sections.length) {
             let rowHTML = '<div class="p-row">';
@@ -1129,7 +1149,7 @@ function buildPrintView() {
           break;
         }
 
-        // 4. DEMAIS SEÇÕES (Largura Total)
+        // 4. SEÇÕES PADRÃO EM LARGURA TOTAL
         let sectionHTML = '<div class="p-section">';
         sectionHTML += '<div class="p-band">' + sec.title + '</div>';
         if (sec.note) { sectionHTML += '<div class="p-note">' + sec.note.replace(/</g, '&lt;') + '</div>'; }
