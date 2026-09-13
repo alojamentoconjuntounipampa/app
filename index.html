@@ -199,6 +199,50 @@ main{padding:14px 10px 70px;}
     color: #000 !important;
   }
 }
+  /* ==================== REGRAS DE IMPRESSÃO ==================== */
+@media print {
+  /* Força o navegador a imprimir cores de fundo e bordas (crucial para as tabelas) */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Define uma margem padrão para a folha A4 */
+  @page {
+    margin: 1cm;
+  }
+
+  /* Evita que as seções e tabelas sejam cortadas pela metade entre duas páginas */
+  .p-section, .p-table, .p-row {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Garante que o layout de colunas se mantenha e não "quebre" empilhando os itens */
+  .p-col-2 {
+    width: 50% !important;
+    float: left !important;
+  }
+  
+  .p-col-3 {
+    width: 33.33% !important;
+    float: left !important;
+  }
+
+  /* Garante que o container de impressão ocupe 100% do espaço */
+  #printView {
+    display: block !important;
+    width: 100% !important;
+    position: relative !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Esconde completamente botões, cabeçalhos do site e outras coisas desnecessárias */
+  #builder, .top-bar, #btnGenerate, #btnBackToEdit, #btnPrint, #printHintText {
+    display: none !important;
+  }
+}
 </style>
 </head>
 <body>
