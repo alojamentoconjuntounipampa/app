@@ -1112,7 +1112,13 @@ function showPrintPreview(){
   document.getElementById('headerSub').textContent = 'Revise o resumo e imprima ou salve em PDF.';
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
-
+const btnGenerate = document.getElementById('btnGenerate');
+const btnBackToEdit = document.getElementById('btnBackToEdit');
+const btnPrint = document.getElementById('btnPrint');
+const builderHost = document.getElementById('builder');
+const printView = document.getElementById('printView');
+const printHintText = document.getElementById('printHintText');
+const headerSub = document.getElementById('headerSub');
 function returnToEdit(){
   document.getElementById('builder').style.display = 'block';
   document.getElementById('printView').style.display = 'none';
@@ -1124,23 +1130,19 @@ function returnToEdit(){
 }
 
 gaCalcEl = document.getElementById('gaCalc');
-if (gaCalcEl) setupGaCalc();
-renderBuilder();
-
-document.getElementById('btnGenerate').addEventListener('click', showPrintPreview);
-document.getElementById('btnBackToEdit').addEventListener('click', returnToEdit);
-document.getElementById('btnPrint').addEventListener('click', () => {
+btnGenerate.addEventListener('click', () => {
   buildPrintView();
-  window.print();
+  builderHost.style.display = 'none';
+  printView.style.display = 'block';
+  btnBackToEdit.style.display = 'inline-block';
+  btnPrint.style.display = 'inline-block';
+  btnGenerate.style.display = 'none';
+  printHintText.style.display = 'block';
+  headerSub.textContent = 'Confira o resumo formatado abaixo antes de imprimir';
+  // A linha 'window.print();' que estava aqui foi REMOVIDA
 });
 // ==================== GERAÇÃO DO LAYOUT DE IMPRESSÃO ====================
-const btnGenerate = document.getElementById('btnGenerate');
-const btnBackToEdit = document.getElementById('btnBackToEdit');
-const btnPrint = document.getElementById('btnPrint');
-const builderHost = document.getElementById('builder');
-const printView = document.getElementById('printView');
-const printHintText = document.getElementById('printHintText');
-const headerSub = document.getElementById('headerSub');
+
 
 btnGenerate.addEventListener('click', () => {
   let html = '';
@@ -1245,7 +1247,9 @@ btnBackToEdit.addEventListener('click', () => {
 });
 
 btnPrint.addEventListener('click', () => {
-  window.print();
+  setTimeout(() => {
+    window.print();
+  }, 100);
 });
 
 // Inicialização das funções base que você já tinha no código
