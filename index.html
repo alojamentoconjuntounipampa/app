@@ -1037,6 +1037,8 @@ function tableRowsHTMLByIndices(fields, pIdx, sIdx, indices) {
   return rows;
 }
 
+/* Bloco antigo incompleto de impressão, mantido desativado. A versão funcional
+   encontra-se ao fim deste script.
 // 4. DADOS DE NASCIMENTO E EXAME FÍSICO DA 1ª HORA (Layout em Colunas/Grid)
 if (pIdx === 1 && sec.title === "Dados de nascimento e exame físico da 1ª hora") {
   sectionHTML += '<tr class="grid-24">' + '<td></td>'.repeat(24) + '</tr>';
@@ -1120,7 +1122,10 @@ if (btnPrint) {
   });
 }
 
-  function buildPrintView() {
+*/
+/* Implementação anterior de impressão — substituída pela rotina abaixo. */
+/*
+  function buildLegacyPrintView() {
     const host = document.getElementById('printView');
     if (!host) return;
     host.innerHTML = '';
@@ -1302,6 +1307,212 @@ if (btnPrint) {
       host.appendChild(sheet);
     });
   }
+*/
+
+function escapeHTML(value){
+  return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+}
+
+function buildPrintView() {
+  const host = document.getElementById('printView');
+  if (!host) return;
+  host.innerHTML = '';
+
+  PRINT_GROUPS.forEach(group => {
+    const sheet = document.createElement('section');
+    sheet.className = 'sheet';
+    sheet.innerHTML = printHeaderHTML();
+
+    const groupTitle = document.createElement('div');
+    groupTitle.className = 'p-band';
+    groupTitle.textContent = group.label;
+    sheet.appendChild(groupTitle);
+
+    group.parts.forEach(pIdx => {
+      const part = DATA[pIdx];
+      part.sections.forEach((sec, sIdx) => {
+        const section = document.createElement('div');
+        section.className = 'p-section';
+        let html = '<div class="p-band">' + escapeHTML(sec.title) + '</div>';
+        if (sec.note) html += '<div class="p-note">' + escapeHTML(sec.note) + '</div>';
+        html += '<table class="p-table"><tbody>' + tableRowsHTML(sec.fields, pIdx, sIdx);
+        if (pIdx === 0 && sec.title === 'Dados da mãe') {
+          html += '<tr><td colspan="6" class="lbl">IG por DUM</td><td colspan="18" class="val">' + (gaDum ? gaDum.weeks + 's ' + gaDum.days + 'd' : '&nbsp;') + '</td></tr>';
+          html += '<tr><td colspan="6" class="lbl">IG por US</td><td colspan="18" class="val">' + (gaUs ? gaUs.weeks + 's ' + gaUs.days + 'd' : '&nbsp;') + '</td></tr>';
+        }
+        html += '</tbody></table>';
+        section.innerHTML = html;
+        sheet.appendChild(section);
+      });
+    });
+
+    const signature = document.createElement('div');
+    signature.className = 'sig';
+    signature.innerHTML = '<span class="line"></span>Assinatura do médico responsável';
+    sheet.appendChild(signature);
+    host.appendChild(sheet);
+  });
+  setPrintDocumentTitle();
+}
+
+function setPrintDocumentTitle(){
+  const motherName = (answers['0_0_0'] || 'RN').trim();
+  const now = new Date();
+  const dateStr = String(now.getDate()).padStart(2, '0') + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + now.getFullYear();
+  document.title = 'RN de ' + motherName + ' — ' + dateStr;
+}
+
+function showPrintPreview(){
+  buildPrintView();
+  document.getElementById('builder').style.display = 'none';
+  document.getElementById('printView').style.display = 'block';
+  document.getElementById('printHintText').style.display = 'block';
+  document.getElementById('btnGenerate').style.display = 'none';
+  document.getElementById('btnPrint').style.display = 'inline-block';
+  document.getElementById('btnBackToEdit').style.display = 'inline-block';
+  document.getElementById('headerSub').textContent = 'Revise o resumo e imprima ou salve em PDF.';
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function returnToEdit(){
+  document.getElementById('builder').style.display = 'block';
+  document.getElementById('printView').style.display = 'none';
+  document.getElementById('printHintText').style.display = 'none';
+  document.getElementById('btnGenerate').style.display = 'inline-block';
+  document.getElementById('btnPrint').style.display = 'none';
+  document.getElementById('btnBackToEdit').style.display = 'none';
+  document.getElementById('headerSub').textContent = 'Preencha os campos selecionando as opções e gere o resumo para impressão';
+}
+
+gaCalcEl = document.getElementById('gaCalc');
+if (gaCalcEl) setupGaCalc();
+renderBuilder();
+
+document.getElementById('btnGenerate').addEventListener('click', showPrintPreview);
+document.getElementById('btnBackToEdit').addEventListener('click', returnToEdit);
+document.getElementById('btnPrint').addEventListener('click', () => {
+  buildPrintView();
+  window.print();
+});
+// ==================== GERAÇÃO DO LAYOUT DE IMPRESSÃO ====================
+const btnGenerate = document.getElementById('btnGenerate');
+const btnBackToEdit = document.getElementById('btnBackToEdit');
+const btnPrint = document.getElementById('btnPrint');
+const builderHost = document.getElementById('builder');
+const printView = document.getElementById('printView');
+const printHintText = document.getElementById('printHintText');
+const headerSub = document.getElementById('headerSub');
+
+btnGenerate.addEventListener('click', () => {
+  let html = '';
+  
+  PRINT_GROUPS.forEach(group => {
+    html += `<div class="sheet">`;
+    
+    // Cabeçalho da Impressão
+    html += `
+      <div class="print-header">
+        <div class="ph-logo">${UNIPAMPA_LOGO_IMG}</div>
+        <div class="ph-text">
+          <h2 class="ph-title">${group.label}</h2>
+          <p class="ph-sub">Hospital Santa Casa de Uruguaiana</p>
+        </div>
+      </div>`;
+      
+    group.parts.forEach(partIdx => {
+      const part = DATA[partIdx];
+      part.sections.forEach((sec, sIdx) => {
+        html += `<div class="p-section">`;
+        html += `<div class="p-band">${sec.title}</div>`;
+        
+        const fields = sec.fields.filter(f => fieldVisible(f));
+        if (fields.length > 0) {
+          // Identifica se é uma seção de sorologia para aplicar as 3 colunas
+          const isSorologia = sec.title.toLowerCase().includes('sorologia');
+          
+          if (isSorologia) {
+            html += `<div class="p-row">`;
+            const chunkSize = Math.ceil(fields.length / 3);
+            for (let i = 0; i < 3; i++) {
+              html += `<div class="p-col-3"><table class="p-table"><tbody>`;
+              const chunk = fields.slice(i * chunkSize, (i + 1) * chunkSize);
+              chunk.forEach(f => {
+                const fIdx = sec.fields.indexOf(f);
+                const val = fieldPrintValue(f, partIdx + '_' + sIdx + '_' + fIdx);
+                html += `<tr><td class="lbl">${f.l}</td><td class="val">${val || '-'}</td></tr>`;
+              });
+              
+              // Preenche linhas vazias se a coluna tiver menos itens, para manter o layout simétrico
+              for(let j = chunk.length; j < chunkSize; j++) {
+                 html += `<tr><td class="lbl">&nbsp;</td><td class="val"></td></tr>`;
+              }
+              html += `</tbody></table></div>`;
+            }
+            html += `</div>`;
+          } else {
+            // Layout padrão em 2 colunas para o restante da ficha
+            html += `<div class="p-row">`;
+            const half = Math.ceil(fields.length / 2);
+            for (let i = 0; i < 2; i++) {
+              html += `<div class="p-col-2"><table class="p-table"><tbody>`;
+              const chunk = fields.slice(i * half, (i + 1) * half);
+              chunk.forEach(f => {
+                const fIdx = sec.fields.indexOf(f);
+                const val = fieldPrintValue(f, partIdx + '_' + sIdx + '_' + fIdx);
+                html += `<tr><td class="lbl" style="width: 50%;">${f.l}</td><td class="val" style="width: 50%;">${val || '-'}</td></tr>`;
+              });
+              
+              // Preenche linhas vazias se a coluna tiver menos itens
+              for(let j = chunk.length; j < half; j++) {
+                 html += `<tr><td class="lbl" style="width: 50%;">&nbsp;</td><td class="val" style="width: 50%;"></td></tr>`;
+              }
+              html += `</tbody></table></div>`;
+            }
+            html += `</div>`;
+          }
+        }
+        
+        if (sec.note) {
+          html += `<div class="p-note">${sec.note}</div>`;
+        }
+        html += `</div>`; // Fim p-section
+      });
+    });
+    
+    html += `<div class="sig"><span class="line"></span>Assinatura e carimbo do médico</div>`;
+    html += `</div>`; // Fim sheet
+  });
+  
+  printView.innerHTML = html;
+  
+  // Oculta a interface de preenchimento e mostra a impressão
+  builderHost.style.display = 'none';
+  printView.style.display = 'block';
+  btnGenerate.style.display = 'none';
+  btnBackToEdit.style.display = 'inline-block';
+  btnPrint.style.display = 'inline-block';
+  printHintText.style.display = 'block';
+  headerSub.textContent = 'Confira o resumo gerado antes de imprimir ou salvar o PDF.';
+});
+
+btnBackToEdit.addEventListener('click', () => {
+  builderHost.style.display = 'block';
+  printView.style.display = 'none';
+  btnBackToEdit.style.display = 'none';
+  btnPrint.style.display = 'none';
+  btnGenerate.style.display = 'inline-block';
+  printHintText.style.display = 'none';
+  headerSub.textContent = 'Preencha os campos selecionando as opções e gere o resumo para impressão';
+});
+
+btnPrint.addEventListener('click', () => {
+  window.print();
+});
+
+// Inicialização das funções base que você já tinha no código
+setupGaCalc();
+renderBuilder();
+
 </script>
 </body>
 </html>
