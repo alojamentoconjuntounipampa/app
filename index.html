@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ficha de Avaliação Neonatal — Alojamento Conjunto</title>
 <style>
-  /* Sorologias: evita corte de texto e alinha valores */
+/* Sorologias: evita corte de texto e alinha valores */
 .p-col-3 .p-table td.lbl { width: 75% !important; font-size: 0.60rem !important; white-space: normal !important; word-break: break-word !important; }
 .p-col-3 .p-table td.val { width: 25% !important; text-align: center !important; }
 
@@ -14,7 +14,6 @@
   @page { size: A4 portrait; margin: 6mm 8mm; }
   .sheet { padding: 0 !important; margin: 0 !important; width: 100% !important; height: auto !important; }
   .p-section { margin-bottom: 3px !important; break-inside: avoid; }
-  .p-row { margin-bottom: 3px !important; gap: 4px !important; display: flex !important; flex-wrap: nowrap !important; break-inside: avoid; }
   .p-band { padding: 2px 4px !important; font-size: 0.68rem !important; font-weight: bold; background: #eee !important; color: #000 !important; border: 1px solid #000 !important; }
   .p-table td { padding: 1.5px 3px !important; font-size: 0.60rem !important; line-height: 1.1 !important; }
 }
@@ -128,34 +127,42 @@ main{padding:14px 10px 70px;}
 .sig{ margin-top:14px; text-align:center; font-size:.68rem; }
 .sig .line{display:block; border-top:1px solid #333; width:200px; margin:20px auto 4px;}
 .print-hint{ text-align:center; font-size:.76rem; color:var(--ink-soft); font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; margin:-8px 0 20px; }
-  /* Container que coloca os blocos lado a lado na tela e na impressão */
+
+/* ==================== ESTRUTURA DE COLUNAS (TELA E IMPRESSÃO) ==================== */
 .p-row {
   display: flex !important;
   flex-direction: row !important;
+  flex-wrap: nowrap !important; /* Força a não quebrar a linha */
   gap: 8px !important;
   width: 100% !important;
   margin-bottom: 8px !important;
+  justify-content: space-between;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
-/* Colunas de 50% para dividir em 2 tabelas lado a lado */
+/* Colunas de 49% para dividir em 2 tabelas lado a lado sem quebrar layout */
 .p-col-2 {
-  flex: 1 !important;
-  width: 50% !important;
-  min-width: 0 !important;
+  width: 49% !important;
+  box-sizing: border-box !important;
 }
 
-/* Colunas de 33.3% para dividir as 3 sorologias lado a lado */
+/* Colunas de 32.5% para dividir as 3 sorologias lado a lado sem quebrar layout */
 .p-col-3 {
-  flex: 1 !important;
-  width: 33.33% !important;
-  min-width: 0 !important;
+  width: 32.5% !important;
+  box-sizing: border-box !important;
 }
+
+/* ==================== REGRAS DE IMPRESSÃO GERAIS ==================== */
 @page{ margin:10mm; }
+
 @media print {
-  /* Força a cor do texto para preto puro em todo o documento impresso */
+  /* Força a cor do texto para preto puro em todo o documento impresso e cores de fundo */
   *, *::before, *::after {
     color: #000 !important;
     text-shadow: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   body {
@@ -163,13 +170,23 @@ main{padding:14px 10px 70px;}
     color: #000 !important;
   }
 
+  /* Define uma margem padrão para a folha A4 */
+  @page {
+    margin: 1cm;
+  }
+
   /* Oculta os elementos da interface na hora de imprimir */
-  header.app-header, .tabs, .intro, footer.hint, #builder, .no-print, .print-hint {
+  header.app-header, .tabs, .intro, footer.hint, #builder, .no-print, .print-hint, .top-bar, #btnGenerate, #btnBackToEdit, #btnPrint, #printHintText {
     display: none !important;
   }
 
+  /* Garante que o container de impressão ocupe 100% do espaço */
   #printView {
     display: block !important;
+    width: 100% !important;
+    position: relative !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
   .sheet {
@@ -190,57 +207,17 @@ main{padding:14px 10px 70px;}
     background-color: #e0e0e0 !important;
     color: #000 !important;
     border: 1px solid #000 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
   }
 
   .p-table td {
     border: 1px solid #000 !important;
     color: #000 !important;
   }
-}
-  /* ==================== REGRAS DE IMPRESSÃO ==================== */
-@media print {
-  /* Força o navegador a imprimir cores de fundo e bordas (crucial para as tabelas) */
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-
-  /* Define uma margem padrão para a folha A4 */
-  @page {
-    margin: 1cm;
-  }
-
+  
   /* Evita que as seções e tabelas sejam cortadas pela metade entre duas páginas */
-  .p-section, .p-table, .p-row {
+  .p-section, .p-table {
     page-break-inside: avoid;
     break-inside: avoid;
-  }
-
-  /* Garante que o layout de colunas se mantenha e não "quebre" empilhando os itens */
-  .p-col-2 {
-    width: 50% !important;
-    float: left !important;
-  }
-  
-  .p-col-3 {
-    width: 33.33% !important;
-    float: left !important;
-  }
-
-  /* Garante que o container de impressão ocupe 100% do espaço */
-  #printView {
-    display: block !important;
-    width: 100% !important;
-    position: relative !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  /* Esconde completamente botões, cabeçalhos do site e outras coisas desnecessárias */
-  #builder, .top-bar, #btnGenerate, #btnBackToEdit, #btnPrint, #printHintText {
-    display: none !important;
   }
 }
 </style>
