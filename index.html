@@ -9,14 +9,6 @@
 .p-col-3 .p-table td.lbl { width: 75% !important; font-size: 0.60rem !important; white-space: normal !important; word-break: break-word !important; }
 .p-col-3 .p-table td.val { width: 25% !important; text-align: center !important; }
 
-/* Otimização global de impressão */
-@media print {
-  @page { size: A4 portrait; margin: 6mm 8mm; }
-  .sheet { padding: 0 !important; margin: 0 !important; width: 100% !important; height: auto !important; }
-  .p-section { margin-bottom: 3px !important; break-inside: avoid; }
-  .p-band { padding: 2px 4px !important; font-size: 0.68rem !important; font-weight: bold; background: #eee !important; color: #000 !important; border: 1px solid #000 !important; }
-  .p-table td { padding: 1.5px 3px !important; font-size: 0.60rem !important; line-height: 1.1 !important; }
-}
 :root{
 --ink:#1B3A4B; --ink-soft:#3F5A68; --paper:#FAFAF7; --paper-line:#DCD6C8;
 --accent:#0F6E63; --accent-soft:#E4EFE9; --warn:#9C5B2E; --warn-bg:#FBF0E6;
@@ -128,36 +120,28 @@ main{padding:14px 10px 70px;}
 .sig .line{display:block; border-top:1px solid #333; width:200px; margin:20px auto 4px;}
 .print-hint{ text-align:center; font-size:.76rem; color:var(--ink-soft); font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; margin:-8px 0 20px; }
 
-/* ==================== ESTRUTURA DE COLUNAS (TELA E IMPRESSÃO) ==================== */
+/* --- ESTRUTURA DE COLUNAS LADO A LADO --- */
 .p-row {
   display: flex !important;
   flex-direction: row !important;
-  flex-wrap: nowrap !important; /* Força a não quebrar a linha */
-  gap: 8px !important;
+  flex-wrap: nowrap !important;
+  gap: 6px !important;
   width: 100% !important;
-  margin-bottom: 8px !important;
-  justify-content: space-between;
+  margin-bottom: 6px !important;
   page-break-inside: avoid;
   break-inside: avoid;
 }
 
-/* Colunas de 49% para dividir em 2 tabelas lado a lado sem quebrar layout */
-.p-col-2 {
-  width: 49% !important;
+.p-col-2, .p-col-3 {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
   box-sizing: border-box !important;
 }
 
-/* Colunas de 32.5% para dividir as 3 sorologias lado a lado sem quebrar layout */
-.p-col-3 {
-  width: 32.5% !important;
-  box-sizing: border-box !important;
-}
-
-/* ==================== REGRAS DE IMPRESSÃO GERAIS ==================== */
-@page{ margin:10mm; }
-
+/* --- CONFIGURAÇÕES DE IMPRESSÃO --- */
 @media print {
-  /* Força a cor do texto para preto puro em todo o documento impresso e cores de fundo */
+  @page { size: A4 portrait; margin: 8mm; }
+
   *, *::before, *::after {
     color: #000 !important;
     text-shadow: none !important;
@@ -170,17 +154,10 @@ main{padding:14px 10px 70px;}
     color: #000 !important;
   }
 
-  /* Define uma margem padrão para a folha A4 */
-  @page {
-    margin: 1cm;
-  }
-
-  /* Oculta os elementos da interface na hora de imprimir */
   header.app-header, .tabs, .intro, footer.hint, #builder, .no-print, .print-hint, .top-bar, #btnGenerate, #btnBackToEdit, #btnPrint, #printHintText {
     display: none !important;
   }
 
-  /* Garante que o container de impressão ocupe 100% do espaço */
   #printView {
     display: block !important;
     width: 100% !important;
@@ -195,6 +172,7 @@ main{padding:14px 10px 70px;}
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
+    height: auto !important;
     page-break-after: always;
   }
 
@@ -202,26 +180,30 @@ main{padding:14px 10px 70px;}
     page-break-after: auto;
   }
 
-  /* Mantém o contraste das faixas e linhas de tabela */
+  .p-section {
+    margin-bottom: 3px !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
   .p-band {
-    background-color: #e0e0e0 !important;
+    padding: 2px 4px !important;
+    font-size: 0.68rem !important;
+    font-weight: bold;
+    background: #eee !important;
     color: #000 !important;
     border: 1px solid #000 !important;
   }
 
   .p-table td {
+    padding: 1.5px 3px !important;
+    font-size: 0.60rem !important;
+    line-height: 1.1 !important;
     border: 1px solid #000 !important;
     color: #000 !important;
   }
-  
-  /* Evita que as seções e tabelas sejam cortadas pela metade entre duas páginas */
-  .p-section, .p-table {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
 }
-</style>
-</head>
+</style></head>
 <body>
 <header class="app-header">
 <div>
