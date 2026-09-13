@@ -89,11 +89,12 @@ main{padding:14px 10px 70px;}
 .p-section{margin-bottom:0; break-inside:avoid;}
 .p-band{ background:#E619B0; color:#fff; font-weight:bold; text-align:center; font-size:.72rem; padding:3px 6px; border:1px solid #000; text-transform:none; }
 .p-note{ font-size:.58rem; font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; color:var(--ink-soft); padding:3px 6px; border:1px solid #000; border-top:none; white-space:pre-line; }
-.p-table { 
-  width: 100%; 
-  border-collapse: collapse; 
-  margin-bottom: 0; 
-  table-layout: fixed; /* Força a divisão proporcional das 24 colunas */
+.p-table {
+  width: 100% !important;
+  max-width: 100% !important;
+  border-collapse: collapse !important;
+  margin-bottom: 0 !important;
+  table-layout: fixed !important;
 }
 .p-table td { 
   border: 1px solid #000; 
@@ -115,30 +116,35 @@ main{padding:14px 10px 70px;}
   padding: 0 !important; 
   height: 0 !important; 
   width: 4.166% !important; 
+  font-size: 0 !important;
+  line-height: 0 !important;
 }
 .sig{ margin-top:14px; text-align:center; font-size:.68rem; }
 .sig .line{display:block; border-top:1px solid #333; width:200px; margin:20px auto 4px;}
 .print-hint{ text-align:center; font-size:.76rem; color:var(--ink-soft); font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; margin:-8px 0 20px; }
 
-/* --- ESTRUTURA DE COLUNAS LADO A LADO --- */
+/* ESTRUTURA DE COLUNAS LADO A LADO */
 .p-row {
   display: flex !important;
   flex-direction: row !important;
   flex-wrap: nowrap !important;
-  gap: 6px !important;
+  gap: 4px !important;
   width: 100% !important;
-  margin-bottom: 6px !important;
+  box-sizing: border-box !important;
+  margin-bottom: 4px !important;
   page-break-inside: avoid;
   break-inside: avoid;
 }
 
 .p-col-2, .p-col-3 {
   flex: 1 1 0% !important;
+  width: 0 !important;
   min-width: 0 !important;
+  max-width: 100% !important;
   box-sizing: border-box !important;
 }
 
-/* --- CONFIGURAÇÕES DE IMPRESSÃO --- */
+/* CONFIGURAÇÕES DE IMPRESSÃO */
 @media print {
   @page { size: A4 portrait; margin: 8mm; }
 
@@ -203,7 +209,8 @@ main{padding:14px 10px 70px;}
     color: #000 !important;
   }
 }
-</style></head>
+</style>
+</head>
 <body>
 <header class="app-header">
 <div>
@@ -1040,277 +1047,6 @@ function tableRowsHTMLByIndices(fields, pIdx, sIdx, indices) {
   return rows;
 }
 
-/* Bloco antigo incompleto de impressão, mantido desativado. A versão funcional
-   encontra-se ao fim deste script.
-// 4. DADOS DE NASCIMENTO E EXAME FÍSICO DA 1ª HORA (Layout em Colunas/Grid)
-if (pIdx === 1 && sec.title === "Dados de nascimento e exame físico da 1ª hora") {
-  sectionHTML += '<tr class="grid-24">' + '<td></td>'.repeat(24) + '</tr>';
-
-  // Linha 1: Nome do RN (Largo)
-  sectionHTML += tableRowsHTMLByIndices(sec.fields, pIdx, i, [0]); // Nome do RN
-
-  // Linha 2: IG, IG Capurro, Data e Horário (4 Colunas na mesma linha)
-  sectionHTML += '<tr>';
-  sectionHTML += '<td colspan="3" class="lbl">IG</td><td colspan="3" class="val">' + (answers[part.part + '||' + sec.title + '||IG'] || '&nbsp;') + '</td>';
-  sectionHTML += '<td colspan="3" class="lbl">Capurro</td><td colspan="3" class="val">' + (answers[part.part + '||' + sec.title + '||IG presumida (Capurro)'] || '&nbsp;') + '</td>';
-  sectionHTML += '<td colspan="3" class="lbl">Data</td><td colspan="3" class="val">' + (answers[part.part + '||' + sec.title + '||Data'] || '&nbsp;') + '</td>';
-  sectionHTML += '<td colspan="3" class="lbl">Horário</td><td colspan="3" class="val">' + (answers[part.part + '||' + sec.title + '||Horário'] || '&nbsp;') + '</td>';
-  sectionHTML += '</tr>';
-
-  // Linha 3: Sexo, Peso, Comprimento, PC, PT (5 Medidas lado a lado)
-  sectionHTML += '<tr>';
-  sectionHTML += '<td colspan="2" class="lbl">Sexo</td><td colspan="2" class="val">' + (answers[part.part + '||' + sec.title + '||Sexo'] || '&nbsp;') + '</td>';
-  sectionHTML += '<td colspan="2" class="lbl">Peso (g)</td><td colspan="3" class="val">' + (answers[part.part + '||' + sec.title + '||Peso (g)'] || '&nbsp;') + '</td>';
-  sectionHTML += '<td colspan="3" class="lbl">Comp. (cm)</td><td colspan="3" class="val">' + (answers[part.part + '||' + sec.title + '||Comprimento (cm)'] || '&nbsp;') + '</td>';
-  sectionHTML += '<td colspan="2" class="lbl">PC (cm)</td><td colspan="3" class="val">' + (answers[part.part + '||' + sec.title + '||PC (cm)'] || '&nbsp;') + '</td>';
-  sectionHTML += '<td colspan="2" class="lbl">PT (cm)</td><td colspan="2" class="val">' + (answers[part.part + '||' + sec.title + '||PT (cm)'] || '&nbsp;') + '</td>';
-  sectionHTML += '</tr>';
-
-  // Linha 4: Apgar 1º, 5º e 10º min (Emparelhados)
-  sectionHTML += '<tr>';
-  sectionHTML += '<td colspan="4" class="lbl">Apgar 1º min</td><td colspan="4" class="val">' + (answers[part.part + '||' + sec.title + '||Apgar 1º min'] || '&nbsp;') + '</td>';
-  sectionHTML += '<td colspan="4" class="lbl">Apgar 5º min</td><td colspan="4" class="val">' + (answers[part.part + '||' + sec.title + '||Apgar 5º min'] || '&nbsp;') + '</td>';
-  sectionHTML += '<td colspan="4" class="lbl">Apgar 10º min</td><td colspan="4" class="val">' + (answers[part.part + '||' + sec.title + '||Apgar 10º min'] || '&nbsp;') + '</td>';
-  sectionHTML += '</tr>';
-
-  // Linha 5: Cuidados (Pele a pele, Aspiração, Reanimação)
-  sectionHTML += '<tr>';
-  sectionHTML += '<td colspan="3" class="lbl">Pele a pele</td><td colspan="5" class="val">' + (answers[part.part + '||' + sec.title + '||Pele a pele'] || '&nbsp;') + '</td>';
-  sectionHTML += '<td colspan="3" class="lbl">Aspiração</td><td colspan="5" class="val">' + (answers[part.part + '||' + sec.title + '||Aspiração'] || '&nbsp;') + '</td>';
-  sectionHTML += '<td colspan="3" class="lbl">Reanimação</td><td colspan="5" class="val">' + (answers[part.part + '||' + sec.title + '||Reanimação (descrever)'] || '&nbsp;') + '</td>';
-  sectionHTML += '</tr>';
-
-  // Linha 6: Parto e Detalhes
-  sectionHTML += tableRowsHTMLByIndices(sec.fields, pIdx, i, [15, 16, 17, 18, 19, 20]); // Tipo de parto, motivo, fórceps, intercorrências, apresentação, líquido, circulares
-
-  // Linha 7: Cálculos Automáticos de Percentis (INTERGROWTH-21st)
-  const pcKey = findFieldKeyInPart(1, sec.title, 'PC (cm)');
-  const ptKey = findFieldKeyInPart(1, sec.title, 'PT (cm)');
-  const pesoKey = findFieldKeyInPart(1, sec.title, 'Peso (g)');
-  const ga = getGaForCalc();
-  const pcInfo = (pcKey && ga) ? ig21HcPercentileText(answers[SEX_KEY], ga.weeks, ga.days, answers[pcKey]) : null;
-  const wInfo = (pesoKey && ga) ? ig21WeightPercentileInfo(answers[SEX_KEY], ga.weeks, ga.days, answers[pesoKey]) : null;
-  const ptInfo = (pcKey && ptKey) ? ptComparisonInfo(answers[pcKey], answers[ptKey]) : null;
-
-  sectionHTML += '<tr><td colspan="6" class="lbl">Peso — INTERGROWTH-21st</td><td colspan="18" class="val">' + (wInfo ? wInfo.text : '&nbsp;') + '</td></tr>';
-  sectionHTML += '<tr><td colspan="6" class="lbl">PC — INTERGROWTH-21st</td><td colspan="18" class="val">' + (pcInfo ? pcInfo.text : '&nbsp;') + '</td></tr>';
-  sectionHTML += '<tr><td colspan="6" class="lbl">Relação PC/PT</td><td colspan="18" class="val">' + (ptInfo ? ptInfo.text : '&nbsp;') + '</td></tr>';
-}
-function setPrintDocumentTitle(){
-const motherName = (answers['0_0_0'] || 'RN').trim();
-let dateStr;
-const altaDateKey = findFieldKey("Dados de alta do RN","Data de alta");
-const altaDate = altaDateKey ? answers[altaDateKey] : '';
-if(altaDate){ const [y,m,d] = altaDate.split('-'); dateStr = d+'-'+m+'-'+y; }
-else { const now = new Date(); dateStr = String(now.getDate()).padStart(2,'0')+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+now.getFullYear(); }
-  document.title = 'RN de ' + motherName + ' e ' + dateStr;
-  }
-} // <- Esta chave fecha a função buildPrintView() no lugar correto!
-
-// 1. Inicializa a interface principal
-renderBuilder();
-
-// 2. Coloca a calculadora no elemento #gaCalc correto
-const gaCalcEl = document.getElementById('gaCalc');
-if (gaCalcEl) {
-  setupGaCalc();
-}
-
-// 3. Associa o evento de clique ao botão de impressão
-const btnPrint = document.getElementById('btnPrint');
-if (btnPrint) {
-  btnPrint.addEventListener('click', () => {
-    buildPrintView();
-    window.print();
-  });
-}
-
-*/
-/* Implementação anterior de impressão — substituída pela rotina abaixo. */
-/*
-  function buildLegacyPrintView() {
-    const host = document.getElementById('printView');
-    if (!host) return;
-    host.innerHTML = '';
-
-    PRINT_GROUPS.forEach(group => {
-      const sheet = document.createElement('div');
-      sheet.className = 'sheet';
-      sheet.innerHTML += printHeaderHTML();
-
-      group.parts.forEach(pIdx => {
-        const part = DATA[pIdx];
-        let i = 0;
-
-        while (i < part.sections.length) {
-          const sec = part.sections[i];
-
-          // 1. SOROLOGIAS MATERNAS
-          if (pIdx === 0 && sec.title.includes("Sorologias maternas — 1º trimestre")) {
-            let rowHTML = '<div class="p-row">';
-            let sgbNoteText = '';
-
-            for (let s = 0; s < 3; s++) {
-              const currentSec = part.sections[i + s];
-              if (currentSec) {
-                if (currentSec.note) { sgbNoteText = currentSec.note; }
-                const titleShort = currentSec.title.includes("—") ? currentSec.title.split("—")[1].trim() : currentSec.title;
-
-                rowHTML += '<div class="p-col-3"><div class="p-section">';
-                rowHTML += '<div class="p-band">' + titleShort + '</div>';
-                rowHTML += '<table class="p-table"><tbody>';
-
-                currentSec.fields.forEach((f) => {
-                  const fKey = part.part + '||' + currentSec.title + '||' + f.name;
-                  const val = answers[fKey] || '';
-
-                  if (s === 2 && f.name.includes("SGB")) {
-                    rowHTML += '<tr><td colspan="2" class="p-band" style="text-align:center; font-size:0.60rem; background:#e0e0e0 !important; color:#000 !important; font-weight:bold; padding:2px !important; border-top:1px solid #000; border-bottom:1px solid #000;">Estreptococcus Grupo B</td></tr>';
-                  }
-
-                  rowHTML += '<tr><td class="lbl">' + f.name + '</td><td class="val">' + (val || '&nbsp;') + '</td></tr>';
-                });
-
-                rowHTML += '</tbody></table></div></div>';
-              }
-            }
-            rowHTML += '</div>';
-
-            if (sgbNoteText) {
-              rowHTML += '<div class="p-section" style="margin-top:2px;">';
-              rowHTML += '<div class="p-band">Indicação de profilaxia intraparto para SGB (SBP/FEBRASGO)</div>';
-              rowHTML += '<div class="p-note" style="padding:3px 5px; font-size:0.60rem; text-align:justify; line-height:1.1;">' + sgbNoteText.replace(/</g, '&lt;') + '</div>';
-              rowHTML += '</div>';
-            }
-
-            sheet.innerHTML += rowHTML;
-            i += 3;
-            continue;
-          }
-
-          // 2. HISTÓRIA MÉDICA E HÁBITOS DE VIDA
-          if (pIdx === 0 && sec.title.includes("História médica pregressa")) {
-            let rowHTML = '<div class="p-row">';
-            for (let s = 0; s < 2; s++) {
-              const currentSec = part.sections[i + s];
-              if (currentSec) {
-                rowHTML += '<div class="p-col-2"><div class="p-section">';
-                rowHTML += '<div class="p-band">' + currentSec.title + '</div>';
-                if (currentSec.note) { rowHTML += '<div class="p-note">' + currentSec.note.replace(/</g, '&lt;') + '</div>'; }
-                rowHTML += '<table class="p-table"><tbody>' + tableRowsHTML(currentSec.fields, pIdx, i + s) + '</tbody></table></div></div>';
-              }
-            }
-            rowHTML += '</div>';
-            sheet.innerHTML += rowHTML;
-            i += 2;
-            continue;
-          }
-
-          // 3. EXAME FÍSICO E ALTA
-          if ((pIdx === 1 || pIdx === 2) && sec.title.includes("Exame neurológico")) {
-            while (i < part.sections.length) {
-              let rowHTML = '<div class="p-row">';
-              for (let s = 0; s < 2; s++) {
-                const currentSec = part.sections[i + s];
-                if (currentSec) {
-                  rowHTML += '<div class="p-col-2"><div class="p-section">';
-                  rowHTML += '<div class="p-band">' + currentSec.title + '</div>';
-                  if (currentSec.note) { rowHTML += '<div class="p-note">' + currentSec.note.replace(/</g, '&lt;') + '</div>'; }
-                  rowHTML += '<table class="p-table"><tbody>';
-
-                  if (pIdx === 2 && currentSec.title === "Dados de alta do RN") {
-                    const btcKey = findFieldKeyInPart(2, currentSec.title, 'Bilirrubina transcutânea (BTC)');
-                    const btcInfo = btcKey ? btcScreeningInfo(answers[btcKey]) : null;
-                    rowHTML += tableRowsHTML(currentSec.fields, pIdx, i + s);
-                    rowHTML += '<tr><td colspan="6" class="lbl">Triagem BTC (AAP 2022)</td><td colspan="18" class="val">' + (btcInfo ? btcInfo.text.replace(/\n/g, ' — ') : '&nbsp;') + '</td></tr>';
-                  } else {
-                    rowHTML += tableRowsHTML(currentSec.fields, pIdx, i + s);
-                  }
-
-                  rowHTML += '</tbody></table></div></div>';
-                }
-              }
-              rowHTML += '</div>';
-              sheet.innerHTML += rowHTML;
-              i += 2;
-            }
-            break;
-          }
-
-          // 4. DEMAIS SEÇÕES
-          let sectionHTML = '<div class="p-section">';
-          sectionHTML += '<div class="p-band">' + sec.title + '</div>';
-          if (sec.note) { sectionHTML += '<div class="p-note">' + sec.note.replace(/</g, '&lt;') + '</div>'; }
-          sectionHTML += '<table class="p-table"><tbody>';
-
-          if (pIdx === 0 && sec.title === "Dados da mãe") {
-            sectionHTML += '<tr class="grid-24">' + '<td></td>'.repeat(24) + '</tr>';
-            sectionHTML += tableRowsHTMLByIndices(sec.fields, pIdx, i, [0, 1, 2, 3]);
-            sectionHTML += '<tr><td colspan="6" class="lbl">IG por DUM</td><td colspan="18" class="val">' + (gaDum ? gaDum.weeks + 's ' + gaDum.days + 'd' : '&nbsp;') + '</td></tr>';
-            sectionHTML += '<tr><td colspan="6" class="lbl">IG por US</td><td colspan="18" class="val">' + (gaUs ? gaUs.weeks + 's ' + gaUs.days + 'd' : '&nbsp;') + '</td></tr>';
-            sectionHTML += tableRowsHTMLByIndices(sec.fields, pIdx, i, [4, 5]);
-          } else if (pIdx === 1 && sec.title === "Dados de nascimento e exame físico da 1ª hora") {
-            sectionHTML += '<tr class="grid-24">' + '<td></td>'.repeat(24) + '</tr>';
-            sectionHTML += tableRowsHTMLByIndices(sec.fields, pIdx, i, [0]);
-
-            sectionHTML += '<tr>';
-            sectionHTML += '<td colspan="3" class="lbl">IG</td><td colspan="3" class="val">' + (answers[part.part + '||' + sec.title + '||IG'] || '&nbsp;') + '</td>';
-            sectionHTML += '<td colspan="3" class="lbl">Capurro</td><td colspan="3" class="val">' + (answers[part.part + '||' + sec.title + '||IG presumida (Capurro)'] || '&nbsp;') + '</td>';
-            sectionHTML += '<td colspan="3" class="lbl">Data</td><td colspan="3" class="val">' + (answers[part.part + '||' + sec.title + '||Data'] || '&nbsp;') + '</td>';
-            sectionHTML += '<td colspan="3" class="lbl">Horário</td><td colspan="3" class="val">' + (answers[part.part + '||' + sec.title + '||Horário'] || '&nbsp;') + '</td>';
-            sectionHTML += '</tr>';
-
-            sectionHTML += '<tr>';
-            sectionHTML += '<td colspan="2" class="lbl">Sexo</td><td colspan="2" class="val">' + (answers[part.part + '||' + sec.title + '||Sexo'] || '&nbsp;') + '</td>';
-            sectionHTML += '<td colspan="2" class="lbl">Peso (g)</td><td colspan="3" class="val">' + (answers[part.part + '||' + sec.title + '||Peso (g)'] || '&nbsp;') + '</td>';
-            sectionHTML += '<td colspan="3" class="lbl">Comp. (cm)</td><td colspan="3" class="val">' + (answers[part.part + '||' + sec.title + '||Comprimento (cm)'] || '&nbsp;') + '</td>';
-            sectionHTML += '<td colspan="2" class="lbl">PC (cm)</td><td colspan="3" class="val">' + (answers[part.part + '||' + sec.title + '||PC (cm)'] || '&nbsp;') + '</td>';
-            sectionHTML += '<td colspan="2" class="lbl">PT (cm)</td><td colspan="2" class="val">' + (answers[part.part + '||' + sec.title + '||PT (cm)'] || '&nbsp;') + '</td>';
-            sectionHTML += '</tr>';
-
-            sectionHTML += '<tr>';
-            sectionHTML += '<td colspan="4" class="lbl">Apgar 1º min</td><td colspan="4" class="val">' + (answers[part.part + '||' + sec.title + '||Apgar 1º min'] || '&nbsp;') + '</td>';
-            sectionHTML += '<td colspan="4" class="lbl">Apgar 5º min</td><td colspan="4" class="val">' + (answers[part.part + '||' + sec.title + '||Apgar 5º min'] || '&nbsp;') + '</td>';
-            sectionHTML += '<td colspan="4" class="lbl">Apgar 10º min</td><td colspan="4" class="val">' + (answers[part.part + '||' + sec.title + '||Apgar 10º min'] || '&nbsp;') + '</td>';
-            sectionHTML += '</tr>';
-
-            sectionHTML += '<tr>';
-            sectionHTML += '<td colspan="3" class="lbl">Pele a pele</td><td colspan="5" class="val">' + (answers[part.part + '||' + sec.title + '||Pele a pele'] || '&nbsp;') + '</td>';
-            sectionHTML += '<td colspan="3" class="lbl">Aspiração</td><td colspan="5" class="val">' + (answers[part.part + '||' + sec.title + '||Aspiração'] || '&nbsp;') + '</td>';
-            sectionHTML += '<td colspan="3" class="lbl">Reanimação</td><td colspan="5" class="val">' + (answers[part.part + '||' + sec.title + '||Reanimação (descrever)'] || '&nbsp;') + '</td>';
-            sectionHTML += '</tr>';
-
-            sectionHTML += tableRowsHTMLByIndices(sec.fields, pIdx, i, [15, 16, 17, 18, 19, 20]);
-
-            const pcKey = findFieldKeyInPart(1, sec.title, 'PC (cm)');
-            const ptKey = findFieldKeyInPart(1, sec.title, 'PT (cm)');
-            const pesoKey = findFieldKeyInPart(1, sec.title, 'Peso (g)');
-            const ga = getGaForCalc();
-            const pcInfo = (pcKey && ga) ? ig21HcPercentileText(answers[SEX_KEY], ga.weeks, ga.days, answers[pcKey]) : null;
-            const wInfo = (pesoKey && ga) ? ig21WeightPercentileInfo(answers[SEX_KEY], ga.weeks, ga.days, answers[pesoKey]) : null;
-            const ptInfo = (pcKey && ptKey) ? ptComparisonInfo(answers[pcKey], answers[ptKey]) : null;
-
-            sectionHTML += '<tr><td colspan="6" class="lbl">Peso — INTERGROWTH-21st</td><td colspan="18" class="val">' + (wInfo ? wInfo.text : '&nbsp;') + '</td></tr>';
-            sectionHTML += '<tr><td colspan="6" class="lbl">PC — INTERGROWTH-21st</td><td colspan="18" class="val">' + (pcInfo ? pcInfo.text : '&nbsp;') + '</td></tr>';
-            sectionHTML += '<tr><td colspan="6" class="lbl">Relação PC/PT</td><td colspan="18" class="val">' + (ptInfo ? ptInfo.text : '&nbsp;') + '</td></tr>';
-          } else {
-            sectionHTML += tableRowsHTML(sec.fields, pIdx, i);
-          }
-
-          sectionHTML += '</tbody></table></div>';
-          sheet.innerHTML += sectionHTML;
-          i++;
-        }
-      });
-
-      const sig = document.createElement('div');
-      sig.className = 'sig';
-      sig.innerHTML = '<span class="line"></span>Assinatura do médico responsável';
-      sheet.appendChild(sig);
-      host.appendChild(sheet);
-    });
-  }
-*/
 
 function escapeHTML(value){
   return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
