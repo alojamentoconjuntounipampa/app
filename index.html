@@ -191,8 +191,7 @@ main{padding:14px 10px 70px;}
     break-inside: avoid;
     page-break-inside: avoid;
   }
-
-  .p-band {
+.p-band {
     padding: 2px 4px !important;
     font-size: 0.68rem !important;
     font-weight: bold;
@@ -207,6 +206,43 @@ main{padding:14px 10px 70px;}
     line-height: 1.1 !important;
     border: 1px solid #000 !important;
     color: #000 !important;
+  }
+
+  /* Oculta completamente a linha guia de 24 colunas para não desenhar células vazias */
+  .grid-24, .grid-24 tr {
+    display: none !important;
+    height: 0 !important;
+    line-height: 0 !important;
+  }
+
+  .grid-24 td {
+    display: none !important;
+    border: none !important;
+    padding: 0 !important;
+    height: 0 !important;
+    width: 0 !important;
+    font-size: 0 !important;
+  }
+
+  /* Garante que o container de colunas não quebre para a linha de baixo */
+  .p-row {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 4px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin-bottom: 3px !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .p-col-2, .p-col-3 {
+    flex: 1 1 0% !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
   }
 }
 </style>
