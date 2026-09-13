@@ -123,126 +123,229 @@ main{padding:14px 10px 70px;}
 .sig .line{display:block; border-top:1px solid #333; width:200px; margin:20px auto 4px;}
 .print-hint{ text-align:center; font-size:.76rem; color:var(--ink-soft); font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; margin:-8px 0 20px; }
 
-/* ESTRUTURA DE COLUNAS LADO A LADO */
-.p-row {
-  display: flex !important;
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
-  gap: 4px !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-  margin-bottom: 4px !important;
-  page-break-inside: avoid;
-  break-inside: avoid;
+/* LAYOUT DO RESUMO — usado somente no resumo/impresso */
+.p-row{
+  display:grid !important;
+  width:100% !important;
+  gap:0 !important;
+  margin:0 0 3px !important;
+  box-sizing:border-box !important;
+  break-inside:avoid !important;
+  page-break-inside:avoid !important;
 }
+.p-row.cols-2{ grid-template-columns:1fr 1fr !important; }
+.p-row.cols-3{ grid-template-columns:repeat(3,1fr) !important; }
+.p-col{ min-width:0 !important; width:100% !important; box-sizing:border-box !important; }
 
-.p-col-2, .p-col-3 {
-  flex: 1 1 0% !important;
-  width: 0 !important;
-  min-width: 0 !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-}
-
-/* CONFIGURAÇÕES DE IMPRESSÃO */
+/* CONFIGURAÇÕES EXCLUSIVAS DE IMPRESSÃO */
 @media print {
-  @page { size: A4 portrait; margin: 8mm; }
+  @page { size:A4 portrait; margin:8mm; }
 
-  *, *::before, *::after {
-    color: #000 !important;
-    text-shadow: none !important;
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+  html, body{
+    margin:0 !important;
+    padding:0 !important;
+    background:#fff !important;
+    color:#000 !important;
   }
 
-  body {
-    background: #fff !important;
-    color: #000 !important;
+  *, *::before, *::after{
+    color:#000 !important;
+    text-shadow:none !important;
+    box-shadow:none !important;
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
   }
 
-  header.app-header, .tabs, .intro, footer.hint, #builder, .no-print, .print-hint, .top-bar, #btnGenerate, #btnBackToEdit, #btnPrint, #printHintText {
-    display: none !important;
+  header.app-header, .tabs, .intro, footer.hint, #builder, .no-print,
+  .print-hint, .top-bar, #btnGenerate, #btnBackToEdit, #btnPrint,
+  #printHintText{
+    display:none !important;
   }
 
-  #printView {
-    display: block !important;
-    width: 100% !important;
-    position: relative !important;
-    margin: 0 !important;
-    padding: 0 !important;
+  #printView{
+    display:block !important;
+    width:100% !important;
+    margin:0 !important;
+    padding:0 !important;
+    position:relative !important;
   }
 
-  .sheet {
-    box-shadow: none !important;
-    border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
-    height: auto !important;
-    page-break-after: always;
+  .sheet{
+    background:#fff !important;
+    width:100% !important;
+    max-width:none !important;
+    padding:0 !important;
+    margin:0 !important;
+    border:none !important;
+    box-shadow:none !important;
+    height:auto !important;
+    page-break-after:always;
+    break-after:page;
+    font-family:Arial,Helvetica,sans-serif !important;
+    font-size:8px !important;
   }
 
-  .sheet:last-child {
-    page-break-after: auto;
+  .sheet:last-child{
+    page-break-after:auto;
+    break-after:auto;
   }
 
-  .p-section {
-    margin-bottom: 3px !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-.p-band {
-    padding: 2px 4px !important;
-    font-size: 0.68rem !important;
-    font-weight: bold;
-    background: #eee !important;
-    color: #000 !important;
-    border: 1px solid #000 !important;
+  .print-header{
+    display:flex !important;
+    align-items:center !important;
+    width:100% !important;
+    padding:0 0 2mm !important;
+    margin:0 0 3mm !important;
+    border-bottom:1px solid #000 !important;
   }
 
-  .p-table td {
-    padding: 1.5px 3px !important;
-    font-size: 0.60rem !important;
-    line-height: 1.1 !important;
-    border: 1px solid #000 !important;
-    color: #000 !important;
+  .print-header .ph-logo{
+    flex:0 0 16mm !important;
+    width:16mm !important;
   }
 
-  /* Oculta completamente a linha guia de 24 colunas para não desenhar células vazias */
-  .grid-24, .grid-24 tr {
-    display: none !important;
-    height: 0 !important;
-    line-height: 0 !important;
+  .print-header .ph-logo img{
+    width:13mm !important;
+    height:auto !important;
+    display:block !important;
   }
 
-  .grid-24 td {
-    display: none !important;
-    border: none !important;
-    padding: 0 !important;
-    height: 0 !important;
-    width: 0 !important;
-    font-size: 0 !important;
+  .print-header .ph-text{
+    flex:1 !important;
+    text-align:center !important;
   }
 
-  /* Garante que o container de colunas não quebre para a linha de baixo */
-  .p-row {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    gap: 4px !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
-    margin-bottom: 3px !important;
-    page-break-inside: avoid;
-    break-inside: avoid;
+  .print-header .ph-text .ph-title,
+  .print-header .ph-text .ph-sub,
+  .print-header .ph-text .ph-hosp{
+    color:#000 !important;
+    margin:0 !important;
   }
 
-  .p-col-2, .p-col-3 {
-    flex: 1 1 0% !important;
-    width: 0 !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    box-sizing: border-box !important;
+  .print-header .ph-text .ph-title{font-size:11px !important;font-weight:700 !important;}
+  .print-header .ph-text .ph-sub{font-size:9px !important;margin-top:1px !important;}
+  .print-header .ph-text .ph-hosp{font-size:7px !important;margin-top:1px !important;}
+
+  .p-band{
+    background:#e6e6e6 !important;
+    color:#000 !important;
+    border:1px solid #000 !important;
+    padding:1.5mm 2mm !important;
+    margin:0 !important;
+    font-size:8.5px !important;
+    line-height:1.1 !important;
+    font-weight:700 !important;
+    text-align:left !important;
+    text-transform:none !important;
+    box-sizing:border-box !important;
+  }
+
+  .p-section{
+    margin:0 0 3mm !important;
+    break-inside:avoid !important;
+    page-break-inside:avoid !important;
+  }
+
+  .p-note{
+    font-size:7px !important;
+    line-height:1.2 !important;
+    color:#000 !important;
+    background:#fff !important;
+    padding:1.5mm 2mm !important;
+    border:1px solid #000 !important;
+    border-top:none !important;
+    white-space:pre-line !important;
+  }
+
+  .p-table{
+    width:100% !important;
+    max-width:100% !important;
+    margin:0 !important;
+    border-collapse:collapse !important;
+    table-layout:fixed !important;
+  }
+
+  .p-table td{
+    border:1px solid #000 !important;
+    padding:1.15mm 1.35mm !important;
+    font-size:7.25px !important;
+    line-height:1.08 !important;
+    vertical-align:middle !important;
+    word-break:break-word !important;
+    overflow-wrap:anywhere !important;
+    color:#000 !important;
+    background:#fff !important;
+  }
+
+  .p-table td.lbl{
+    width:50% !important;
+    background:#f2f2f2 !important;
+    color:#000 !important;
+    font-weight:700 !important;
+  }
+
+  .p-table td.val{
+    width:50% !important;
+    background:#fff !important;
+    color:#000 !important;
+    font-weight:400 !important;
+    text-align:left !important;
+  }
+
+  .p-col .p-table td.lbl,
+  .p-col .p-table td.val{width:50% !important;}
+
+  .p-subtitle{
+    border:1px solid #000 !important;
+    border-bottom:none !important;
+    background:#f7f7f7 !important;
+    color:#000 !important;
+    font-size:7.5px !important;
+    font-weight:700 !important;
+    text-align:center !important;
+    padding:1.2mm 1mm !important;
+  }
+
+  .p-row.cols-3 .p-col:not(:first-child) .p-table,
+  .p-row.cols-2 .p-col:not(:first-child) .p-table{
+    border-left:none !important;
+  }
+
+  .p-row.cols-3,
+  .p-row.cols-2{
+    align-items:start !important;
+  }
+
+  .p-row.first-hour-grid .p-col:nth-child(1) .p-table td.lbl{background:#ededed !important;}
+  .p-row.first-hour-grid .p-col:nth-child(2) .p-table td.lbl{background:#f2f2f2 !important;}
+  .p-row.first-hour-grid .p-col:nth-child(3) .p-table td.lbl{background:#f7f7f7 !important;}
+
+  .sig{
+    margin:7mm 0 0 !important;
+    text-align:center !important;
+    color:#000 !important;
+    font-size:8px !important;
+    break-inside:avoid !important;
+    page-break-inside:avoid !important;
+  }
+
+  .sig .line{
+    display:block !important;
+    width:60mm !important;
+    border-top:1px solid #000 !important;
+    margin:10mm auto 2mm !important;
+  }
+
+  .grid-24,
+  .grid-24 tr,
+  .grid-24 td{
+    display:none !important;
+    border:none !important;
+    padding:0 !important;
+    width:0 !important;
+    height:0 !important;
+    line-height:0 !important;
+    font-size:0 !important;
   }
 }
 </style>
@@ -1060,37 +1163,110 @@ return '<div class="print-header">' +
 '<div class="ph-logo" style="width:44px;"></div>' +
 '</div>';
 }
-function tableRowsHTML(fields, pIdx, sIdx) {
-  let rows = '<tr class="grid-24">' + '<td></td>'.repeat(24) + '</tr>';
-  fields.forEach((field, fIdx) => {
-    if (!fieldVisible(field)) return;
-    const baseKey = pIdx + '_' + sIdx + '_' + fIdx;
-    const value = fieldPrintValue(field, baseKey);
-    rows += '<tr><td colspan="6" class="lbl">' + field.l + '</td><td colspan="18" class="val">' + (value || '&nbsp;') + '</td></tr>';
-  });
-  return rows;
-}
-
-function tableRowsHTMLByIndices(fields, pIdx, sIdx, indices) {
-  let rows = '<tr class="grid-24">' + '<td></td>'.repeat(24) + '</tr>';
-  indices.forEach(fIdx => {
-    const field = fields[fIdx];
-    if (!field || !fieldVisible(field)) return;
-    const baseKey = pIdx + '_' + sIdx + '_' + fIdx;
-    const value = fieldPrintValue(field, baseKey);
-    rows += '<tr><td colspan="6" class="lbl">' + field.l + '</td><td colspan="18" class="val">' + (value || '&nbsp;') + '</td></tr>';
-  });
-  return rows;
-}
-
-
 function escapeHTML(value){
   return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 }
 
+function renderPrintTable(fields, partIdx, sIdx){
+  if(!fields || !fields.length) return '';
+  let html = '<table class="p-table"><tbody>';
+  fields.forEach(field => {
+    const fIdx = DATA[partIdx].sections[sIdx].fields.indexOf(field);
+    const baseKey = partIdx + '_' + sIdx + '_' + fIdx;
+    const value = fieldPrintValue(field, baseKey);
+    html += '<tr><td class="lbl">' + escapeHTML(field.l) + '</td><td class="val">' + escapeHTML(value || '-') + '</td></tr>';
+  });
+  html += '</tbody></table>';
+  return html;
+}
+
+function visibleFields(sec){
+  return sec.fields.filter(field => fieldVisible(field));
+}
+
+function renderPrintColumn(fields, partIdx, sIdx){
+  return '<div class="p-col">' + renderPrintTable(fields, partIdx, sIdx) + '</div>';
+}
+
+function renderPrintColumns(fields, partIdx, sIdx, cols, extraClass){
+  if(!fields.length) return '';
+  const size = Math.ceil(fields.length / cols);
+  let html = '<div class="p-row ' + (cols === 3 ? 'cols-3' : 'cols-2') + (extraClass ? ' ' + extraClass : '') + '">';
+  for(let i=0;i<cols;i++){
+    const chunk = fields.slice(i * size, (i + 1) * size);
+    if(chunk.length) html += renderPrintColumn(chunk, partIdx, sIdx);
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderLogicalFirstHour(sec, partIdx, sIdx){
+  const fields = visibleFields(sec);
+  if(!fields.length) return '';
+  const byLabel = label => sec.fields.findIndex(f => f.l === label);
+
+  const groups = [
+    ["Nome do RN","IG","IG presumida (Capurro)","Data","Horário","Sexo","Tipo de parto","Motivo do tipo de parto"],
+    ["Peso (g)","Peso x IG (percentil)","Comprimento (cm)","PC (cm)","PT (cm)","Apgar 1º min","Apgar 5º min","Apgar 10º min"],
+    ["Pele a pele","Aspiração","Reanimação (descrever)","Uso de fórceps / vácuo extrator","Intercorrências durante o parto","Apresentação do RN","Aspecto do líquido amniótico","Nº de circulares de cordão"]
+  ];
+
+  const indicesByGroup = groups.map(group => group.map(byLabel).filter(i => i >= 0));
+  const assigned = new Set(indicesByGroup.flat());
+  const remaining = sec.fields.map((_,i)=>i).filter(i => !assigned.has(i) && fieldVisible(sec.fields[i]));
+  if(remaining.length) indicesByGroup[2].push(...remaining);
+
+  let html = '<div class="p-row cols-3 first-hour-grid">';
+  indicesByGroup.forEach(indices => {
+    const f = indices.map(i => sec.fields[i]).filter(field => fieldVisible(field));
+    if(f.length) html += renderPrintColumn(f, partIdx, sIdx);
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderSorologyTriplet(partIdx, sectionIndexes){
+  const sections = sectionIndexes.map(i => DATA[partIdx].sections[i]).filter(Boolean);
+  const labels = ['1º trimestre','2º trimestre','3º trimestre'];
+  let html = '<div class="p-row cols-3">';
+  sections.forEach((sec, idx) => {
+    const fields = visibleFields(sec);
+    let table = '<div class="p-col"><div class="p-subtitle">Sorologias — ' + labels[idx] + '</div>' + renderPrintTable(fields, partIdx, sectionIndexes[idx]) + '</div>';
+    html += table;
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderPrintSection(sec, partIdx, sIdx){
+  let html = '<div class="p-section">';
+  html += '<div class="p-band">' + escapeHTML(sec.title) + '</div>';
+
+  if(partIdx === 1 && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
+    html += renderLogicalFirstHour(sec, partIdx, sIdx);
+  } else {
+    const fields = visibleFields(sec);
+    if(fields.length){
+      const cols = fields.length >= 6 ? 2 : 2;
+      html += renderPrintColumns(fields, partIdx, sIdx, cols);
+    }
+  }
+
+  if(partIdx === 0 && sec.title === 'Dados da mãe'){
+    html += '<div class="p-row cols-2">';
+    html += '<div class="p-col"><table class="p-table"><tbody><tr><td class="lbl">IG por DUM</td><td class="val">' + escapeHTML(gaDum ? gaDum.weeks + 's ' + gaDum.days + 'd' : '-') + '</td></tr></tbody></table></div>';
+    html += '<div class="p-col"><table class="p-table"><tbody><tr><td class="lbl">IG por US</td><td class="val">' + escapeHTML(gaUs ? gaUs.weeks + 's ' + gaUs.days + 'd' : '-') + '</td></tr></tbody></table></div>';
+    html += '</div>';
+  }
+
+  if(sec.note) html += '<div class="p-note">' + escapeHTML(sec.note) + '</div>';
+  html += '</div>';
+  return html;
+}
+
 function buildPrintView() {
   const host = document.getElementById('printView');
-  if (!host) return;
+  if(!host) return;
   host.innerHTML = '';
 
   PRINT_GROUPS.forEach(group => {
@@ -1103,30 +1279,33 @@ function buildPrintView() {
     groupTitle.textContent = group.label;
     sheet.appendChild(groupTitle);
 
-    group.parts.forEach(pIdx => {
-      const part = DATA[pIdx];
-      part.sections.forEach((sec, sIdx) => {
-        const section = document.createElement('div');
-        section.className = 'p-section';
-        let html = '<div class="p-band">' + escapeHTML(sec.title) + '</div>';
-        if (sec.note) html += '<div class="p-note">' + escapeHTML(sec.note) + '</div>';
-        html += '<table class="p-table"><tbody>' + tableRowsHTML(sec.fields, pIdx, sIdx);
-        if (pIdx === 0 && sec.title === 'Dados da mãe') {
-          html += '<tr><td colspan="6" class="lbl">IG por DUM</td><td colspan="18" class="val">' + (gaDum ? gaDum.weeks + 's ' + gaDum.days + 'd' : '&nbsp;') + '</td></tr>';
-          html += '<tr><td colspan="6" class="lbl">IG por US</td><td colspan="18" class="val">' + (gaUs ? gaUs.weeks + 's ' + gaUs.days + 'd' : '&nbsp;') + '</td></tr>';
+    group.parts.forEach(partIdx => {
+      const part = DATA[partIdx];
+      for(let sIdx = 0; sIdx < part.sections.length; sIdx++){
+        const sec = part.sections[sIdx];
+        if(partIdx === 0 && sec.title === 'Sorologias maternas — 1º trimestre'){
+          const s2 = part.sections.findIndex(x => x.title === 'Sorologias maternas — 2º trimestre');
+          const s3 = part.sections.findIndex(x => x.title === 'Sorologias maternas — 3º trimestre');
+          if(s2 >= 0 && s3 >= 0){
+            const wrap = document.createElement('div');
+            wrap.className = 'p-section';
+            wrap.innerHTML = '<div class="p-band">Sorologias maternas</div>' + renderSorologyTriplet(partIdx, [sIdx, s2, s3]);
+            sheet.appendChild(wrap);
+            sIdx = Math.max(sIdx, s2, s3);
+            continue;
+          }
         }
-        html += '</tbody></table>';
-        section.innerHTML = html;
-        sheet.appendChild(section);
-      });
+        sheet.insertAdjacentHTML('beforeend', renderPrintSection(sec, partIdx, sIdx));
+      }
     });
 
     const signature = document.createElement('div');
     signature.className = 'sig';
-    signature.innerHTML = '<span class="line"></span>Assinatura do médico responsável';
+    signature.innerHTML = '<span class="line"></span>Assinatura e carimbo do médico';
     sheet.appendChild(signature);
     host.appendChild(sheet);
   });
+
   setPrintDocumentTitle();
 }
 
@@ -1176,100 +1355,6 @@ btnGenerate.addEventListener('click', () => {
   printHintText.style.display = 'block';
   headerSub.textContent = 'Confira o resumo formatado abaixo antes de imprimir';
   // A linha 'window.print();' que estava aqui foi REMOVIDA
-});
-// ==================== GERAÇÃO DO LAYOUT DE IMPRESSÃO ====================
-
-
-btnGenerate.addEventListener('click', () => {
-  let html = '';
-  
-  PRINT_GROUPS.forEach(group => {
-    html += `<div class="sheet">`;
-    
-    // Cabeçalho da Impressão
-    html += `
-      <div class="print-header">
-        <div class="ph-logo">${UNIPAMPA_LOGO_IMG}</div>
-        <div class="ph-text">
-          <h2 class="ph-title">${group.label}</h2>
-          <p class="ph-sub">Hospital Santa Casa de Uruguaiana</p>
-        </div>
-      </div>`;
-      
-    group.parts.forEach(partIdx => {
-      const part = DATA[partIdx];
-      part.sections.forEach((sec, sIdx) => {
-        html += `<div class="p-section">`;
-        html += `<div class="p-band">${sec.title}</div>`;
-        
-        const fields = sec.fields.filter(f => fieldVisible(f));
-        if (fields.length > 0) {
-          // Identifica se é uma seção de sorologia para aplicar as 3 colunas
-          const isSorologia = sec.title.toLowerCase().includes('sorologia');
-          
-          if (isSorologia) {
-            html += `<div class="p-row">`;
-            const chunkSize = Math.ceil(fields.length / 3);
-            for (let i = 0; i < 3; i++) {
-              html += `<div class="p-col-3"><table class="p-table"><tbody>`;
-              const chunk = fields.slice(i * chunkSize, (i + 1) * chunkSize);
-              chunk.forEach(f => {
-                const fIdx = sec.fields.indexOf(f);
-                const val = fieldPrintValue(f, partIdx + '_' + sIdx + '_' + fIdx);
-                html += `<tr><td class="lbl">${f.l}</td><td class="val">${val || '-'}</td></tr>`;
-              });
-              
-              // Preenche linhas vazias se a coluna tiver menos itens, para manter o layout simétrico
-              for(let j = chunk.length; j < chunkSize; j++) {
-                 html += `<tr><td class="lbl">&nbsp;</td><td class="val"></td></tr>`;
-              }
-              html += `</tbody></table></div>`;
-            }
-            html += `</div>`;
-          } else {
-            // Layout padrão em 2 colunas para o restante da ficha
-            html += `<div class="p-row">`;
-            const half = Math.ceil(fields.length / 2);
-            for (let i = 0; i < 2; i++) {
-              html += `<div class="p-col-2"><table class="p-table"><tbody>`;
-              const chunk = fields.slice(i * half, (i + 1) * half);
-              chunk.forEach(f => {
-                const fIdx = sec.fields.indexOf(f);
-                const val = fieldPrintValue(f, partIdx + '_' + sIdx + '_' + fIdx);
-                html += `<tr><td class="lbl" style="width: 50%;">${f.l}</td><td class="val" style="width: 50%;">${val || '-'}</td></tr>`;
-              });
-              
-              // Preenche linhas vazias se a coluna tiver menos itens
-              for(let j = chunk.length; j < half; j++) {
-                 html += `<tr><td class="lbl" style="width: 50%;">&nbsp;</td><td class="val" style="width: 50%;"></td></tr>`;
-              }
-              html += `</tbody></table></div>`;
-            }
-            html += `</div>`;
-          }
-        }
-        
-        if (sec.note) {
-          html += `<div class="p-note">${sec.note}</div>`;
-        }
-        html += `</div>`; // Fim p-section
-      });
-    });
-    
-    html += `<div class="sig"><span class="line"></span>Assinatura e carimbo do médico</div>`;
-    html += `</div>`; // Fim sheet
-  });
-  
-  printView.innerHTML = html;
-  
-  // Oculta a interface de preenchimento e mostra a impressão
-  builderHost.style.display = 'none';
-  printView.style.display = 'block';
-  btnGenerate.style.display = 'none';
-  btnBackToEdit.style.display = 'inline-block';
-  btnPrint.style.display = 'inline-block';
-  printHintText.style.display = 'block';
-  headerSub.textContent = 'Confira o resumo gerado antes de imprimir ou salvar o PDF.';
 });
 
 btnBackToEdit.addEventListener('click', () => {
