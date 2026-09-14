@@ -90,13 +90,33 @@ main{padding:14px 10px 70px;}
 .calc-field input, .calc-field select{max-width:none;}
 }
 #printView{display:none;}
-#loginView{max-width:420px;margin:40px auto;padding:24px;background:var(--paper);border:1px solid var(--paper-line);border-radius:var(--radius);}
+#loginView{max-width:420px;margin:40px auto;padding:30px;background:var(--paper);border:1px solid var(--paper-line);border-radius:var(--radius);}
 #loginView h2{margin:0 0 14px;font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;font-size:1rem;}
 #loginForm{display:grid;gap:10px;}
 #loginForm input{width:100%;padding:10px;border:1px solid var(--paper-line);border-radius:var(--radius);font:inherit;}
 .login-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
 .login-actions button{flex:1;min-width:130px;}
 #loginMessage{font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;font-size:.78rem;line-height:1.4;min-height:1.2em;margin:14px 0 0;}
+
+/* Tela de autenticação: limpa, independente e sem conteúdo da ficha ao fundo. */
+body.login-mode{background:linear-gradient(135deg,#102f3e 0%,#0f6e63 52%,#dceee7 100%);min-height:100vh;}
+body.login-mode header.app-header,
+body.login-mode footer.hint,
+body.login-mode .no-print{display:none;}
+body.login-mode main{min-height:100vh;display:grid;place-items:center;padding:24px 16px;}
+body.login-mode #loginView{display:block!important;width:min(100%,420px);margin:0;background:rgba(250,250,247,.97);border:none;border-radius:18px;box-shadow:0 24px 70px rgba(5,35,43,.28);padding:34px;}
+body.login-mode #loginView::before{content:'FICHA NEONATAL';display:block;margin-bottom:10px;color:var(--accent);font:700 .72rem/1 -apple-system,"Segoe UI",sans-serif;letter-spacing:.16em;}
+body.login-mode #loginView h2{font-size:1.35rem;color:var(--ink);margin-bottom:22px;}
+body.login-mode #loginForm input{background:#fff;border-color:#d8e2dd;padding:12px 13px;transition:border-color .2s,box-shadow .2s;}
+body.login-mode #loginForm input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(15,110,99,.12);}
+body.login-mode #loginForm .btn-primary{background:linear-gradient(135deg,#0f6e63,#15947f);box-shadow:0 8px 18px rgba(15,110,99,.2);padding:11px 14px;}
+body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
+
+@media screen and (min-width:641px){
+  header.app-header{background:linear-gradient(110deg,#1b3a4b,#145b62);box-shadow:0 4px 18px rgba(27,58,75,.16);}
+  section.card,.history-card{box-shadow:0 5px 16px rgba(27,58,75,.05);}
+  .calc-card{box-shadow:0 7px 20px rgba(15,110,99,.10);}
+}
 .sheet{ background:#fff; max-width:800px; margin:0 auto 24px; padding:14px 20px; border:1px solid var(--paper-line); box-shadow:0 2px 10px rgba(0,0,0,.06); font-size:.68rem; font-family:Georgia,serif; }
 .print-header{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
 .print-header .ph-logo{flex-shrink:0;}
@@ -362,7 +382,7 @@ main{padding:14px 10px 70px;}
 // Supabase: substitua pelos dados públicos do seu projeto.
 // Nunca use aqui a chave service_role.
 const SUPABASE_URL = 'https://aybuyzhwtihahkoeqmsa.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnV5emh3dGlwYWhrb2VxbXNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0MDU1NDcsImV4cCI6MjEwNDk4MTU0N30.MwGqjQ9ecW3YYtZDJ_tMZdS8YIusHINP1SybFAQfIuQ';
+const SUPABASE_ANON_KEY = 'sb_publishable_Ozq4-D10ANd_WZZb1C2xgg_YaYNhXnj'; // chave pública do SupabaseeyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnV5emh3dGlwYWhrb2VxbXNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0MDU1NDcsImV4cCI6MjEwNDk4MTU0N30.MwGqjQ9ecW3YYtZDJ_tMZdS8YIusHINP1SybFAQfIuQ';
 const SUPABASE_REDIRECT_URL = 'https://alojamentoconjuntounipampa.github.io/app/';
 const supabaseConfigured = !SUPABASE_URL.includes('SEU-PROJETO') && !SUPABASE_ANON_KEY.includes('SUA_CHAVE');
 const supabaseClient = supabaseConfigured
@@ -1344,6 +1364,7 @@ function updateAuthView(session){
   currentUser = session ? session.user : null;
   if(!currentUser){ currentDatabaseRecordId = null; }
   const loggedIn = Boolean(session);
+  document.body.classList.toggle('login-mode', !loggedIn);
   loginView.style.display = loggedIn ? 'none' : 'block';
   builderHost.style.display = loggedIn ? 'block' : 'none';
   btnLogout.style.display = loggedIn ? 'inline-block' : 'none';
