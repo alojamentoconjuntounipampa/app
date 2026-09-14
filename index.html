@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ficha de Avaliação Neonatal — Alojamento Conjunto</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 /* Sorologias: evita corte de texto e alinha valores */
 .p-col-3 .p-table td.lbl { width: 75% !important; font-size: 0.60rem !important; white-space: normal !important; word-break: break-word !important; }
@@ -89,6 +90,13 @@ main{padding:14px 10px 70px;}
 .calc-field input, .calc-field select{max-width:none;}
 }
 #printView{display:none;}
+#loginView{max-width:420px;margin:40px auto;padding:24px;background:var(--paper);border:1px solid var(--paper-line);border-radius:var(--radius);}
+#loginView h2{margin:0 0 14px;font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;font-size:1rem;}
+#loginForm{display:grid;gap:10px;}
+#loginForm input{width:100%;padding:10px;border:1px solid var(--paper-line);border-radius:var(--radius);font:inherit;}
+.login-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.login-actions button{flex:1;min-width:130px;}
+#loginMessage{font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;font-size:.78rem;line-height:1.4;min-height:1.2em;margin:14px 0 0;}
 .sheet{ background:#fff; max-width:800px; margin:0 auto 24px; padding:14px 20px; border:1px solid var(--paper-line); box-shadow:0 2px 10px rgba(0,0,0,.06); font-size:.68rem; font-family:Georgia,serif; }
 .print-header{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
 .print-header .ph-logo{flex-shrink:0;}
@@ -171,7 +179,7 @@ main{padding:14px 10px 70px;}
     color: #000 !important;
   }
 
-  header.app-header, .tabs, .intro, footer.hint, #builder, .no-print, .print-hint, .top-bar, #btnGenerate, #btnBackToEdit, #btnPrint, #btnPrintMotherFirstHour, #btnPrintDischarge, #printHintText {
+  header.app-header, .tabs, .intro, footer.hint, #builder, .no-print, .print-hint, .top-bar, #btnGenerate, #btnSaveDatabase, #btnBackToEdit, #btnPrint, #btnPrintMotherFirstHour, #btnPrintDischarge, #printHintText {
     display: none !important;
   }
 
@@ -267,12 +275,28 @@ main{padding:14px 10px 70px;}
 <div class="actions">
 <button class="btn-ghost" id="btnBackToEdit" style="display:none;">← Voltar a preencher</button>
 <button class="btn-primary" id="btnGenerate">Gerar resumo para impressão</button>
+<button class="btn-secondary" id="btnSaveDatabase" type="button" style="display:none;">Salvar no banco</button>
 <button class="btn-secondary" id="btnPrintMotherFirstHour" style="display:none;">Imprimir mãe + 1ª hora</button>
 <button class="btn-secondary" id="btnPrintDischarge" style="display:none;">Imprimir alta</button>
 <button class="btn-secondary" id="btnPrint" style="display:none;">Imprimir / Salvar PDF</button>
+<button class="btn-ghost" id="btnLogout" type="button" style="display:none;">Sair</button>
+<span id="saveDatabaseMessage" aria-live="polite" style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:.75rem;color:#C9D6D2;"></span>
 </div>
 </header>
 <main>
+<div id="loginView" style="display:none;">
+<h2>Acesso à ficha neonatal</h2>
+<form id="loginForm">
+<input type="email" id="loginEmail" placeholder="E-mail" autocomplete="email" required>
+<input type="password" id="loginPassword" placeholder="Senha" autocomplete="current-password" required>
+<button class="btn-primary" type="submit">Entrar</button>
+</form>
+<div class="login-actions">
+<button class="btn-secondary" id="btnCreateAccount" type="button">Criar conta</button>
+<button class="btn-secondary" id="btnResetPassword" type="button">Esqueci a senha</button>
+</div>
+<p id="loginMessage" role="status"></p>
+</div>
 <div id="builder">
 <div class="history-card" id="historyCard">
 <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
@@ -335,6 +359,16 @@ main{padding:14px 10px 70px;}
 </div>
 </main>
 <script>
+// Supabase: substitua pelos dados públicos do seu projeto.
+// Nunca use aqui a chave service_role.
+const SUPABASE_URL = 'https://aybuyzhwtihahkoeqmsa.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnV5emh3dGlwYWhrb2VxbXNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0MDU1NDcsImV4cCI6MjEwNDk4MTU0N30.MwGqjQ9ecW3YYtZDJ_tMZdS8YIusHINP1SybFAQfIuQ';
+const SUPABASE_REDIRECT_URL = 'https://alojamentoconjuntounipampa.github.io/app/';
+const supabaseConfigured = !SUPABASE_URL.includes('SEU-PROJETO') && !SUPABASE_ANON_KEY.includes('SUA_CHAVE');
+const supabaseClient = supabaseConfigured
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
 function range(a,b){ let r=[]; for(let i=a;i<=b;i++) r.push(String(i)); return r; }
 const SN = ["Não","Sim"];
 const AUSPRES = ["Ausente","Presente"];
@@ -773,6 +807,67 @@ const answers = {};
 let gaDum = null, gaUs = null;
 let currentRecordId = null;
 const HISTORY_STORAGE_KEY = 'fichaNeonatalHistorico';
+const DATABASE_TABLE = 'registros_neonatais';
+let currentUser = null;
+let currentDatabaseRecordId = null;
+
+function setSaveDatabaseMessage(message, error = false){
+  if(!saveDatabaseMessage) return;
+  saveDatabaseMessage.textContent = message;
+  saveDatabaseMessage.style.color = error ? '#F3B3B3' : '#C9D6D2';
+}
+
+async function saveCurrentRecordToDatabase(){
+  if(!supabaseClient || !currentUser){
+    setSaveDatabaseMessage('Faça login antes de salvar.', true);
+    return;
+  }
+  setSaveDatabaseMessage('Salvando...');
+  const payload = {
+    user_id: currentUser.id,
+    answers: {...answers},
+    ga_dum: gaDum,
+    ga_us: gaUs,
+    updated_at: new Date().toISOString()
+  };
+  if(currentDatabaseRecordId) payload.id = currentDatabaseRecordId;
+  const {data, error} = await supabaseClient
+    .from(DATABASE_TABLE)
+    .upsert(payload, {onConflict:'id'})
+    .select('id, user_id, answers, ga_dum, ga_us, updated_at')
+    .single();
+  if(error){
+    setSaveDatabaseMessage('Não foi possível salvar no banco: '+error.message, true);
+    return;
+  }
+  currentDatabaseRecordId = data.id;
+  currentRecordId = data.id;
+  await loadCurrentUserRecords();
+  setSaveDatabaseMessage('RN salvo no banco para '+currentUser.email+'.');
+}
+
+async function loadCurrentUserRecords(){
+  if(!supabaseClient || !currentUser) return;
+  const {data, error} = await supabaseClient
+    .from(DATABASE_TABLE)
+    .select('id, user_id, answers, ga_dum, ga_us, updated_at')
+    .eq('user_id', currentUser.id)
+    .order('updated_at', {ascending:false});
+  if(error){
+    setSaveDatabaseMessage('Banco ainda não configurado: '+error.message, true);
+    return;
+  }
+  const records = (data || []).map(row => ({
+    id: row.id,
+    updatedAt: row.updated_at,
+    answers: row.answers || {},
+    gaDum: row.ga_dum || null,
+    gaUs: row.ga_us || null,
+    database: true
+  }));
+  saveHistory(records);
+  renderHistory();
+}
 
 function toggleHistory(){
   const content = document.getElementById('historyContent');
@@ -814,10 +909,13 @@ function renderHistory(){
     const open = document.createElement('button'); open.className='btn-mini'; open.type='button'; open.textContent='Reeditar';
     open.addEventListener('click', () => loadRecord(record.id));
     const remove = document.createElement('button'); remove.className='btn-secondary'; remove.type='button'; remove.textContent='Excluir';
-    remove.addEventListener('click', () => {
+    remove.addEventListener('click', async () => {
       if(!confirm('Excluir este registro do histórico?')) return;
       saveHistory(loadHistory().filter(r => r.id !== record.id));
       if(currentRecordId === record.id) currentRecordId = null;
+      if(record.database && supabaseClient && currentUser){
+        await supabaseClient.from(DATABASE_TABLE).delete().eq('id', record.id).eq('user_id', currentUser.id);
+      }
       renderHistory();
     });
     actions.append(open, remove); item.append(info, actions); list.appendChild(item);
@@ -826,7 +924,7 @@ function renderHistory(){
 function saveCurrentRecord(){
   const records = loadHistory();
   const now = new Date().toISOString();
-  const record = {id:currentRecordId || (Date.now()+'-'+Math.random().toString(36).slice(2)), updatedAt:now, answers:{...answers}, gaDum, gaUs};
+  const record = {id:currentRecordId || (Date.now()+'-'+Math.random().toString(36).slice(2)), updatedAt:now, answers:{...answers}, gaDum, gaUs, database:false};
   const index = records.findIndex(r => r.id === record.id);
   if(index >= 0) records[index] = record; else records.unshift(record);
   saveHistory(records); currentRecordId = record.id; renderHistory();
@@ -837,6 +935,7 @@ function loadRecord(id){
   Object.keys(answers).forEach(key => delete answers[key]);
   Object.assign(answers, record.answers || {});
   gaDum = record.gaDum || null; gaUs = record.gaUs || null; currentRecordId = record.id;
+  currentDatabaseRecordId = record.database ? record.id : null;
   if(calcBirthDateInput) calcBirthDateInput.value = answers[BIRTH_DATE_KEY] || '';
   if(dumDateInput) recomputeGaDum();
   if(usDateInput) recomputeGaUs();
@@ -845,7 +944,7 @@ function loadRecord(id){
 }
 function startNewRecord(){
   Object.keys(answers).forEach(key => delete answers[key]);
-  gaDum = null; gaUs = null; currentRecordId = null;
+  gaDum = null; gaUs = null; currentRecordId = null; currentDatabaseRecordId = null;
   if(calcBirthDateInput) calcBirthDateInput.value = '';
   if(dumDateInput) dumDateInput.value = '';
   if(usDateInput) usDateInput.value = '';
@@ -1230,6 +1329,75 @@ const builderHost = document.getElementById('builder');
 const printView = document.getElementById('printView');
 const printHintText = document.getElementById('printHintText');
 const headerSub = document.getElementById('headerSub');
+const loginView = document.getElementById('loginView');
+const loginForm = document.getElementById('loginForm');
+const loginMessage = document.getElementById('loginMessage');
+const btnLogout = document.getElementById('btnLogout');
+const btnSaveDatabase = document.getElementById('btnSaveDatabase');
+const saveDatabaseMessage = document.getElementById('saveDatabaseMessage');
+
+function setLoginMessage(message, error = false){
+  loginMessage.textContent = message;
+  loginMessage.style.color = error ? '#9C2E2E' : '#0B5850';
+}
+function updateAuthView(session){
+  currentUser = session ? session.user : null;
+  if(!currentUser){ currentDatabaseRecordId = null; }
+  const loggedIn = Boolean(session);
+  loginView.style.display = loggedIn ? 'none' : 'block';
+  builderHost.style.display = loggedIn ? 'block' : 'none';
+  btnLogout.style.display = loggedIn ? 'inline-block' : 'none';
+  btnSaveDatabase.style.display = loggedIn ? 'inline-block' : 'none';
+  if(loggedIn) loadCurrentUserRecords();
+  if(!loggedIn){
+    printView.style.display = 'none';
+    printHintText.style.display = 'none';
+  }
+}
+function setupAuth(){
+  if(!supabaseConfigured){
+    loginView.style.display = 'block';
+    builderHost.style.display = 'none';
+    setLoginMessage('Configure SUPABASE_URL e SUPABASE_ANON_KEY no código para ativar o login.', true);
+    loginForm.querySelector('button[type="submit"]').disabled = true;
+    return;
+  }
+
+  loginForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    setLoginMessage('Entrando...');
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const {data, error} = await supabaseClient.auth.signInWithPassword({email, password});
+    if(error){ setLoginMessage('Não foi possível entrar. Confira o e-mail e a senha.', true); return; }
+    updateAuthView(data.session);
+  });
+
+  document.getElementById('btnCreateAccount').addEventListener('click', async () => {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if(!email || password.length < 6){ setLoginMessage('Informe um e-mail e uma senha com pelo menos 6 caracteres.', true); return; }
+    setLoginMessage('Criando conta...');
+    const {error} = await supabaseClient.auth.signUp({email, password, options:{emailRedirectTo:SUPABASE_REDIRECT_URL}});
+    if(error){ setLoginMessage(error.message, true); return; }
+    setLoginMessage('Conta criada. Verifique seu e-mail para confirmar o cadastro.');
+  });
+
+  document.getElementById('btnResetPassword').addEventListener('click', async () => {
+    const email = document.getElementById('loginEmail').value.trim();
+    if(!email){ setLoginMessage('Informe seu e-mail para recuperar a senha.', true); return; }
+    const {error} = await supabaseClient.auth.resetPasswordForEmail(email, {redirectTo:SUPABASE_REDIRECT_URL});
+    setLoginMessage(error ? error.message : 'Verifique seu e-mail para redefinir a senha.', Boolean(error));
+  });
+
+  btnLogout.addEventListener('click', async () => {
+    await supabaseClient.auth.signOut();
+    updateAuthView(null);
+  });
+
+  supabaseClient.auth.onAuthStateChange((_event, session) => updateAuthView(session));
+  supabaseClient.auth.getSession().then(({data}) => updateAuthView(data.session));
+}
 function returnToEdit(){
   document.getElementById('builder').style.display = 'block';
   document.getElementById('printView').style.display = 'none';
@@ -1340,6 +1508,7 @@ function generatePrint(groupIndexes = PRINT_GROUPS.map((_, index) => index)) {
   headerSub.textContent = 'Confira o resumo gerado antes de imprimir ou salvar o PDF.';
 }
 
+btnSaveDatabase.addEventListener('click', saveCurrentRecordToDatabase);
 btnGenerate.addEventListener('click', () => generatePrint());
 btnPrintMotherFirstHour.addEventListener('click', () => {
   generatePrint([0, 1]);
@@ -1370,6 +1539,7 @@ btnPrint.addEventListener('click', () => {
 
 // Inicialização das funções base que você já tinha no código
 setupGaCalc();
+setupAuth();
 document.getElementById('btnToggleHistory').addEventListener('click', toggleHistory);
 document.getElementById('btnNewRecord').addEventListener('click', () => {
   if(Object.keys(answers).length && !confirm('Criar um novo RN? O registro atual continuará salvo no histórico.')) return;
