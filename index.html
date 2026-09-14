@@ -1369,7 +1369,11 @@ function setupAuth(){
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
     const {data, error} = await supabaseClient.auth.signInWithPassword({email, password});
-    if(error){ setLoginMessage('Não foi possível entrar. Confira o e-mail e a senha.', true); return; }
+    if(error){
+      setLoginMessage('Erro: ' + error.message, true);
+      console.error(error);
+      return;
+    }
     updateAuthView(data.session);
   });
 
