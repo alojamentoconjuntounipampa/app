@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -66,6 +66,17 @@ section.card > .card-head h2{ font-family:-apple-system,"Segoe UI",Helvetica,Ari
 .bilirubin-result.warning{ background:var(--warn-bg); color:var(--warn); border-color:#E7CFB4; }
 .bilirubin-result.danger{ background:#FBE6E6; color:#9C2E2E; border-color:#EFC0C0; }
 footer.hint{ font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; font-size:.76rem; color:var(--ink-soft); text-align:center; margin-top:20px; }
+.history-card{ background:var(--paper); border:1px solid var(--paper-line); border-radius:var(--radius); margin:0 0 14px; padding:12px 14px; font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; }
+.history-card h2{ margin:0 0 8px; font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); }
+.history-empty{ margin:0; color:var(--ink-soft); font-size:.76rem; }
+.history-list{ display:grid; gap:6px; }
+.history-item{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 10px; background:#fff; border:1px solid var(--paper-line); border-radius:var(--radius); }
+.history-info{ min-width:0; font-size:.78rem; }
+.history-info strong{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.history-info span{ color:var(--ink-soft); font-size:.7rem; }
+.history-actions{ display:flex; gap:5px; flex-shrink:0; }
+.history-actions button{ padding:5px 8px; font-size:.7rem; }
+@media (max-width:640px){ .history-item{ align-items:flex-start; flex-direction:column; } .history-actions{ width:100%; } .history-actions button{ flex:1; } }
 @media (max-width:640px){
 .field-row{grid-template-columns:1fr; gap:6px;}
 .field-label{padding-top:0;}
@@ -123,229 +134,126 @@ main{padding:14px 10px 70px;}
 .sig .line{display:block; border-top:1px solid #333; width:200px; margin:20px auto 4px;}
 .print-hint{ text-align:center; font-size:.76rem; color:var(--ink-soft); font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; margin:-8px 0 20px; }
 
-/* LAYOUT DO RESUMO — usado somente no resumo/impresso */
-.p-row{
-  display:grid !important;
-  width:100% !important;
-  gap:0 !important;
-  margin:0 0 3px !important;
-  box-sizing:border-box !important;
-  break-inside:avoid !important;
-  page-break-inside:avoid !important;
+/* ESTRUTURA DE COLUNAS LADO A LADO */
+.p-row {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  gap: 4px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  margin-bottom: 4px !important;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
-.p-row.cols-2{ grid-template-columns:1fr 1fr !important; }
-.p-row.cols-3{ grid-template-columns:repeat(3,1fr) !important; }
-.p-col{ min-width:0 !important; width:100% !important; box-sizing:border-box !important; }
 
-/* CONFIGURAÇÕES EXCLUSIVAS DE IMPRESSÃO */
+.p-col-2, .p-col-3 {
+  flex: 1 1 0% !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* CONFIGURAÇÕES DE IMPRESSÃO */
 @media print {
-  @page { size:A4 portrait; margin:8mm; }
+  @page { size: A4 portrait; margin: 3mm; }
 
-  html, body{
-    margin:0 !important;
-    padding:0 !important;
-    background:#fff !important;
-    color:#000 !important;
+  *, *::before, *::after {
+    color: #000 !important;
+    text-shadow: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
-  *, *::before, *::after{
-    color:#000 !important;
-    text-shadow:none !important;
-    box-shadow:none !important;
-    -webkit-print-color-adjust:exact !important;
-    print-color-adjust:exact !important;
+  body {
+    background: #fff !important;
+    color: #000 !important;
   }
 
-  header.app-header, .tabs, .intro, footer.hint, #builder, .no-print,
-  .print-hint, .top-bar, #btnGenerate, #btnBackToEdit, #btnPrint,
-  #printHintText{
-    display:none !important;
+  header.app-header, .tabs, .intro, footer.hint, #builder, .no-print, .print-hint, .top-bar, #btnGenerate, #btnBackToEdit, #btnPrint, #btnPrintMotherFirstHour, #btnPrintDischarge, #printHintText {
+    display: none !important;
   }
 
-  #printView{
-    display:block !important;
-    width:100% !important;
-    margin:0 !important;
-    padding:0 !important;
-    position:relative !important;
+  #printView {
+    display: block !important;
+    width: 100% !important;
+    position: relative !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 
-  .sheet{
-    background:#fff !important;
-    width:100% !important;
-    max-width:none !important;
-    padding:0 !important;
-    margin:0 !important;
-    border:none !important;
-    box-shadow:none !important;
-    height:auto !important;
-    page-break-after:always;
-    break-after:page;
-    font-family:Arial,Helvetica,sans-serif !important;
-    font-size:8px !important;
+  .sheet {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    page-break-after: always;
   }
 
-  .sheet:last-child{
-    page-break-after:auto;
-    break-after:auto;
+  .sheet:last-child {
+    page-break-after: auto;
   }
 
-  .print-header{
-    display:flex !important;
-    align-items:center !important;
-    width:100% !important;
-    padding:0 0 2mm !important;
-    margin:0 0 3mm !important;
-    border-bottom:1px solid #000 !important;
+  .p-section {
+    margin-bottom: 3px !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+.p-band {
+    padding: 2px 4px !important;
+    font-size: 0.68rem !important;
+    font-weight: bold;
+    background: #eee !important;
+    color: #000 !important;
+    border: 1px solid #000 !important;
   }
 
-  .print-header .ph-logo{
-    flex:0 0 16mm !important;
-    width:16mm !important;
+  .p-table td {
+    padding: 1.5px 3px !important;
+    font-size: 0.60rem !important;
+    line-height: 1.1 !important;
+    border: 1px solid #000 !important;
+    color: #000 !important;
   }
 
-  .print-header .ph-logo img{
-    width:13mm !important;
-    height:auto !important;
-    display:block !important;
+  /* Oculta completamente a linha guia de 24 colunas para não desenhar células vazias */
+  .grid-24, .grid-24 tr {
+    display: none !important;
+    height: 0 !important;
+    line-height: 0 !important;
   }
 
-  .print-header .ph-text{
-    flex:1 !important;
-    text-align:center !important;
+  .grid-24 td {
+    display: none !important;
+    border: none !important;
+    padding: 0 !important;
+    height: 0 !important;
+    width: 0 !important;
+    font-size: 0 !important;
   }
 
-  .print-header .ph-text .ph-title,
-  .print-header .ph-text .ph-sub,
-  .print-header .ph-text .ph-hosp{
-    color:#000 !important;
-    margin:0 !important;
+  /* Garante que o container de colunas não quebre para a linha de baixo */
+  .p-row {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 4px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin-bottom: 3px !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 
-  .print-header .ph-text .ph-title{font-size:11px !important;font-weight:700 !important;}
-  .print-header .ph-text .ph-sub{font-size:9px !important;margin-top:1px !important;}
-  .print-header .ph-text .ph-hosp{font-size:7px !important;margin-top:1px !important;}
-
-  .p-band{
-    background:#e6e6e6 !important;
-    color:#000 !important;
-    border:1px solid #000 !important;
-    padding:1.5mm 2mm !important;
-    margin:0 !important;
-    font-size:8.5px !important;
-    line-height:1.1 !important;
-    font-weight:700 !important;
-    text-align:left !important;
-    text-transform:none !important;
-    box-sizing:border-box !important;
-  }
-
-  .p-section{
-    margin:0 0 3mm !important;
-    break-inside:avoid !important;
-    page-break-inside:avoid !important;
-  }
-
-  .p-note{
-    font-size:7px !important;
-    line-height:1.2 !important;
-    color:#000 !important;
-    background:#fff !important;
-    padding:1.5mm 2mm !important;
-    border:1px solid #000 !important;
-    border-top:none !important;
-    white-space:pre-line !important;
-  }
-
-  .p-table{
-    width:100% !important;
-    max-width:100% !important;
-    margin:0 !important;
-    border-collapse:collapse !important;
-    table-layout:fixed !important;
-  }
-
-  .p-table td{
-    border:1px solid #000 !important;
-    padding:1.15mm 1.35mm !important;
-    font-size:7.25px !important;
-    line-height:1.08 !important;
-    vertical-align:middle !important;
-    word-break:break-word !important;
-    overflow-wrap:anywhere !important;
-    color:#000 !important;
-    background:#fff !important;
-  }
-
-  .p-table td.lbl{
-    width:50% !important;
-    background:#f2f2f2 !important;
-    color:#000 !important;
-    font-weight:700 !important;
-  }
-
-  .p-table td.val{
-    width:50% !important;
-    background:#fff !important;
-    color:#000 !important;
-    font-weight:400 !important;
-    text-align:left !important;
-  }
-
-  .p-col .p-table td.lbl,
-  .p-col .p-table td.val{width:50% !important;}
-
-  .p-subtitle{
-    border:1px solid #000 !important;
-    border-bottom:none !important;
-    background:#f7f7f7 !important;
-    color:#000 !important;
-    font-size:7.5px !important;
-    font-weight:700 !important;
-    text-align:center !important;
-    padding:1.2mm 1mm !important;
-  }
-
-  .p-row.cols-3 .p-col:not(:first-child) .p-table,
-  .p-row.cols-2 .p-col:not(:first-child) .p-table{
-    border-left:none !important;
-  }
-
-  .p-row.cols-3,
-  .p-row.cols-2{
-    align-items:start !important;
-  }
-
-  .p-row.first-hour-grid .p-col:nth-child(1) .p-table td.lbl{background:#ededed !important;}
-  .p-row.first-hour-grid .p-col:nth-child(2) .p-table td.lbl{background:#f2f2f2 !important;}
-  .p-row.first-hour-grid .p-col:nth-child(3) .p-table td.lbl{background:#f7f7f7 !important;}
-
-  .sig{
-    margin:7mm 0 0 !important;
-    text-align:center !important;
-    color:#000 !important;
-    font-size:8px !important;
-    break-inside:avoid !important;
-    page-break-inside:avoid !important;
-  }
-
-  .sig .line{
-    display:block !important;
-    width:60mm !important;
-    border-top:1px solid #000 !important;
-    margin:10mm auto 2mm !important;
-  }
-
-  .grid-24,
-  .grid-24 tr,
-  .grid-24 td{
-    display:none !important;
-    border:none !important;
-    padding:0 !important;
-    width:0 !important;
-    height:0 !important;
-    line-height:0 !important;
-    font-size:0 !important;
+  .p-col-2, .p-col-3 {
+    flex: 1 1 0% !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
   }
 }
 </style>
@@ -359,11 +267,26 @@ main{padding:14px 10px 70px;}
 <div class="actions">
 <button class="btn-ghost" id="btnBackToEdit" style="display:none;">← Voltar a preencher</button>
 <button class="btn-primary" id="btnGenerate">Gerar resumo para impressão</button>
+<button class="btn-secondary" id="btnPrintMotherFirstHour" style="display:none;">Imprimir mãe + 1ª hora</button>
+<button class="btn-secondary" id="btnPrintDischarge" style="display:none;">Imprimir alta</button>
 <button class="btn-secondary" id="btnPrint" style="display:none;">Imprimir / Salvar PDF</button>
 </div>
 </header>
 <main>
 <div id="builder">
+<div class="history-card" id="historyCard">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+<h2>Histórico de RNs salvos</h2>
+<div class="history-actions">
+<button class="btn-mini" id="btnToggleHistory" type="button" aria-expanded="false">Abrir histórico</button>
+<button class="btn-mini" id="btnNewRecord" type="button">+ Novo RN</button>
+</div>
+</div>
+<div id="historyContent" hidden>
+<div id="historyList" class="history-list"></div>
+<p id="historyEmpty" class="history-empty">Nenhum RN salvo ainda. O registro será salvo automaticamente ao gerar o resumo para impressão.</p>
+</div>
+</div>
 <p class="intro">A maioria dos campos já vem com caixinha de seleção. Alguns abrem uma caixinha extra quando você escolhe certas respostas (ex.: "Sim", "Outro" ou "R").</p>
 <div class="tabs">
 <button class="tab-btn active" data-part="0">Dados da mãe</button>
@@ -403,12 +326,11 @@ main{padding:14px 10px 70px;}
 <strong style="display:block; margin-bottom:4px; color:#1B3A4B;">Criado por Gabriel Dutra Simões — UNIPAMPA, Curso de Medicina</strong>
 <div style="margin-bottom:4px;">Fontes e parâmetros clínicos utilizados:</div>
 <ul style="margin:0; padding-left:18px; line-height:1.6;">
-<li>Protocolo de hipoglicemia neonatal (rastreio por Dextro/HGT) e coleta precoce de exames — protocolo institucional de referência.</li>
-<li>Indicação de profilaxia intraparto para Estreptococo do Grupo B (SGB) — critérios gerais SBP / FEBRASGO (confirmar sempre com protocolo institucional vigente).</li>
-<li>Percentil do perímetro cefálico (PC) e do peso ao nascer — INTERGROWTH-21st (Villar J et al., Lancet 2014;384:857-68), tabelas oficiais de 33+0 a 42+6 semanas, por sexo.</li>
-<li>Perímetro torácico (PT): não há tabela internacional oficial de percentil por IG equivalente ao INTERGROWTH-21st; a ficha mostra apenas a relação clínica PC/PT (checagem comparativa), não um percentil.</li>
-<li>Triagem de bilirrubina transcutânea (BTC) e fatores de risco de neurotoxicidade — AAP 2022 (Kemper AR et al., Pediatrics 2022;150(3):e2022058859), válido para RN ≥35 semanas.</li>
-<li><em>Importante:</em> o limiar exato de fototerapia (curvas por IG/idade em horas/fator de risco) NÃO é calculado automaticamente nesta ficha, pois a diretriz AAP 2022 publica esses limiares apenas como curvas gráficas, sem tabela numérica oficial simples. Utilize a calculadora oficial (PediTools, https://peditools.org/bili2022/) para obter o limiar exato e registre o resultado no campo "Avaliação AAP 2022".</li>
+<li>Hipoglicemia neonatal: Adamkin DH; Committee on Fetus and Newborn. Postnatal glucose homeostasis in late-preterm and term infants. <em>Pediatrics</em>. 2011;127(3):575-579. Seguir também o protocolo institucional vigente.</li>
+<li>Infecção neonatal precoce e coleta de exames: Puopolo KM, Benitz WE, Zaoutis TE; Committee on Fetus and Newborn, Committee on Infectious Diseases. Management of Neonates Born at ≥35 0/7 Weeks' Gestation With Suspected or Proven Early-Onset Bacterial Sepsis. <em>Pediatrics</em>. 2018;142(6):e20182894.</li>
+<li>Profilaxia para estreptococo do grupo B: American College of Obstetricians and Gynecologists. Prevention of Group B Streptococcal Early-Onset Disease in Newborns. Committee Opinion No. 797. <em>Obstetrics &amp; Gynecology</em>. 2020;135:e51-e72. Confirmar também o protocolo institucional vigente.</li>
+<li>Percentis de peso ao nascer e perímetro cefálico: Villar J, Ismail LC, Victora CG, et al. International standards for newborn weight, length, and head circumference by gestational age and sex: the Newborn Cross-Sectional Study of the INTERGROWTH-21st Project. <em>Lancet</em>. 2014;384(9946):857-868.</li>
+<li>Bilirrubina neonatal: Kemper AR, Newman TB, Slaughter JL, et al. Clinical Practice Guideline Revision: Management of Hyperbilirubinemia in the Newborn Infant 35 or More Weeks of Gestation. <em>Pediatrics</em>. 2022;150(3):e2022058859. A avaliação deve seguir a diretriz e o protocolo institucional vigentes.</li>
 </ul>
 </div>
 </main>
@@ -497,7 +419,7 @@ Sf("Intercorrências durante o parto",SN,{when:['Sim'],sub:{l:'Qual intercorrên
 S("Apresentação do RN",["Cefálica","Pélvica","Córmica"]),
 S("Aspecto do líquido amniótico",["Claro","Meconial fluido","Meconial espesso","Sanguinolento","Fétido"]),
 S("Nº de circulares de cordão",["0","1","2","3 ou mais"])
-], note:"Percentis de peso e PC calculados automaticamente (INTERGROWTH-21st, Villar et al., Lancet 2014) a partir da IG por DUM/US e do sexo — a classificação PIG/AIG/GIG é sugerida automaticamente, mas a confirmação final é do médico responsável. Não há tabela internacional oficial de percentil de PT por IG; para o PT é mostrada apenas a relação PC/PT (checagem comparativa)."},
+], note:"Percentis de peso e PC calculados automaticamente (INTERGROWTH-21st, Villar et al., Lancet 2014) a partir da IG por DUM/US e do sexo — a classificação PIG/AIG/GIG é sugerida automaticamente, mas a confirmação final é do médico responsável."},
 {title:"Rastreio de hipoglicemia e infecção", fields:[S("Necessita Dextro (HGT)?",SN),S("Necessita coleta de exames precoce?",SN)], note:"Dextro: RN GIG, macrossômico, filho de mãe DM, PIG, prematuro ou baixo peso → 1ª h + 3/3h. Cortes: <24h = 40 · 24–48h = 50 · >48h = 60. Se hipoglicemia sintomática, push Glicose 10% 2ml/kg EV e comunicar UTI Neo.\nColeta precoce: triagem infecciosa após 6h de vida se bolsa rota >18h, sinais de corioamnionite, ou SGB positivo/desconhecido sem profilaxia adequada (Hemograma + PCR). Incompatibilidade sanguínea: tipagem de cordão + hemograma, BT/frações, reticulócitos e Coombs direto."},
 {title:"Exame neurológico", fields:[
 S("Tônus",["Normotônico","Hipotônico","Hipertônico"]),
@@ -676,8 +598,11 @@ S("Avaliação AAP 2022 (conforme calculadora oficial)",[
 ] }
 ];
 const PRINT_GROUPS = [
-{label:"Ficha de avaliação neonatal — Admissão", parts:[0,1]},
-{label:"Exame físico de alta hospitalar", parts:[2]}
+  // Cada grupo começa em uma nova folha durante a impressão.
+  {label:"Ficha de avaliação neonatal — Dados maternos", parts:[0]},
+  {label:"Ficha de avaliação neonatal — RN, 1ª hora de vida (1/2)", parts:[1], sectionRange:[0,7]},
+  {label:"Ficha de avaliação neonatal — RN, 1ª hora de vida (2/2)", parts:[1], sectionRange:[7]},
+  {label:"Exame físico de alta hospitalar", parts:[2]}
 ];
 // ==================== EXTENSÃO ADITIVA ====================
 // 1) Percentil do perímetro cefálico (PC) ao nascer — INTERGROWTH-21st
@@ -730,7 +655,7 @@ else if(pc < p97){ faixa = 'entre P90 e P97'; cls='info'; }
 else { faixa = '≥ P97 (possível macrocefalia para a IG)'; cls='warning'; }
 return {cls, text:'INTERGROWTH-21st · PC ao nascer: '+faixa+' (IG usada: '+gaWeeks+'s'+(gaDays||0)+'d · P50 de referência: '+p50.toFixed(1)+' cm)'};
 }
-function getGaForCalc(){ return gaDum || gaUs || null; }
+function getGaForCalc(){ return gaUs || null; }
 
 // 1b) Percentil de peso ao nascer — INTERGROWTH-21st (mesma fonte da tabela de PC acima).
 //     Tabela oficial em kg, por sexo, de 33+0 a 42+6 semanas.
@@ -776,23 +701,6 @@ let extra = '';
 if(pesoKg < p3) extra = ' · abaixo de P3';
 else if(pesoKg > p97) extra = ' · acima de P97';
 return {cls, text:'INTERGROWTH-21st · Peso ao nascer: '+faixa+extra+' (IG usada: '+gaWeeks+'s'+(gaDays||0)+'d · P50 de referência: '+p50.toFixed(2)+' kg)', suggestedClass};
-}
-
-// 1c) Perímetro torácico (PT) — NÃO existe padrão internacional oficial equivalente ao
-//     INTERGROWTH-21st para PT ao nascer por IG/sexo (o projeto Villar et al. 2014 cobre apenas
-//     peso, comprimento e PC). Por isso, em vez de uma tabela de percentil fabricada, esta ficha
-//     usa a relação clínica consagrada: em RN a termo o PC costuma ser cerca de 1–3 cm MAIOR que
-//     o PT; PT ≥ PC (ou diferenças muito grandes) merece nova aferição/avaliação clínica.
-function ptComparisonInfo(pcCm, ptCm){
-if(pcCm===''||pcCm===undefined||pcCm===null||isNaN(Number(pcCm))) return null;
-if(ptCm===''||ptCm===undefined||ptCm===null||isNaN(Number(ptCm))) return null;
-const pc = Number(pcCm), pt = Number(ptCm);
-const diff = pc - pt;
-let cls, txt;
-if(diff < 0){ cls='warning'; txt='PT ('+pt.toFixed(1)+' cm) maior que o PC ('+pc.toFixed(1)+' cm) — incomum ao nascer; reavaliar as medidas.'; }
-else if(diff > 4){ cls='info'; txt='Diferença PC−PT de '+diff.toFixed(1)+' cm, acima do habitual (1–3 cm) — correlacionar clinicamente.'; }
-else { cls='success'; txt='PC−PT: '+diff.toFixed(1)+' cm — dentro da relação habitual ao nascer (PC cerca de 1–3 cm maior que o PT).'; }
-return {cls, text:'Relação PC/PT: '+txt+' (Não há tabela internacional oficial de percentil de PT por IG; esta é uma checagem comparativa, não um percentil.)'};
 }
 
 // 3) Ferramenta automatizada AAP 2022 — integração com a API pública da PediTools
@@ -863,6 +771,88 @@ return {cls:'info', text:'BTC: '+v.toFixed(1)+' mg/dL. AAP 2022 também recomend
 
 const answers = {};
 let gaDum = null, gaUs = null;
+let currentRecordId = null;
+const HISTORY_STORAGE_KEY = 'fichaNeonatalHistorico';
+
+function toggleHistory(){
+  const content = document.getElementById('historyContent');
+  const button = document.getElementById('btnToggleHistory');
+  if(!content || !button) return;
+  content.hidden = !content.hidden;
+  const isOpen = !content.hidden;
+  button.textContent = isOpen ? 'Ocultar histórico' : 'Abrir histórico';
+  button.setAttribute('aria-expanded', String(isOpen));
+}
+
+function loadHistory(){
+  try { return JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || '[]'); }
+  catch(error){ return []; }
+}
+function saveHistory(records){
+  localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(records));
+}
+function recordDisplayName(record){
+  return (record.answers['0_0_0'] || record.answers['1_0_0'] || 'RN sem nome').trim();
+}
+function formatRecordDate(value){
+  return new Date(value).toLocaleString('pt-BR', {dateStyle:'short', timeStyle:'short'});
+}
+function renderHistory(){
+  const list = document.getElementById('historyList');
+  const empty = document.getElementById('historyEmpty');
+  if(!list || !empty) return;
+  const records = loadHistory();
+  list.innerHTML = '';
+  empty.style.display = records.length ? 'none' : 'block';
+  records.forEach(record => {
+    const item = document.createElement('div'); item.className = 'history-item';
+    const info = document.createElement('div'); info.className = 'history-info';
+    const name = document.createElement('strong'); name.textContent = recordDisplayName(record);
+    const date = document.createElement('span'); date.textContent = 'Salvo em '+formatRecordDate(record.updatedAt);
+    info.append(name, date);
+    const actions = document.createElement('div'); actions.className = 'history-actions';
+    const open = document.createElement('button'); open.className='btn-mini'; open.type='button'; open.textContent='Reeditar';
+    open.addEventListener('click', () => loadRecord(record.id));
+    const remove = document.createElement('button'); remove.className='btn-secondary'; remove.type='button'; remove.textContent='Excluir';
+    remove.addEventListener('click', () => {
+      if(!confirm('Excluir este registro do histórico?')) return;
+      saveHistory(loadHistory().filter(r => r.id !== record.id));
+      if(currentRecordId === record.id) currentRecordId = null;
+      renderHistory();
+    });
+    actions.append(open, remove); item.append(info, actions); list.appendChild(item);
+  });
+}
+function saveCurrentRecord(){
+  const records = loadHistory();
+  const now = new Date().toISOString();
+  const record = {id:currentRecordId || (Date.now()+'-'+Math.random().toString(36).slice(2)), updatedAt:now, answers:{...answers}, gaDum, gaUs};
+  const index = records.findIndex(r => r.id === record.id);
+  if(index >= 0) records[index] = record; else records.unshift(record);
+  saveHistory(records); currentRecordId = record.id; renderHistory();
+}
+function loadRecord(id){
+  const record = loadHistory().find(r => r.id === id);
+  if(!record) return;
+  Object.keys(answers).forEach(key => delete answers[key]);
+  Object.assign(answers, record.answers || {});
+  gaDum = record.gaDum || null; gaUs = record.gaUs || null; currentRecordId = record.id;
+  if(calcBirthDateInput) calcBirthDateInput.value = answers[BIRTH_DATE_KEY] || '';
+  if(dumDateInput) recomputeGaDum();
+  if(usDateInput) recomputeGaUs();
+  currentPart = 0; document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.part === '0'));
+  returnToEdit(); renderBuilder();
+}
+function startNewRecord(){
+  Object.keys(answers).forEach(key => delete answers[key]);
+  gaDum = null; gaUs = null; currentRecordId = null;
+  if(calcBirthDateInput) calcBirthDateInput.value = '';
+  if(dumDateInput) dumDateInput.value = '';
+  if(usDateInput) usDateInput.value = '';
+  if(usWeeksSel) usWeeksSel.value = '';
+  if(usDaysSel) usDaysSel.value = '';
+  renderBuilder();
+}
 let currentPart = 0;
 function findFieldKeyInPart(partIdx, sectionTitle, fieldLabel){
 const part = DATA[partIdx];
@@ -951,6 +941,7 @@ input = document.createElement('input');
 input.type = fieldDef.t==='number'?'number':(fieldDef.t==='date'?'date':(fieldDef.t==='time'?'time':'text'));
 }
 input.value = answers[key] || '';
+input.dataset.answerKey = key;
 const sync = () => { answers[key] = input.value; };
 input.addEventListener('input', sync);
 input.addEventListener('change', sync);
@@ -1059,31 +1050,6 @@ input.addEventListener('change', () => { showInfo(); applyAuto(); });
 showInfo();
 inputsWrap.appendChild(wBox);
 }
-if(field.l === 'PT (cm)' && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
-const ptBox = document.createElement('div'); ptBox.className='bilirubin-result'; ptBox.style.display='none';
-const pcKey = findFieldKeyInPart(currentPart, sec.title, 'PC (cm)');
-const updatePt = () => {
-const info = pcKey ? ptComparisonInfo(answers[pcKey], input.value) : null;
-if(!info){ ptBox.style.display='none'; ptBox.className='bilirubin-result'; return; }
-ptBox.style.display='block'; ptBox.className='bilirubin-result '+info.cls; ptBox.textContent = info.text;
-};
-input.addEventListener('input', updatePt); input.addEventListener('change', updatePt);
-updatePt();
-inputsWrap.appendChild(ptBox);
-}
-if(field.l === 'PC (cm)' && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
-const pcBox = document.createElement('div'); pcBox.className='bilirubin-result'; pcBox.style.display='none';
-const updatePc = () => {
-const sexo = answers[SEX_KEY];
-const ga = getGaForCalc();
-const info = ga ? ig21HcPercentileText(sexo, ga.weeks, ga.days, input.value) : null;
-if(!info){ pcBox.style.display='none'; pcBox.className='bilirubin-result'; return; }
-pcBox.style.display='block'; pcBox.className='bilirubin-result '+info.cls; pcBox.textContent = info.text;
-};
-input.addEventListener('input', updatePc); input.addEventListener('change', updatePc);
-updatePc();
-inputsWrap.appendChild(pcBox);
-}
 if(field.l === 'Bilirrubina transcutânea (BTC)' && sec.title === 'Dados de alta do RN'){
 const btcBox = document.createElement('div'); btcBox.className='bilirubin-result'; btcBox.style.display='none';
 const toolWrap = document.createElement('div'); toolWrap.style.cssText='flex-basis:100%;margin-top:4px;';
@@ -1163,110 +1129,37 @@ return '<div class="print-header">' +
 '<div class="ph-logo" style="width:44px;"></div>' +
 '</div>';
 }
+function tableRowsHTML(fields, pIdx, sIdx) {
+  let rows = '<tr class="grid-24">' + '<td></td>'.repeat(24) + '</tr>';
+  fields.forEach((field, fIdx) => {
+    if (!fieldVisible(field)) return;
+    const baseKey = pIdx + '_' + sIdx + '_' + fIdx;
+    const value = fieldPrintValue(field, baseKey);
+    rows += '<tr><td colspan="6" class="lbl">' + field.l + '</td><td colspan="18" class="val">' + (value || '&nbsp;') + '</td></tr>';
+  });
+  return rows;
+}
+
+function tableRowsHTMLByIndices(fields, pIdx, sIdx, indices) {
+  let rows = '<tr class="grid-24">' + '<td></td>'.repeat(24) + '</tr>';
+  indices.forEach(fIdx => {
+    const field = fields[fIdx];
+    if (!field || !fieldVisible(field)) return;
+    const baseKey = pIdx + '_' + sIdx + '_' + fIdx;
+    const value = fieldPrintValue(field, baseKey);
+    rows += '<tr><td colspan="6" class="lbl">' + field.l + '</td><td colspan="18" class="val">' + (value || '&nbsp;') + '</td></tr>';
+  });
+  return rows;
+}
+
+
 function escapeHTML(value){
   return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 }
 
-function renderPrintTable(fields, partIdx, sIdx){
-  if(!fields || !fields.length) return '';
-  let html = '<table class="p-table"><tbody>';
-  fields.forEach(field => {
-    const fIdx = DATA[partIdx].sections[sIdx].fields.indexOf(field);
-    const baseKey = partIdx + '_' + sIdx + '_' + fIdx;
-    const value = fieldPrintValue(field, baseKey);
-    html += '<tr><td class="lbl">' + escapeHTML(field.l) + '</td><td class="val">' + escapeHTML(value || '-') + '</td></tr>';
-  });
-  html += '</tbody></table>';
-  return html;
-}
-
-function visibleFields(sec){
-  return sec.fields.filter(field => fieldVisible(field));
-}
-
-function renderPrintColumn(fields, partIdx, sIdx){
-  return '<div class="p-col">' + renderPrintTable(fields, partIdx, sIdx) + '</div>';
-}
-
-function renderPrintColumns(fields, partIdx, sIdx, cols, extraClass){
-  if(!fields.length) return '';
-  const size = Math.ceil(fields.length / cols);
-  let html = '<div class="p-row ' + (cols === 3 ? 'cols-3' : 'cols-2') + (extraClass ? ' ' + extraClass : '') + '">';
-  for(let i=0;i<cols;i++){
-    const chunk = fields.slice(i * size, (i + 1) * size);
-    if(chunk.length) html += renderPrintColumn(chunk, partIdx, sIdx);
-  }
-  html += '</div>';
-  return html;
-}
-
-function renderLogicalFirstHour(sec, partIdx, sIdx){
-  const fields = visibleFields(sec);
-  if(!fields.length) return '';
-  const byLabel = label => sec.fields.findIndex(f => f.l === label);
-
-  const groups = [
-    ["Nome do RN","IG","IG presumida (Capurro)","Data","Horário","Sexo","Tipo de parto","Motivo do tipo de parto"],
-    ["Peso (g)","Peso x IG (percentil)","Comprimento (cm)","PC (cm)","PT (cm)","Apgar 1º min","Apgar 5º min","Apgar 10º min"],
-    ["Pele a pele","Aspiração","Reanimação (descrever)","Uso de fórceps / vácuo extrator","Intercorrências durante o parto","Apresentação do RN","Aspecto do líquido amniótico","Nº de circulares de cordão"]
-  ];
-
-  const indicesByGroup = groups.map(group => group.map(byLabel).filter(i => i >= 0));
-  const assigned = new Set(indicesByGroup.flat());
-  const remaining = sec.fields.map((_,i)=>i).filter(i => !assigned.has(i) && fieldVisible(sec.fields[i]));
-  if(remaining.length) indicesByGroup[2].push(...remaining);
-
-  let html = '<div class="p-row cols-3 first-hour-grid">';
-  indicesByGroup.forEach(indices => {
-    const f = indices.map(i => sec.fields[i]).filter(field => fieldVisible(field));
-    if(f.length) html += renderPrintColumn(f, partIdx, sIdx);
-  });
-  html += '</div>';
-  return html;
-}
-
-function renderSorologyTriplet(partIdx, sectionIndexes){
-  const sections = sectionIndexes.map(i => DATA[partIdx].sections[i]).filter(Boolean);
-  const labels = ['1º trimestre','2º trimestre','3º trimestre'];
-  let html = '<div class="p-row cols-3">';
-  sections.forEach((sec, idx) => {
-    const fields = visibleFields(sec);
-    let table = '<div class="p-col"><div class="p-subtitle">Sorologias — ' + labels[idx] + '</div>' + renderPrintTable(fields, partIdx, sectionIndexes[idx]) + '</div>';
-    html += table;
-  });
-  html += '</div>';
-  return html;
-}
-
-function renderPrintSection(sec, partIdx, sIdx){
-  let html = '<div class="p-section">';
-  html += '<div class="p-band">' + escapeHTML(sec.title) + '</div>';
-
-  if(partIdx === 1 && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
-    html += renderLogicalFirstHour(sec, partIdx, sIdx);
-  } else {
-    const fields = visibleFields(sec);
-    if(fields.length){
-      const cols = fields.length >= 6 ? 2 : 2;
-      html += renderPrintColumns(fields, partIdx, sIdx, cols);
-    }
-  }
-
-  if(partIdx === 0 && sec.title === 'Dados da mãe'){
-    html += '<div class="p-row cols-2">';
-    html += '<div class="p-col"><table class="p-table"><tbody><tr><td class="lbl">IG por DUM</td><td class="val">' + escapeHTML(gaDum ? gaDum.weeks + 's ' + gaDum.days + 'd' : '-') + '</td></tr></tbody></table></div>';
-    html += '<div class="p-col"><table class="p-table"><tbody><tr><td class="lbl">IG por US</td><td class="val">' + escapeHTML(gaUs ? gaUs.weeks + 's ' + gaUs.days + 'd' : '-') + '</td></tr></tbody></table></div>';
-    html += '</div>';
-  }
-
-  if(sec.note) html += '<div class="p-note">' + escapeHTML(sec.note) + '</div>';
-  html += '</div>';
-  return html;
-}
-
 function buildPrintView() {
   const host = document.getElementById('printView');
-  if(!host) return;
+  if (!host) return;
   host.innerHTML = '';
 
   PRINT_GROUPS.forEach(group => {
@@ -1279,33 +1172,34 @@ function buildPrintView() {
     groupTitle.textContent = group.label;
     sheet.appendChild(groupTitle);
 
-    group.parts.forEach(partIdx => {
-      const part = DATA[partIdx];
-      for(let sIdx = 0; sIdx < part.sections.length; sIdx++){
-        const sec = part.sections[sIdx];
-        if(partIdx === 0 && sec.title === 'Sorologias maternas — 1º trimestre'){
-          const s2 = part.sections.findIndex(x => x.title === 'Sorologias maternas — 2º trimestre');
-          const s3 = part.sections.findIndex(x => x.title === 'Sorologias maternas — 3º trimestre');
-          if(s2 >= 0 && s3 >= 0){
-            const wrap = document.createElement('div');
-            wrap.className = 'p-section';
-            wrap.innerHTML = '<div class="p-band">Sorologias maternas</div>' + renderSorologyTriplet(partIdx, [sIdx, s2, s3]);
-            sheet.appendChild(wrap);
-            sIdx = Math.max(sIdx, s2, s3);
-            continue;
-          }
+    group.parts.forEach(pIdx => {
+      const part = DATA[pIdx];
+      const sections = group.sectionRange
+        ? part.sections.slice(group.sectionRange[0], group.sectionRange[1])
+        : part.sections;
+      sections.forEach((sec) => {
+        const sIdx = part.sections.indexOf(sec);
+        const section = document.createElement('div');
+        section.className = 'p-section';
+        let html = '<div class="p-band">' + escapeHTML(sec.title) + '</div>';
+        if (sec.note) html += '<div class="p-note">' + escapeHTML(sec.note) + '</div>';
+        html += '<table class="p-table"><tbody>' + tableRowsHTML(sec.fields, pIdx, sIdx);
+        if (pIdx === 0 && sec.title === 'Dados da mãe') {
+          html += '<tr><td colspan="6" class="lbl">IG por DUM</td><td colspan="18" class="val">' + (gaDum ? gaDum.weeks + 's ' + gaDum.days + 'd' : '&nbsp;') + '</td></tr>';
+          html += '<tr><td colspan="6" class="lbl">IG por US</td><td colspan="18" class="val">' + (gaUs ? gaUs.weeks + 's ' + gaUs.days + 'd' : '&nbsp;') + '</td></tr>';
         }
-        sheet.insertAdjacentHTML('beforeend', renderPrintSection(sec, partIdx, sIdx));
-      }
+        html += '</tbody></table>';
+        section.innerHTML = html;
+        sheet.appendChild(section);
+      });
     });
 
     const signature = document.createElement('div');
     signature.className = 'sig';
-    signature.innerHTML = '<span class="line"></span>Assinatura e carimbo do médico';
+    signature.innerHTML = '<span class="line"></span>Assinatura do médico responsável';
     sheet.appendChild(signature);
     host.appendChild(sheet);
   });
-
   setPrintDocumentTitle();
 }
 
@@ -1328,6 +1222,8 @@ function showPrintPreview(){
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 const btnGenerate = document.getElementById('btnGenerate');
+const btnPrintMotherFirstHour = document.getElementById('btnPrintMotherFirstHour');
+const btnPrintDischarge = document.getElementById('btnPrintDischarge');
 const btnBackToEdit = document.getElementById('btnBackToEdit');
 const btnPrint = document.getElementById('btnPrint');
 const builderHost = document.getElementById('builder');
@@ -1345,22 +1241,121 @@ function returnToEdit(){
 }
 
 gaCalcEl = document.getElementById('gaCalc');
-btnGenerate.addEventListener('click', () => {
-  buildPrintView();
+// ==================== GERAÇÃO DO LAYOUT DE IMPRESSÃO ====================
+
+function generatePrint(groupIndexes = PRINT_GROUPS.map((_, index) => index)) {
+  saveCurrentRecord();
+  let html = '';
+  
+  groupIndexes.map(index => PRINT_GROUPS[index]).forEach(group => {
+    html += `<div class="sheet">`;
+    
+    // Cabeçalho da Impressão
+    html += `
+      <div class="print-header">
+        <div class="ph-logo">${UNIPAMPA_LOGO_IMG}</div>
+        <div class="ph-text">
+          <h2 class="ph-title">${group.label}</h2>
+          <p class="ph-sub">Hospital Santa Casa de Uruguaiana</p>
+        </div>
+      </div>`;
+      
+    group.parts.forEach(partIdx => {
+      const part = DATA[partIdx];
+      const sections = group.sectionRange
+        ? part.sections.slice(group.sectionRange[0], group.sectionRange[1])
+        : part.sections;
+      sections.forEach((sec) => {
+        const sIdx = part.sections.indexOf(sec);
+        html += `<div class="p-section">`;
+        html += `<div class="p-band">${sec.title}</div>`;
+        
+        // Na impressão, os controles e informações específicas da bilirrubina não são necessários.
+        const printOnlyFields = sec.fields.filter(f => {
+          const label = f.l.toLowerCase();
+          // Mantém a ficha clínica completa no preenchimento, mas deixa a alta clara para a mãe.
+          if (partIdx !== 2 || sec.title !== 'Dados de alta do RN') return true;
+          return ![
+            'bilirrubina transcutânea (btc)',
+            'bilirrubina total sérica (bt)',
+            'outros fatores de risco para neurotoxicidade',
+            'avaliação aap 2022 (conforme calculadora oficial)'
+          ].includes(label);
+        });
+        const fields = printOnlyFields.filter(f => fieldVisible(f));
+        if (fields.length > 0) {
+          // Sorologias continuam em 3 colunas.
+          // Na alta, apenas Dados de alta, Amamentação e Encerramento ficam em 2 colunas.
+          const isSorologia = sec.title.toLowerCase().includes('sorologia');
+          const isAltaCompacta = partIdx === 2 && ![
+            'Dados de alta do RN', 'Amamentação', 'Encerramento'
+          ].includes(sec.title);
+          const columnCount = isSorologia || isAltaCompacta ? 3 : 2;
+          const columnClass = columnCount === 3 ? 'p-col-3' : 'p-col-2';
+          const rowsPerColumn = Math.ceil(fields.length / columnCount);
+
+          html += `<div class="p-row">`;
+          for (let i = 0; i < columnCount; i++) {
+            html += `<div class="${columnClass}"><table class="p-table"><tbody>`;
+            const chunk = fields.slice(i * rowsPerColumn, (i + 1) * rowsPerColumn);
+            chunk.forEach(f => {
+              const fIdx = sec.fields.indexOf(f);
+              const val = fieldPrintValue(f, partIdx + '_' + sIdx + '_' + fIdx);
+              const width = columnCount === 3 ? '' : ' style="width: 50%;"';
+              html += `<tr><td class="lbl"${width}>${f.l}</td><td class="val"${width}>${val || '-'}</td></tr>`;
+            });
+
+            // Mantém as colunas visualmente alinhadas.
+            for (let j = chunk.length; j < rowsPerColumn; j++) {
+              html += `<tr><td class="lbl">&nbsp;</td><td class="val"></td></tr>`;
+            }
+            html += `</tbody></table></div>`;
+          }
+          html += `</div>`;
+        }
+        
+        const hideAltaTechnicalNote = partIdx === 2 && sec.title === 'Dados de alta do RN';
+        if (sec.note && !hideAltaTechnicalNote) {
+          html += `<div class="p-note">${sec.note}</div>`;
+        }
+        html += `</div>`; // Fim p-section
+      });
+    });
+    
+    html += `<div class="sig"><span class="line"></span>Assinatura e carimbo do médico</div>`;
+    html += `</div>`; // Fim sheet
+  });
+  
+  printView.innerHTML = html;
+  
+  // Oculta a interface de preenchimento e mostra a impressão
   builderHost.style.display = 'none';
   printView.style.display = 'block';
+  btnGenerate.style.display = 'none';
+  btnPrintMotherFirstHour.style.display = 'inline-block';
+  btnPrintDischarge.style.display = 'inline-block';
   btnBackToEdit.style.display = 'inline-block';
   btnPrint.style.display = 'inline-block';
-  btnGenerate.style.display = 'none';
   printHintText.style.display = 'block';
-  headerSub.textContent = 'Confira o resumo formatado abaixo antes de imprimir';
-  // A linha 'window.print();' que estava aqui foi REMOVIDA
+  headerSub.textContent = 'Confira o resumo gerado antes de imprimir ou salvar o PDF.';
+}
+
+btnGenerate.addEventListener('click', () => generatePrint());
+btnPrintMotherFirstHour.addEventListener('click', () => {
+  generatePrint([0, 1]);
+  setTimeout(() => window.print(), 100);
+});
+btnPrintDischarge.addEventListener('click', () => {
+  generatePrint([2]);
+  setTimeout(() => window.print(), 100);
 });
 
 btnBackToEdit.addEventListener('click', () => {
   builderHost.style.display = 'block';
   printView.style.display = 'none';
   btnBackToEdit.style.display = 'none';
+  btnPrintMotherFirstHour.style.display = 'none';
+  btnPrintDischarge.style.display = 'none';
   btnPrint.style.display = 'none';
   btnGenerate.style.display = 'inline-block';
   printHintText.style.display = 'none';
@@ -1375,6 +1370,12 @@ btnPrint.addEventListener('click', () => {
 
 // Inicialização das funções base que você já tinha no código
 setupGaCalc();
+document.getElementById('btnToggleHistory').addEventListener('click', toggleHistory);
+document.getElementById('btnNewRecord').addEventListener('click', () => {
+  if(Object.keys(answers).length && !confirm('Criar um novo RN? O registro atual continuará salvo no histórico.')) return;
+  startNewRecord();
+});
+renderHistory();
 renderBuilder();
 
 </script>
