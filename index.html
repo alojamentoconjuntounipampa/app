@@ -19,9 +19,32 @@
 body{ margin:0; font-family:"Iowan Old Style","Georgia",serif; background:#EFECE3; color:var(--ink); }
 header.app-header{ background:var(--ink); color:#F2EFE6; padding:18px 24px; position:sticky; top:0; z-index:20; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
 header.app-header h1{ font-size:1.05rem; margin:0 0 2px 0; font-weight:600; letter-spacing:.2px; }
+.actions button, .tab-btn, .btn-mini, .btn-primary, .btn-secondary, .btn-ghost{box-shadow:0 4px 10px rgba(15,110,99,.12);}
+.btn-primary{background:linear-gradient(135deg,#0f6e63,#15947f);font-weight:700;}
+.btn-secondary{font-weight:600;}
+.tab-btn{background:#fff;border:1px solid #d8e2dd;border-radius:10px;padding:10px 14px;margin:0 2px 8px;color:var(--ink);}
+.tab-btn.active{background:var(--accent-soft);border-color:var(--accent);}
+.tabs{border:0;gap:6px;flex-wrap:wrap;}
 header.app-header p{ margin:0; font-size:.78rem; color:#C9D6D2; font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; }
 .actions{display:flex; gap:8px; font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; flex-wrap:wrap;}
-button{ font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; cursor:pointer; border-radius:var(--radius); border:1px solid transparent; font-size:.82rem; padding:8px 14px; transition:background .15s ease; }
+button{
+  font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+  cursor:pointer;
+  min-height:40px;
+  border-radius:8px;
+  border:1px solid transparent;
+  font-size:.84rem;
+  font-weight:600;
+  padding:9px 14px;
+  transition:background .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+button:hover{
+  transform:translateY(-1px);
+}
+button:focus-visible{
+  outline:3px solid rgba(21,148,127,.28);
+  outline-offset:2px;
+}
 .btn-primary{background:var(--accent); color:#fff;}
 .btn-primary:hover{background:#0B5850;}
 .btn-ghost{background:transparent; color:#F2EFE6; border-color:#5A7069;}
@@ -68,7 +91,7 @@ section.card > .card-head h2{ font-family:-apple-system,"Segoe UI",Helvetica,Ari
 .bilirubin-result.danger{ background:#FBE6E6; color:#9C2E2E; border-color:#EFC0C0; }
 footer.hint{ font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; font-size:.76rem; color:var(--ink-soft); text-align:center; margin-top:20px; }
 .history-card{ background:var(--paper); border:1px solid var(--paper-line); border-radius:var(--radius); margin:0 0 14px; padding:12px 14px; font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; }
-.history-card h2{ margin:0 0 8px; font-size:.78rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); }
+.history-card h2{ margin:0 0 8px; font-size:.78rem; text-transform:none; letter-spacing:.06em; color:var(--ink-soft); }
 .history-empty{ margin:0; color:var(--ink-soft); font-size:.76rem; }
 .history-list{ display:grid; gap:6px; }
 .history-item{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 10px; background:#fff; border:1px solid var(--paper-line); border-radius:var(--radius); }
@@ -76,8 +99,19 @@ footer.hint{ font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; fo
 .history-info strong{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .history-info span{ color:var(--ink-soft); font-size:.7rem; }
 .history-actions{ display:flex; gap:5px; flex-shrink:0; }
-.history-actions button{ padding:5px 8px; font-size:.7rem; }
-@media (max-width:640px){ .history-item{ align-items:flex-start; flex-direction:column; } .history-actions{ width:100%; } .history-actions button{ flex:1; } }
+.history-actions button{
+  min-height:40px;
+  padding:9px 14px;
+  font-size:.84rem;
+  font-weight:600;
+  border-radius:8px;
+  white-space:nowrap;
+}
+@media (max-width:640px){
+  .history-item{ align-items:flex-start; flex-direction:column; }
+  .history-actions{ width:100%; }
+  .history-actions button{ flex:1; min-width:0; }
+}
 @media (max-width:640px){
 .field-row{grid-template-columns:1fr; gap:6px;}
 .field-label{padding-top:0;}
@@ -111,6 +145,14 @@ body.login-mode #loginForm input{background:#fff;border-color:#d8e2dd;padding:12
 body.login-mode #loginForm input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(15,110,99,.12);}
 body.login-mode #loginForm .btn-primary{background:linear-gradient(135deg,#0f6e63,#15947f);box-shadow:0 8px 18px rgba(15,110,99,.2);padding:11px 14px;}
 body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
+.tab-navigation{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:24px 0 10px;padding:16px;background:rgba(228,239,233,.7);border-radius:14px;}
+.tab-navigation p{width:100%;margin:0 0 2px;text-align:center;font:600 .8rem -apple-system,"Segoe UI",sans-serif;color:var(--ink-soft);}
+.tab-navigation button{min-width:150px;}
+@media print{
+  .print-header{background:#e4efe9;border:2px solid #0f6e63;border-radius:14px;padding:8px;}
+  .p-band{background:#dceee7!important;border-color:#0f6e63!important;border-radius:8px;color:#1b3a4b!important;}
+  .sheet{border:2px solid #0f6e63!important;border-radius:12px;padding:6px!important;}
+}
 
 @media screen and (min-width:641px){
   header.app-header{background:linear-gradient(110deg,#1b3a4b,#145b62);box-shadow:0 4px 18px rgba(27,58,75,.16);}
@@ -183,9 +225,12 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
   box-sizing: border-box !important;
 }
 
-/* CONFIGURAÇÕES DE IMPRESSÃO */
+/* Configurações de Impressão: Layout bonito e infantil */
 @media print {
-  @page { size: A4 portrait; margin: 3mm; }
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
 
   *, *::before, *::after {
     color: #000 !important;
@@ -197,9 +242,12 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
   body {
     background: #fff !important;
     color: #000 !important;
+    font-family: 'Arial', sans-serif !important;
   }
 
-  header.app-header, .tabs, .intro, footer.hint, #builder, .no-print, .print-hint, .top-bar, #btnGenerate, #btnSaveDatabase, #btnBackToEdit, #btnPrint, #btnPrintMotherFirstHour, #btnPrintDischarge, #printHintText {
+  header.app-header, .tabs, .intro, footer.hint, #builder, .no-print, .print-hint, .top-bar,
+  #btnGenerate, #btnSaveDatabase, #btnBackToEdit, #btnPrint, #btnPrintMotherFirstHour,
+  #btnPrintDischarge, #printHintText {
     display: none !important;
   }
 
@@ -212,66 +260,253 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
   }
 
   .sheet {
+    position: relative !important;
     box-shadow: none !important;
-    border: none !important;
-    padding: 0 !important;
+    border: 1px solid #b9d8cf !important;
+    border-radius: 10px !important;
+    padding: 8px !important;
     margin: 0 !important;
     width: 100% !important;
-    height: auto !important;
+    min-height: 281mm !important;
+    height: 281mm !important;
     page-break-after: always;
+    break-after: page;
+    overflow: hidden !important;
+    background: #fff !important;
+  }
+
+  .sheet.playful-sheet {
+    border: 2px solid #86cfc0 !important;
+    background:
+      radial-gradient(circle at 12% 12%, rgba(255,210,102,.26) 0 18px, transparent 19px),
+      radial-gradient(circle at 90% 18%, rgba(255,143,171,.22) 0 24px, transparent 25px),
+      linear-gradient(135deg, #f5fffb, #edf8ff) !important;
+  }
+
+  .sheet.playful-sheet::before {
+    content: '✦  ★  ☁  ♡  ✿  ★  ✦';
+    display: block;
+    position: absolute;
+    top: 3mm;
+    right: 8mm;
+    color: #75bfae !important;
+    font-size: 13px;
+    letter-spacing: 4px;
+    opacity: .75;
+  }
+
+  .sheet.playful-sheet .p-section {
+    border-color: #b9ded5 !important;
+    border-radius: 9px !important;
+  }
+
+  .sheet.playful-sheet .p-band {
+    background: linear-gradient(135deg, #48a995, #72c6b4) !important;
+  }
+
+  .sheet.playful-sheet::after {
+    content: '☁  🐻  🐰  ⭐  🐣  🌈';
+    display: block;
+    position: absolute;
+    bottom: 4mm;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    color: #6eb8aa !important;
+    font-size: 18px;
+    letter-spacing: 5px;
+    opacity: .55;
   }
 
   .sheet:last-child {
     page-break-after: auto;
+    border: 2px solid #0f6e63 !important;
+    background: linear-gradient(135deg, #f4fbf8, #e8f4f0) !important;
+    position: relative;
+  }
+
+  .sheet.playful-sheet:last-child {
+    border-color: #86cfc0 !important;
+    background:
+      radial-gradient(circle at 12% 12%, rgba(255,210,102,.26) 0 18px, transparent 19px),
+      radial-gradient(circle at 90% 18%, rgba(255,143,171,.22) 0 24px, transparent 25px),
+      linear-gradient(135deg, #f5fffb, #edf8ff) !important;
+  }
+
+  .sheet.playful-sheet:last-child::before {
+    content: 'Bem-vindo ao mundo, pequeno!  ✦  🐻  🐰';
+    display: block;
+    text-align: center;
+    font-size: 15px;
+    font-weight: bold;
+    color: #0f6e63;
+    margin-bottom: 6px;
+  }
+
+  .sheet:last-child .p-section {
+    background: #fff !important;
+    border: 2px solid #d5e4de !important;
+    border-radius: 10px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .sheet:last-child .p-band {
+    background: linear-gradient(135deg, #15947f, #0f6e63) !important;
+    font-size: 0.85rem !important;
+    padding: 6px 10px !important;
+  }
+
+  .sheet:last-child .p-note {
+    background: #fff3cd !important;
+    border: 1px solid #f5c6cb !important;
+    color: #856404 !important;
+  }
+
+  .print-header {
+    display: flex !important;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px !important;
+    border-bottom: 2px solid #0f6e63;
+    padding-bottom: 10px;
+  }
+
+  .print-header .ph-logo svg {
+    width: 50px !important;
+    height: 50px !important;
+  }
+
+  .print-header .ph-text {
+    flex: 1;
+    text-align: center;
+  }
+
+  .print-header .ph-text .ph-title {
+    font-size: 1.2rem !important;
+    font-weight: bold;
+    color: #0f6e63;
+    margin: 0;
+  }
+
+  .print-header .ph-text .ph-sub {
+    font-size: 0.9rem;
+    color: #145b62;
+    margin: 2px 0 0;
+  }
+
+  .print-header .ph-text .ph-hosp {
+    font-size: 0.7rem;
+    color: #2c3e50;
+    margin: 2px 0 0;
   }
 
   .p-section {
-    margin-bottom: 3px !important;
+    margin-bottom: 5px !important;
     break-inside: avoid;
     page-break-inside: avoid;
+    border: 1px solid #d5e4de;
+    border-radius: 8px;
+    padding: 6px;
+    background: #fff;
   }
-.p-band {
-    padding: 2px 4px !important;
-    font-size: 0.68rem !important;
-    font-weight: bold;
-    background: #eee !important;
-    color: #000 !important;
-    border: 1px solid #000 !important;
+
+  .sheet > .p-band {
+    margin-bottom: 6px !important;
+    font-size: .82rem !important;
+    padding: 5px 7px !important;
+  }
+
+  .p-row {
+    align-items: stretch !important;
+  }
+
+  .p-col-2, .p-col-3 {
+    overflow: hidden !important;
+  }
+
+  .p-table {
+    table-layout: fixed !important;
+    width: 100% !important;
   }
 
   .p-table td {
-    padding: 1.5px 3px !important;
-    font-size: 0.60rem !important;
-    line-height: 1.1 !important;
-    border: 1px solid #000 !important;
-    color: #000 !important;
+    line-height: 1.12 !important;
+    overflow-wrap: anywhere !important;
   }
 
-  /* Oculta completamente a linha guia de 24 colunas para não desenhar células vazias */
-  .grid-24, .grid-24 tr {
-    display: none !important;
-    height: 0 !important;
-    line-height: 0 !important;
+  .p-table td.lbl {
+    width: 50% !important;
   }
 
-  .grid-24 td {
-    display: none !important;
+  .p-table td.val {
+    width: 50% !important;
+  }
+
+  .p-col-3 .p-table td.lbl {
+    width: 75% !important;
+  }
+
+  .p-col-3 .p-table td.val {
+    width: 25% !important;
+  }
+
+  .p-band {
+    background: linear-gradient(135deg, #0f6e63, #15947f) !important;
+    color: #fff !important;
+    font-weight: bold;
+    text-align: center;
+    font-size: 0.72rem !important;
+    padding: 3px 6px !important;
+    border-radius: 6px !important;
+    margin-bottom: 8px;
     border: none !important;
-    padding: 0 !important;
-    height: 0 !important;
-    width: 0 !important;
-    font-size: 0 !important;
   }
 
-  /* Garante que o container de colunas não quebre para a linha de baixo */
+  .p-note {
+    font-size: 0.65rem !important;
+    color: #5d6d7e !important;
+    padding: 4px 8px !important;
+    border: 1px solid #d5e4de !important;
+    border-radius: 4px;
+    margin-top: 6px;
+    background: #f8fcfb;
+  }
+
+  .p-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin-bottom: 0 !important;
+    font-size: 0.65rem !important;
+  }
+
+  .p-table td {
+    border: 1px solid #0f6e63 !important;
+    padding: 3px 5px !important;
+    vertical-align: middle;
+  }
+
+  .p-table td.lbl {
+    font-weight: bold;
+    background: #e8f4f0 !important;
+    color: #0f6e63;
+  }
+
+  .p-table td.val {
+    background: #fff;
+  }
+
+  .grid-24, .grid-24 tr, .grid-24 td {
+    display: none !important;
+  }
+
   .p-row {
     display: flex !important;
     flex-direction: row !important;
     flex-wrap: nowrap !important;
-    gap: 4px !important;
+    gap: 6px !important;
     width: 100% !important;
     box-sizing: border-box !important;
-    margin-bottom: 3px !important;
+    margin-bottom: 6px !important;
     page-break-inside: avoid;
     break-inside: avoid;
   }
@@ -282,6 +517,1234 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
     min-width: 0 !important;
     max-width: 100% !important;
     box-sizing: border-box !important;
+  }
+
+  .sig {
+    margin-top: 20px !important;
+    text-align: center;
+    font-size: 0.7rem !important;
+    border-top: 1px solid #0f6e63;
+    padding-top: 10px;
+  }
+
+  .sig .line {
+    display: block;
+    border-top: 1px solid #000;
+    width: 250px;
+    margin: 20px auto 6px;
+  }
+}
+
+/* Impressão final: quatro folhas A4, clean, compactas e sem conteúdo cortado. */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 7mm;
+  }
+
+  html, body {
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+    background: #fff !important;
+  }
+
+  #printView {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #printView .sheet {
+    width: 100% !important;
+    min-height: 283mm !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 5mm !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    border: 1px solid #b8c9c5 !important;
+    border-radius: 3px !important;
+    background: #fff !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+  }
+
+  #printView .sheet:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+    border-color: #b8c9c5 !important;
+    background: #fff !important;
+  }
+
+  /* Retira os elementos decorativos da versão para a caderneta. */
+  #printView .sheet.playful-sheet::before,
+  #printView .sheet.playful-sheet::after,
+  #printView .sheet.playful-sheet:last-child::before {
+    display: none !important;
+    content: none !important;
+  }
+
+  #printView .print-header {
+    gap: 5mm !important;
+    margin-bottom: 3mm !important;
+    padding-bottom: 2mm !important;
+    border-bottom: 1px solid #8aa9a1 !important;
+  }
+
+  #printView .print-header .ph-logo img {
+    width: 34px !important;
+    max-height: 34px !important;
+  }
+
+  #printView .print-header .ph-text .ph-title {
+    font-size: .95rem !important;
+    color: #1b3a4b !important;
+  }
+
+  #printView .print-header .ph-text .ph-sub {
+    font-size: .72rem !important;
+    color: #3f5a68 !important;
+  }
+
+  #printView .p-section {
+    margin: 0 0 2mm !important;
+    padding: 1.5mm !important;
+    border: 1px solid #cbd9d5 !important;
+    border-radius: 2px !important;
+    background: #fff !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  #printView .p-band,
+  #printView .sheet > .p-band {
+    margin: 0 0 1.5mm !important;
+    padding: 1.2mm 2mm !important;
+    border: 0 !important;
+    border-radius: 1px !important;
+    background: #e8f1ef !important;
+    color: #1b3a4b !important;
+    font-size: .62rem !important;
+    line-height: 1.1 !important;
+  }
+
+  #printView .sheet > .p-band {
+    background: #1b3a4b !important;
+    color: #fff !important;
+    font-size: .72rem !important;
+    text-align: left !important;
+  }
+
+  #printView .p-row {
+    display: flex !important;
+    gap: 2mm !important;
+    margin: 0 !important;
+    align-items: stretch !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  #printView .p-col-2,
+  #printView .p-col-3 {
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  #printView .p-table {
+    width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+    margin: 0 !important;
+  }
+
+  #printView .p-table td {
+    height: auto !important;
+    padding: 1.1px 2.2px !important;
+    border: 1px solid #9fb8b1 !important;
+    font-size: .47rem !important;
+    line-height: 1.08 !important;
+    vertical-align: middle !important;
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+  }
+
+  #printView .p-table td.lbl {
+    width: 50% !important;
+    background: #f2f6f5 !important;
+    color: #1b3a4b !important;
+    font-weight: 600 !important;
+  }
+
+  #printView .p-table td.val {
+    width: 50% !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  #printView .p-col-3 .p-table td.lbl { width: 75% !important; }
+  #printView .p-col-3 .p-table td.val { width: 25% !important; }
+
+  #printView .p-note {
+    margin: 1mm 0 0 !important;
+    padding: 1mm 1.5mm !important;
+    border: 1px solid #cbd9d5 !important;
+    background: #fafcfc !important;
+    color: #3f5a68 !important;
+    font-size: .45rem !important;
+    line-height: 1.12 !important;
+  }
+
+  #printView .sig {
+    margin-top: 5mm !important;
+    padding-top: 2mm !important;
+    border-top: 1px solid #b8c9c5 !important;
+    font-size: .55rem !important;
+  }
+
+  #printView .sig .line {
+    width: 55mm !important;
+    margin: 5mm auto 1mm !important;
+  }
+}
+/* Visual refinado: clean, minimalista, prático para uso diário */
+@media screen {
+  body {
+    background:
+      radial-gradient(circle at 20% 50%, rgba(228,239,233,.9), transparent 50%),
+      linear-gradient(135deg, #f0f8f5 0%, #e8f4f0 50%, #d8efe8 100%);
+    font-family: "Avenir Next", "Trebuchet MS", "Segoe UI", sans-serif;
+    min-height: 100vh;
+    color: #2c3e50;
+  }
+
+  header.app-header {
+    background: linear-gradient(135deg, #0f6e63, #145b62);
+    color: #fff;
+    padding: 16px 20px;
+    box-shadow: 0 4px 12px rgba(15,110,99,.2);
+    border-bottom: none;
+  }
+
+  header.app-header h1 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 0;
+  }
+
+  header.app-header p {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    margin: 4px 0 0;
+  }
+
+  main {
+    max-width: 1000px;
+    padding: 20px 24px;
+    margin: 0 auto;
+  }
+
+  section.card,
+  .history-card,
+  .calc-card {
+    background: #fff;
+    border: 1px solid #e8f4f0;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(15,110,99,.1);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+
+  section.card > .card-head {
+    background: linear-gradient(135deg, #f8fcfb, #f0f8f5);
+    border-bottom: 1px solid #e8f4f0;
+    padding: 14px 18px;
+  }
+
+  section.card > .card-head h2 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0f6e63;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .field-row {
+    border-top: 1px solid #f0f8f5;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .field-row:first-child {
+    border-top: none;
+  }
+
+  .field-label {
+    font-weight: 500;
+    color: #34495e;
+    min-width: 200px;
+  }
+
+  .field-inputs {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .field-row input,
+  .field-row select {
+    border: 1px solid #d5e4de;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    background: #fff;
+    transition: all 0.2s ease;
+    min-width: 200px;
+  }
+
+  .field-row input:focus,
+  .field-row select:focus {
+    outline: none;
+    border-color: #0f6e63;
+    box-shadow: 0 0 0 2px rgba(15,110,99,.2);
+  }
+
+  button {
+    border-radius: 8px;
+    font-weight: 500;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+    border: none;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #0f6e63, #15947f);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(15,110,99,.3);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #0b5850, #0f806f);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background: #fff;
+    color: #0f6e63;
+    border: 1px solid #0f6e63;
+  }
+
+  .btn-secondary:hover {
+    background: #0f6e63;
+    color: #fff;
+  }
+
+  .btn-mini {
+    background: #e8f4f0;
+    color: #0f6e63;
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    border: 1px solid #d5e4de;
+  }
+
+  .btn-mini:hover {
+    background: #d8efe8;
+  }
+
+  .tabs {
+    background: #fff;
+    border: 1px solid #e8f4f0;
+    border-radius: 10px;
+    padding: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(15,110,99,.1);
+  }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #7f8c8d;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .tab-btn.active {
+    background: linear-gradient(135deg, #0f6e63, #15947f);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(15,110,99,.3);
+  }
+
+  .tab-btn:hover {
+    background: rgba(15,110,99,.1);
+  }
+
+  .intro {
+    background: #fff;
+    border: 1px solid #e8f4f0;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(15,110,99,.1);
+    color: #5d6d7e;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .calc-card {
+    border: 2px solid #0f6e63;
+    border-radius: 12px;
+  }
+
+  .calc-card > h2 {
+    background: linear-gradient(135deg, #0f6e63, #145b62);
+    color: #fff;
+    padding: 12px 18px;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .calc-body {
+    padding: 18px;
+  }
+
+  .calc-row {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    margin-bottom: 12px;
+  }
+
+  .calc-field {
+    flex: 1;
+  }
+
+  .calc-field label {
+    display: block;
+    font-weight: 500;
+    color: #34495e;
+    margin-bottom: 4px;
+    font-size: 0.85rem;
+  }
+
+  .calc-field input,
+  .calc-field select {
+    width: 100%;
+    border: 1px solid #d5e4de;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  .calc-field input:focus,
+  .calc-field select:focus {
+    border-color: #0f6e63;
+    box-shadow: 0 0 0 2px rgba(15,110,99,.2);
+  }
+
+  .calc-result {
+    background: #e8f4f0;
+    color: #0f6e63;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-weight: 500;
+    border: 1px solid #d5e4de;
+  }
+
+  .note-box {
+    background: #fff3cd;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    color: #856404;
+    line-height: 1.4;
+  }
+
+  .tab-navigation {
+    background: linear-gradient(135deg, #f8fcfb, #f0f8f5);
+    border: 1px solid #e8f4f0;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 24px 0 16px;
+    box-shadow: 0 2px 8px rgba(15,110,99,.1);
+  }
+
+  .tab-navigation p {
+    margin: 0 0 12px;
+    font-weight: 500;
+    color: #34495e;
+  }
+
+  .history-card {
+    background: #fff;
+    border: 1px solid #e8f4f0;
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: 0 2px 8px rgba(15,110,99,.1);
+  }
+
+  .history-card h2 {
+    color: #0f6e63;
+    font-size: 0.95rem;
+    margin: 0 0 12px;
+  }
+
+  .history-item {
+    background: #f8fcfb;
+    border: 1px solid #e8f4f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+  }
+
+  .history-info strong {
+    color: #2c3e50;
+  }
+
+  .history-info span {
+    color: #7f8c8d;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+}
+/* Visual da pré-visualização: deve reproduzir fielmente a folha impressa. */
+@media screen {
+  #printView {
+    background: #dfeee9;
+    padding: 18px 0 32px;
+  }
+
+  #printView .sheet {
+    font-family: Arial, sans-serif;
+    font-size: .68rem;
+    background: #fff;
+    border: 1px solid #b9d8cf;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(27,58,75,.12);
+    padding: 10px;
+    margin: 0 auto 16px;
+    max-width: 1120px;
+    page-break-after: always;
+  }
+
+  #printView .sheet:last-child {
+    background: linear-gradient(135deg, #f4fbf8, #e8f4f0);
+    border: 2px solid #0f6e63;
+  }
+
+  #printView .p-section {
+    margin-bottom: 6px;
+    border: 1px solid #cfe2db;
+    border-radius: 7px;
+    padding: 5px;
+    background: #fff;
+  }
+
+  #printView .p-band {
+    background: linear-gradient(135deg, #0f6e63, #15947f);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: .72rem;
+    padding: 4px 7px;
+    margin-bottom: 5px;
+  }
+
+  #printView .p-note {
+    background: #f8fcfb;
+    color: #526b70;
+    border: 1px solid #d5e4de;
+    border-radius: 4px;
+    padding: 4px 6px;
+    margin-top: 5px;
+    font-size: .58rem;
+  }
+
+  #printView .p-table td {
+    border: 1px solid #8fb8aa;
+    padding: 2px 4px;
+    font-size: .58rem;
+  }
+
+  #printView .p-table td.lbl {
+    background: #e8f4f0;
+    color: #0f6e63;
+  }
+
+  #printView .p-table td.val { background: #fff; }
+  #printView .sig { margin-top: 10px; }
+}
+
+/* Impressão final: quatro páginas A4 fixas, limpas e sem divisão de seções. */
+@media print {
+  @page { size: A4 portrait; margin: 8mm 10mm; }
+
+  html, body {
+    width: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    color: #111 !important;
+  }
+
+  header.app-header, .tabs, .intro, footer.hint, #builder, .no-print,
+  .print-hint, #btnGenerate, #btnSaveDatabase, #btnBackToEdit, #btnPrint,
+  #btnSavePdf, #btnLogout, #printHintText { display: none !important; }
+
+  #printView {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  #printView .sheet {
+    width: 190mm !important;
+    height: 281mm !important;
+    min-height: 281mm !important;
+    max-height: 281mm !important;
+    margin: 0 !important;
+    padding: 5mm !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    background: #fff !important;
+    border: 1px solid #cfcfcf !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+  }
+
+  #printView .sheet:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  #printView .print-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4mm !important;
+    margin: 0 0 3mm !important;
+    padding: 0 0 2mm !important;
+    border-bottom: 1px solid #bdbdbd !important;
+  }
+
+  #printView .print-header .ph-logo img {
+    width: 27mm !important;
+    height: auto !important;
+    max-height: 17mm !important;
+    object-fit: contain !important;
+  }
+
+  #printView .ph-text { text-align: center !important; }
+  #printView .ph-text .ph-title {
+    margin: 0 !important;
+    color: #111 !important;
+    font-size: 11pt !important;
+    line-height: 1.15 !important;
+  }
+  #printView .ph-text .ph-sub {
+    margin: 1mm 0 0 !important;
+    color: #444 !important;
+    font-size: 8.5pt !important;
+  }
+  #printView .ph-text .ph-hosp { font-size: 7pt !important; color: #555 !important; }
+
+  #printView > .sheet > .p-band {
+    margin: 0 0 2.5mm !important;
+    padding: 2mm 3mm !important;
+    background: #eeeeee !important;
+    color: #111 !important;
+    border: 1px solid #d1d1d1 !important;
+    border-radius: 0 !important;
+    font-size: 9pt !important;
+    line-height: 1.1 !important;
+    text-align: left !important;
+  }
+
+  #printView .p-section {
+    margin: 0 0 2mm !important;
+    padding: 0 !important;
+    background: #fff !important;
+    border: 1px solid #d8d8d8 !important;
+    border-radius: 0 !important;
+    overflow: hidden !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  #printView .p-section > .p-band {
+    margin: 0 !important;
+    padding: 1.3mm 2mm !important;
+    background: #f2f2f2 !important;
+    color: #222 !important;
+    border: 0 !important;
+    border-bottom: 1px solid #d8d8d8 !important;
+    border-radius: 0 !important;
+    font-size: 7.5pt !important;
+    line-height: 1.1 !important;
+    text-align: left !important;
+  }
+
+  #printView .p-row {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 2mm !important;
+    width: 100% !important;
+    margin: 0 !important;
+    align-items: stretch !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  #printView .p-col-2, #printView .p-col-3 {
+    flex: 1 1 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    overflow: hidden !important;
+  }
+
+  #printView .p-table {
+    width: 100% !important;
+    margin: 0 !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+  }
+
+  #printView .p-table td {
+    height: auto !important;
+    padding: 1.2mm 1.5mm !important;
+    border: 1px solid #d2d2d2 !important;
+    color: #111 !important;
+    font-size: 7pt !important;
+    line-height: 1.15 !important;
+    vertical-align: middle !important;
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+  }
+
+  #printView .p-table td.lbl {
+    width: 50% !important;
+    background: #fafafa !important;
+    color: #333 !important;
+    font-weight: 700 !important;
+  }
+  #printView .p-table td.val { width: 50% !important; background: #fff !important; }
+  #printView .p-col-3 .p-table td.lbl { width: 75% !important; }
+  #printView .p-col-3 .p-table td.val { width: 25% !important; }
+
+  #printView .p-note {
+    margin: 1.5mm 2mm 2mm !important;
+    padding: 1.5mm 2mm !important;
+    border: 1px solid #dedede !important;
+    background: #fafafa !important;
+    color: #444 !important;
+    font-size: 6.5pt !important;
+    line-height: 1.2 !important;
+    white-space: pre-line !important;
+  }
+
+  #printView .sig {
+    margin: 7mm 0 0 !important;
+    padding-top: 2mm !important;
+    border-top: 1px solid #ccc !important;
+    color: #222 !important;
+    font-size: 7pt !important;
+    text-align: center !important;
+  }
+  #printView .sig .line {
+    width: 55mm !important;
+    margin: 5mm auto 1mm !important;
+    border-top: 1px solid #222 !important;
+  }
+
+  /* As quatro folhas permanecem neutras, inclusive a página de alta. */
+  #printView .alta-sheet { background: #fff !important; border-color: #cfcfcf !important; }
+  #printView .alta-sheet::before, #printView .alta-sheet::after { display: none !important; content: none !important; }
+}
+
+/* Impressão consolidada: quatro páginas A4, sem folha em branco extra. */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm 10mm;
+  }
+
+  html,
+  body {
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+    overflow: hidden !important;
+  }
+
+  #printView {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  /* Cada item de PRINT_GROUPS corresponde a uma página fechada. */
+  #printView > .sheet {
+    width: 100% !important;
+    height: 277mm !important;
+    min-height: 277mm !important;
+    max-height: 277mm !important;
+    margin: 0 !important;
+    padding: 4mm !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    position: relative !important;
+    background: #fff !important;
+    border: 1px solid #d9dfe2 !important;
+    border-radius: 3px !important;
+    box-shadow: none !important;
+    page-break-before: auto !important;
+    break-before: auto !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* A última folha não pode solicitar uma página posterior. */
+  #printView > .sheet:last-child,
+  #printView > .sheet:last-of-type {
+    page-break-after: auto !important;
+    break-after: avoid !important;
+    page-break-before: auto !important;
+    break-before: auto !important;
+  }
+
+  #printView .print-header {
+    height: 15mm !important;
+    margin: 0 0 2mm !important;
+    padding: 0 0 1.5mm !important;
+    gap: 3mm !important;
+    border-bottom: 1px solid #cbd3d6 !important;
+  }
+
+  #printView .print-header .ph-logo img {
+    width: 22mm !important;
+    max-height: 12mm !important;
+  }
+
+  #printView .ph-text .ph-title {
+    margin: 0 !important;
+    color: #263b47 !important;
+    font-size: 10pt !important;
+    line-height: 1.15 !important;
+  }
+
+  #printView .ph-text .ph-sub {
+    margin: 1mm 0 0 !important;
+    color: #52636b !important;
+    font-size: 7.5pt !important;
+  }
+
+  #printView .p-section {
+    margin: 0 0 1.2mm !important;
+    padding: 0 !important;
+    border: 1px solid #dfe4e6 !important;
+    border-radius: 3px !important;
+    background: #fff !important;
+    overflow: hidden !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  #printView > .sheet > .p-band,
+  #printView .p-section > .p-band {
+    margin: 0 !important;
+    padding: 1.2mm 2mm !important;
+    background: #f1f3f4 !important;
+    color: #263b47 !important;
+    border: 0 !important;
+    border-bottom: 1px solid #dfe4e6 !important;
+    border-radius: 0 !important;
+    font-size: 7.5pt !important;
+    font-weight: 700 !important;
+    line-height: 1.05 !important;
+    text-align: left !important;
+  }
+
+  #printView > .sheet > .p-band {
+    background: #e8edef !important;
+    font-size: 8.5pt !important;
+  }
+
+  #printView .p-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 1.5mm !important;
+    width: 100% !important;
+    margin: 0 !important;
+    align-items: stretch !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  #printView .p-col-2,
+  #printView .p-col-3 {
+    flex: 1 1 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+
+  #printView .p-table {
+    width: 100% !important;
+    margin: 0 !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+  }
+
+  #printView .p-table td {
+    padding: 1.2px 3px !important;
+    border: 1px solid #d9dfe2 !important;
+    color: #202b30 !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 7.5pt !important;
+    line-height: 1.08 !important;
+    vertical-align: middle !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  #printView .p-table td.lbl {
+    width: 50% !important;
+    background: #f8f9f9 !important;
+    color: #4b5960 !important;
+    font-weight: 700 !important;
+  }
+
+  #printView .p-table td.val {
+    width: 50% !important;
+    background: #fff !important;
+  }
+
+  #printView .p-col-3 .p-table td.lbl { width: 72% !important; }
+  #printView .p-col-3 .p-table td.val { width: 28% !important; }
+
+  #printView .p-note {
+    margin: 1mm 1.5mm !important;
+    padding: 1mm 1.5mm !important;
+    border: 1px solid #e0e4e5 !important;
+    background: #fafbfb !important;
+    color: #59666c !important;
+    font-size: 6.5pt !important;
+    line-height: 1.1 !important;
+  }
+
+  #printView .sig {
+    position: absolute !important;
+    right: 4mm !important;
+    bottom: 4mm !important;
+    left: 4mm !important;
+    margin: 0 !important;
+    padding-top: 1.5mm !important;
+    border-top: 1px solid #cbd3d6 !important;
+    color: #39484f !important;
+    font-size: 7pt !important;
+    text-align: center !important;
+  }
+
+  #printView .sig .line {
+    width: 48mm !important;
+    margin: 2.5mm auto 1mm !important;
+    border-top: 1px solid #52636b !important;
+  }
+
+  /* A alta concentra mais seções; reduz somente seu conteúdo, mantendo leitura. */
+  #printView .page-alta .p-section {
+    margin-bottom: .7mm !important;
+  }
+
+  #printView .page-alta .p-table td {
+    padding: 1px 2.5px !important;
+    font-size: 7pt !important;
+    line-height: 1.02 !important;
+  }
+
+  #printView .page-alta .p-band,
+  #printView .page-alta > .p-band {
+    padding-top: .9mm !important;
+    padding-bottom: .9mm !important;
+    font-size: 7pt !important;
+  }
+
+  #printView .page-alta .p-note {
+    font-size: 6pt !important;
+    line-height: 1.05 !important;
+  }
+}
+/* Impressão consolidada: quatro páginas A4, sem altura artificial nem folha extra. */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm 10mm;
+  }
+
+  html,
+  body {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    color: #202b30 !important;
+  }
+
+  header.app-header,
+  .tabs,
+  .intro,
+  footer.hint,
+  #builder,
+  .no-print,
+  .print-hint,
+  #btnGenerate,
+  #btnSaveDatabase,
+  #btnBackToEdit,
+  #btnPrint,
+  #btnSavePdf,
+  #btnLogout,
+  #printHintText {
+    display: none !important;
+  }
+
+  #printView {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  /* As quatro folhas são separadas apenas entre si. */
+  #printView > .sheet {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 3mm !important;
+    background: #fff !important;
+    border: 1px solid #d9dfe2 !important;
+    border-radius: 3px !important;
+    box-shadow: none !important;
+    page-break-before: auto !important;
+    break-before: auto !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+
+  /* Não criar uma quinta página depois de Alta hospitalar. */
+  #printView > .sheet:last-child,
+  #printView > .sheet:last-of-type {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  #printView .print-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 3mm !important;
+    margin: 0 0 2mm !important;
+    padding: 0 0 1.5mm !important;
+    border-bottom: 1px solid #cbd3d6 !important;
+  }
+
+  #printView .print-header .ph-logo img {
+    width: 20mm !important;
+    max-height: 12mm !important;
+    object-fit: contain !important;
+  }
+
+  #printView .ph-text {
+    flex: 1 !important;
+    text-align: center !important;
+  }
+
+  #printView .ph-text .ph-title {
+    margin: 0 !important;
+    color: #263b47 !important;
+    font-size: 10pt !important;
+    line-height: 1.15 !important;
+  }
+
+  #printView .ph-text .ph-sub {
+    margin: 1mm 0 0 !important;
+    color: #52636b !important;
+    font-size: 7.5pt !important;
+  }
+
+  #printView .ph-text .ph-hosp {
+    margin: 1mm 0 0 !important;
+    color: #59666c !important;
+    font-size: 6.5pt !important;
+  }
+
+  /* Blocos médicos leves, sem bordas pretas pesadas. */
+  #printView .p-section {
+    margin: 0 0 1.5mm !important;
+    padding: 0 !important;
+    background: #fff !important;
+    border: 1px solid #e0e4e6 !important;
+    border-radius: 4px !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  #printView > .sheet > .p-band,
+  #printView .p-section > .p-band {
+    margin: 0 !important;
+    padding: 1.2mm 2mm !important;
+    background: #f1f3f4 !important;
+    color: #34495e !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e0e4e6 !important;
+    border-radius: 0 !important;
+    font: 700 8pt/1.1 Arial, Helvetica, sans-serif !important;
+    text-align: left !important;
+  }
+
+  #printView > .sheet > .p-band {
+    background: #e8edef !important;
+    color: #263b47 !important;
+    font-size: 9pt !important;
+  }
+
+  #printView .p-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 1.5mm !important;
+    width: 100% !important;
+    margin: 0 !important;
+    align-items: stretch !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  #printView .p-col-2,
+  #printView .p-col-3 {
+    flex: 1 1 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  #printView .p-table {
+    display: table !important;
+    width: 100% !important;
+    margin: 0 !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+  }
+
+  #printView .p-table td {
+    padding: 2px 4px !important;
+    border: 1px solid #d9dfe2 !important;
+    color: #202b30 !important;
+    background: #fff !important;
+    font: 8pt/1.1 Arial, Helvetica, sans-serif !important;
+    vertical-align: middle !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  #printView .p-table td.lbl {
+    width: 50% !important;
+    background: #f8f9f9 !important;
+    color: #555 !important;
+    font-weight: 700 !important;
+  }
+
+  #printView .p-table td.val {
+    width: 50% !important;
+  }
+
+  #printView .p-col-3 .p-table td.lbl { width: 72% !important; }
+  #printView .p-col-3 .p-table td.val { width: 28% !important; }
+
+  #printView .p-note {
+    margin: 1mm 1.5mm !important;
+    padding: 1mm 1.5mm !important;
+    background: #fafafa !important;
+    border: 1px solid #e0e4e6 !important;
+    color: #59666c !important;
+    font: 7pt/1.15 Arial, Helvetica, sans-serif !important;
+    white-space: pre-line !important;
+  }
+
+  #printView .sig {
+    margin: 5mm 0 0 !important;
+    padding-top: 1.5mm !important;
+    border-top: 1px solid #cbd3d6 !important;
+    color: #39484f !important;
+    font: 7.5pt/1.1 Arial, Helvetica, sans-serif !important;
+    text-align: center !important;
+  }
+
+  #printView .sig .line {
+    width: 48mm !important;
+    margin: 3mm auto 1mm !important;
+    border-top: 1px solid #52636b !important;
+  }
+
+  /* A página de alta recebe espaçamento um pouco mais compacto. */
+  #printView .page-alta .p-section { margin-bottom: 1mm !important; }
+  #printView .page-alta .p-table td {
+    padding: 1.5px 3px !important;
+    font-size: 7.5pt !important;
+    line-height: 1.06 !important;
+  }
+  #printView .page-alta .p-band { padding: 1mm 1.5mm !important; }
+  #printView .page-alta .p-note {
+    font-size: 6.5pt !important;
+    line-height: 1.08 !important;
+  }
+
+  /* Mantém o conteúdo textual junto à linha inferior das células impressas. */
+  #printView .p-table td,
+  #printView .p-table td.lbl,
+  #printView .p-table td.val {
+    vertical-align: bottom !important;
+    padding-top: 2px !important;
+    padding-bottom: 1px !important;
   }
 }
 </style>
@@ -294,11 +1757,10 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
 </div>
 <div class="actions">
 <button class="btn-ghost" id="btnBackToEdit" style="display:none;">← Voltar a preencher</button>
-<button class="btn-primary" id="btnGenerate">Gerar resumo para impressão</button>
+<button class="btn-primary" id="btnGenerate">Imprimir / Salvar</button>
 <button class="btn-secondary" id="btnSaveDatabase" type="button" style="display:none;">Salvar no banco</button>
-<button class="btn-secondary" id="btnPrintMotherFirstHour" style="display:none;">Imprimir mãe + 1ª hora</button>
-<button class="btn-secondary" id="btnPrintDischarge" style="display:none;">Imprimir alta</button>
-<button class="btn-secondary" id="btnPrint" style="display:none;">Imprimir / Salvar PDF</button>
+<button class="btn-secondary" id="btnPrint" style="display:none;">Imprimir</button>
+<button class="btn-secondary" id="btnSavePdf" style="display:none;">Salvar PDF</button>
 <button class="btn-ghost" id="btnLogout" type="button" style="display:none;">Sair</button>
 <span id="saveDatabaseMessage" aria-live="polite" style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:.75rem;color:#C9D6D2;"></span>
 </div>
@@ -307,20 +1769,16 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
 <div id="loginView" style="display:none;">
 <h2>Acesso à ficha neonatal</h2>
 <form id="loginForm">
-<input type="email" id="loginEmail" placeholder="E-mail" autocomplete="email" required>
+<input type="text" id="loginEmail" placeholder="Nome de usuário" autocomplete="username" required>
 <input type="password" id="loginPassword" placeholder="Senha" autocomplete="current-password" required>
 <button class="btn-primary" type="submit">Entrar</button>
 </form>
-<div class="login-actions">
-<button class="btn-secondary" id="btnCreateAccount" type="button">Criar conta</button>
-<button class="btn-secondary" id="btnResetPassword" type="button">Esqueci a senha</button>
-</div>
 <p id="loginMessage" role="status"></p>
 </div>
 <div id="builder">
 <div class="history-card" id="historyCard">
 <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-<h2>Histórico de RNs salvos</h2>
+<h2>Histórico de RNs</h2>
 <div class="history-actions">
 <button class="btn-mini" id="btnToggleHistory" type="button" aria-expanded="false">Abrir histórico</button>
 <button class="btn-mini" id="btnNewRecord" type="button">+ Novo RN</button>
@@ -331,7 +1789,7 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
 <p id="historyEmpty" class="history-empty">Nenhum RN salvo ainda. O registro será salvo automaticamente ao gerar o resumo para impressão.</p>
 </div>
 </div>
-<p class="intro">A maioria dos campos já vem com caixinha de seleção. Alguns abrem uma caixinha extra quando você escolhe certas respostas (ex.: "Sim", "Outro" ou "R").</p>
+
 <div class="tabs">
 <button class="tab-btn active" data-part="0">Dados da mãe</button>
 <button class="tab-btn" data-part="1">RN — 1ª hora de vida</button>
@@ -365,7 +1823,7 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
 </div>
 <div id="printView"></div>
 <p class="print-hint" id="printHintText" style="display:none;">Para salvar como PDF: clique em "Imprimir / Salvar PDF" e, na janela de impressão, escolha "Salvar como PDF" como destino.</p>
-<footer class="hint">Assinatura do médico responsável ao final de cada parte da ficha.</footer>
+<footer class="hint"></footer>
 <div class="no-print" style="font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif; font-size:.72rem; color:#3F5A68; max-width:700px; margin:24px auto 0; padding:14px 16px; border-top:1px solid #DCD6C8;">
 <strong style="display:block; margin-bottom:4px; color:#1B3A4B;">Criado por Gabriel Dutra Simões — UNIPAMPA, Curso de Medicina</strong>
 <div style="margin-bottom:4px;">Fontes e parâmetros clínicos utilizados:</div>
@@ -384,6 +1842,8 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
 const SUPABASE_URL = 'https://aybuyzhwtihahkoeqmsa.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_Ozq4-D10ANd_WZZb1C2xgg_YaYNhXnj'; // chave pública do SupabaseeyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5YnV5emh3dGlwYWhrb2VxbXNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk0MDU1NDcsImV4cCI6MjEwNDk4MTU0N30.MwGqjQ9ecW3YYtZDJ_tMZdS8YIusHINP1SybFAQfIuQ';
 const SUPABASE_REDIRECT_URL = 'https://alojamentoconjuntounipampa.github.io/app/';
+const LOGIN_USERNAME = 'pediatria';
+const LOGIN_EMAIL = 'gabriel.dutrasimoes@hotmail.com';
 const supabaseConfigured = !SUPABASE_URL.includes('SEU-PROJETO') && !SUPABASE_ANON_KEY.includes('SUA_CHAVE');
 const supabaseClient = supabaseConfigured
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
@@ -411,7 +1871,7 @@ const DATA = [
 { label: "Ficha de avaliação neonatal — Dados maternos", tabLabel:"Dados da mãe", sections: [
 {title:"Dados da mãe", fields:[
 T("Nome"), N("Idade"),
-G("Histórico gestacional",[{l:"Gesta",t:'text'},{l:"Pv",t:'select',o:range(0,10)},{l:"Pc",t:'select',o:range(0,10)},{l:"A",t:'select',o:range(0,10)}], vs => "G:"+(vs[0]||'-')+" Pv:"+(vs[1]||'-')+" Pc:"+(vs[2]||'-')+" A:"+(vs[3]||'-')),
+G("Histórico gestacional",[{l:"GESTA",t:'text'},{l:"PV",t:'select',o:range(0,10)},{l:"PC",t:'select',o:range(0,10)},{l:"A",t:'select',o:range(0,10)}], vs => "G:"+(vs[0]||'-')+" PV:"+(vs[1]||'-')+" PC:"+(vs[2]||'-')+" A:"+(vs[3]||'-')),
 S("Filhos vivos",range(0,10)),
 S("Grupo sanguíneo (mãe)",BLOOD),
 S("Grupo sanguíneo do pai",BLOOD.concat(["Desconhecido"]))
@@ -437,7 +1897,7 @@ Sn("Chagas - IgG",RNR,"NR"), Sn("Chagas - IgM",RNR,"NR"),
 Sn("Sífilis - VDRL",RNR,"NR"), Sn("Sífilis - Teste rápido (TR)",RNR,"NR"),
 Sn("SGB (swab reto-vaginal)",RNR,"NR"),
 S("Indicação de profilaxia intraparto para SGB?",["Sim","Não","Não se aplica"])
-], note:"Indicação de profilaxia intraparto para SGB (SBP/FEBRASGO): SGB positivo na gestação atual (35-37 sem); bacteriúria por SGB na gestação atual; filho anterior com doença invasiva por SGB; SGB desconhecido + algum fator de risco (trabalho de parto <37 semanas, bolsa rota ≥18h, febre intraparto ≥38°C). Confirme sempre com o protocolo institucional vigente."},
+], note:"Indicação de profilaxia intraparto para SGB (SBP/FEBRASGO):\n• SGB positivo na gestação atual (35–37 semanas).\n• Bacteriúria por SGB na gestação atual.\n• Filho anterior com doença invasiva por SGB.\n• SGB desconhecido associado a algum fator de risco:\n  – Trabalho de parto <37 semanas.\n  – Bolsa rota ≥18 horas.\n  – Febre intraparto ≥38 °C.\n\nConfirme sempre com o protocolo institucional vigente."},
 {title:"Sorologias coletadas na maternidade", quickNormal:true, fields:[
 Sn("HBsAg",RNR,"NR"), Sn("HCV",RNR,"NR"),
 Sf("HIV (± CV)",RNR,HIV_FOLLOW),
@@ -460,7 +1920,7 @@ T("Nome do RN"), T("IG"), T("IG presumida (Capurro)"),
 D("Data"), H("Horário"),
 N("Peso (g)"),
 S("Sexo",["Masculino","Feminino","Ambíguo"]),
-Object.assign(S("Peso x IG (percentil)",["PIG","AIG","GIG"]), {warnOn:['PIG','GIG'], warnMsg:'⚠️ Necessita HGT (protocolo de hipoglicemia) — ver seção "Rastreio de hipoglicemia e infecção".'}),
+Object.assign(S("Peso x IG (percentil)",["PIG","AIG","GIG"]), {warnOn:['PIG','GIG'], warnMsg:'⚠️ Necessita HGT (protocolo de hipoglicemia) — ver seção "Rastreio de hipoglicemia e infecção".', note:'O percentil de peso para a idade gestacional é calculado automaticamente (INTERGROWTH-21st, Villar et al., Lancet 2014) a partir da IG por DUM/US e do sexo — a classificação PIG/AIG/GIG é sugerida automaticamente, mas a confirmação final é do médico responsável.'}),
 N("Comprimento (cm)"), N("PC (cm)"), N("PT (cm)"),
 S("Apgar 1º min",apgar()), S("Apgar 5º min",apgar()), S("Apgar 10º min",apgar()),
 S("Pele a pele",SN),
@@ -473,21 +1933,21 @@ Sf("Intercorrências durante o parto",SN,{when:['Sim'],sub:{l:'Qual intercorrên
 S("Apresentação do RN",["Cefálica","Pélvica","Córmica"]),
 S("Aspecto do líquido amniótico",["Claro","Meconial fluido","Meconial espesso","Sanguinolento","Fétido"]),
 S("Nº de circulares de cordão",["0","1","2","3 ou mais"])
-], note:"Percentis de peso e PC calculados automaticamente (INTERGROWTH-21st, Villar et al., Lancet 2014) a partir da IG por DUM/US e do sexo — a classificação PIG/AIG/GIG é sugerida automaticamente, mas a confirmação final é do médico responsável."},
+], note:"O percentil de peso para a idade gestacional é calculado automaticamente (INTERGROWTH-21st, Villar et al., Lancet 2014) a partir da IG por DUM/US e do sexo — a classificação PIG/AIG/GIG é sugerida automaticamente, mas a confirmação final é do médico responsável."},
 {title:"Rastreio de hipoglicemia e infecção", fields:[S("Necessita Dextro (HGT)?",SN),S("Necessita coleta de exames precoce?",SN)], note:"Dextro: RN GIG, macrossômico, filho de mãe DM, PIG, prematuro ou baixo peso → 1ª h + 3/3h. Cortes: <24h = 40 · 24–48h = 50 · >48h = 60. Se hipoglicemia sintomática, push Glicose 10% 2ml/kg EV e comunicar UTI Neo.\nColeta precoce: triagem infecciosa após 6h de vida se bolsa rota >18h, sinais de corioamnionite, ou SGB positivo/desconhecido sem profilaxia adequada (Hemograma + PCR). Incompatibilidade sanguínea: tipagem de cordão + hemograma, BT/frações, reticulócitos e Coombs direto."},
-{title:"Exame neurológico", fields:[
-S("Tônus",["Normotônico","Hipotônico","Hipertônico"]),
-S("Choro",["Forte e vigoroso","Fraco","Ausente"]),
-S("Atividade",["Ativo","Hipoativo","Letárgico","Aleatória"]),
-S("Tremores",["Tremor essencial","Tremor patológico","Ausente","Presente"])
+{title:"Exame neurológico", quickNormal:true, fields:[
+Sn("Tônus",["Normotônico","Hipotônico","Hipertônico"],"Normotônico"),
+Sn("Choro",["Forte e vigoroso","Fraco","Ausente"],"Forte e vigoroso"),
+Sn("Atividade",["Ativo","Hipoativo","Letárgico","Aleatória"],"Ativo"),
+Sn("Tremores",["Tremor essencial","Tremor patológico","Ausente","Presente"],"Ausente")
 ]},
-{title:"Cabeça e pescoço", fields:[
-G("Fontanela anterior",[{l:"Estado",t:'select',o:["Normotensa","Abaulada","Deprimida","Não palpável"]},{l:"Dimensões (cm)",t:'text'}], vs => vs[0] ? vs[0] + (vs[1] ? " ("+vs[1]+" cm)" : '') : ''),
-G("Fontanela posterior",[{l:"Estado",t:'select',o:["Normotensa","Abaulada","Deprimida","Não palpável"]},{l:"Dimensões (cm)",t:'text'}], vs => vs[0] ? vs[0] + (vs[1] ? " ("+vs[1]+" cm)" : '') : ''),
-S("Fácie típica",["Típica","Atípica"]),
-S("Bossa",AUSPRES),
-S("Distócia de ombro",SN),
-S("Sinal da tecla (clavícula)",AUSPRES),
+{title:"Cabeça e pescoço", quickNormal:true, fields:[
+G("Fontanela anterior",[{l:"Estado",t:'select',o:["Normotensa","Abaulada","Deprimida","Não palpável"],normal:"Normotensa"},{l:"Dimensões (cm)",t:'text'}], vs => vs[0] ? vs[0] + (vs[1] ? " ("+vs[1]+" cm)" : '') : ''),
+G("Fontanela posterior",[{l:"Estado",t:'select',o:["Normotensa","Abaulada","Deprimida","Não palpável"],normal:"Normotensa"},{l:"Dimensões (cm)",t:'text'}], vs => vs[0] ? vs[0] + (vs[1] ? " ("+vs[1]+" cm)" : '') : ''),
+Sn("Fácie típica",["Típica","Atípica"],"Típica"),
+Sn("Bossa",AUSPRES,"Ausente"),
+Sn("Distócia de ombro",SN,"Não"),
+Sn("Sinal da tecla (clavícula)",AUSPRES,"Ausente"),
 T("Más formações")
 ]},
 {title:"Pele", quickNormal:true, fields:[Sn("Coloração",["Rosada","Pálida","Cianótica","Ictérica","Acrocianose"],"Rosada"),Sn("Hematomas",AUSPRES,"Ausente"),T("Outros achados")]},
@@ -545,21 +2005,21 @@ N("Peso atual (g)"),
 N("Perda ponderal (g)"),
 Object.assign(N("Perda ponderal (%)"), {auto:'weightLoss'})
 ]},
-{title:"Exame neurológico", fields:[
-S("Tônus",["Normotônico","Hipotônico","Hipertônico"]),
-S("Choro",["Forte e vigoroso","Fraco","Ausente"]),
-S("Atividade",["Ativo","Hipoativo","Letárgico","Aleatória"]),
-S("Tremores",["Tremor essencial","Tremor patológico","Ausente","Presente"])
+{title:"Exame neurológico", quickNormal:true, fields:[
+Sn("Tônus",["Normotônico","Hipotônico","Hipertônico"],"Normotônico"),
+Sn("Choro",["Forte e vigoroso","Fraco","Ausente"],"Forte e vigoroso"),
+Sn("Atividade",["Ativo","Hipoativo","Letárgico","Aleatória"],"Ativo"),
+Sn("Tremores",["Tremor essencial","Tremor patológico","Ausente","Presente"],"Ausente")
 ]},
-{title:"Cabeça e pescoço", fields:[
-G("Fontanela anterior",[{l:"Estado",t:'select',o:["Normotensa","Abaulada","Deprimida","Não palpável"]},{l:"Dimensões (cm)",t:'text'}], vs => vs[0] ? vs[0] + (vs[1] ? " ("+vs[1]+" cm)" : '') : ''),
-G("Fontanela posterior",[{l:"Estado",t:'select',o:["Normotensa","Abaulada","Deprimida","Não palpável"]},{l:"Dimensões (cm)",t:'text'}], vs => vs[0] ? vs[0] + (vs[1] ? " ("+vs[1]+" cm)" : '') : ''),
-S("Suturas",["Justapostas","Sobrepostas","Diástase"]),
-S("Bossa",AUSPRES),
-S("Fácie típica",["Típica","Atípica"]),
-S("Implantação de orelha",["Normal","Baixa implantação"]),
-S("Alterações lábio-palatinas",AUSPRES),
-S("Sinal da tecla (clavícula)",AUSPRES)
+{title:"Cabeça e pescoço", quickNormal:true, fields:[
+G("Fontanela anterior",[{l:"Estado",t:'select',o:["Normotensa","Abaulada","Deprimida","Não palpável"],normal:"Normotensa"},{l:"Dimensões (cm)",t:'text'}], vs => vs[0] ? vs[0] + (vs[1] ? " ("+vs[1]+" cm)" : '') : ''),
+G("Fontanela posterior",[{l:"Estado",t:'select',o:["Normotensa","Abaulada","Deprimida","Não palpável"],normal:"Normotensa"},{l:"Dimensões (cm)",t:'text'}], vs => vs[0] ? vs[0] + (vs[1] ? " ("+vs[1]+" cm)" : '') : ''),
+Sn("Suturas",["Justapostas","Sobrepostas","Diástase"],"Justapostas"),
+Sn("Bossa",AUSPRES,"Ausente"),
+Sn("Fácie típica",["Típica","Atípica"],"Típica"),
+Sn("Implantação de orelha",["Normal","Baixa implantação"],"Normal"),
+Sn("Alterações lábio-palatinas",AUSPRES,"Ausente"),
+Sn("Sinal da tecla (clavícula)",AUSPRES,"Ausente")
 ]},
 {title:"Pele", quickNormal:true, fields:[
 Sn("Turgor",["Normal","Diminuído"],"Normal"),
@@ -652,11 +2112,11 @@ S("Avaliação AAP 2022 (conforme calculadora oficial)",[
 ] }
 ];
 const PRINT_GROUPS = [
-  // Cada grupo começa em uma nova folha durante a impressão.
-  {label:"Ficha de avaliação neonatal — Dados maternos", parts:[0]},
-  {label:"Ficha de avaliação neonatal — RN, 1ª hora de vida (1/2)", parts:[1], sectionRange:[0,7]},
-  {label:"Ficha de avaliação neonatal — RN, 1ª hora de vida (2/2)", parts:[1], sectionRange:[7]},
-  {label:"Exame físico de alta hospitalar", parts:[2]}
+  // Cada grupo corresponde exatamente a uma página A4 vertical.
+  {pageClass:'page-materna', label:'Dados maternos', parts:[0]},
+  {pageClass:'page-rn-1', label:'RN — 1ª hora, parte 1', parts:[1], sectionRange:[0,7]},
+  {pageClass:'page-rn-2', label:'RN — 1ª hora, parte 2', parts:[1], sectionRange:[7]},
+  {pageClass:'page-alta', label:'Alta hospitalar', parts:[2]}
 ];
 // ==================== EXTENSÃO ADITIVA ====================
 // 1) Percentil do perímetro cefálico (PC) ao nascer — INTERGROWTH-21st
@@ -709,7 +2169,18 @@ else if(pc < p97){ faixa = 'entre P90 e P97'; cls='info'; }
 else { faixa = '≥ P97 (possível macrocefalia para a IG)'; cls='warning'; }
 return {cls, text:'INTERGROWTH-21st · PC ao nascer: '+faixa+' (IG usada: '+gaWeeks+'s'+(gaDays||0)+'d · P50 de referência: '+p50.toFixed(1)+' cm)'};
 }
-function getGaForCalc(){ return gaUs || null; }
+function getGaForCalc(){ return getSelectedGa(); }
+
+function getSelectedGa(){
+  return gaSource === 'dum' ? gaDum : gaSource === 'us' ? gaUs : null;
+}
+
+function syncSelectedGaToField(){
+  const igKey = findFieldKey('Dados de nascimento e exame físico da 1ª hora','IG');
+  const ga = getSelectedGa();
+  if(!igKey || !ga) return;
+  answers[igKey] = ga.weeks + 's ' + ga.days + 'd';
+}
 
 // 1b) Percentil de peso ao nascer — INTERGROWTH-21st (mesma fonte da tabela de PC acima).
 //     Tabela oficial em kg, por sexo, de 33+0 a 42+6 semanas.
@@ -825,6 +2296,7 @@ return {cls:'info', text:'BTC: '+v.toFixed(1)+' mg/dL. AAP 2022 também recomend
 
 const answers = {};
 let gaDum = null, gaUs = null;
+let gaSource = null; // 'dum' ou 'us' — fonte escolhida para preencher a IG do RN
 let currentRecordId = null;
 const HISTORY_STORAGE_KEY = 'fichaNeonatalHistorico';
 const DATABASE_TABLE = 'registros_neonatais';
@@ -845,7 +2317,7 @@ async function saveCurrentRecordToDatabase(){
   setSaveDatabaseMessage('Salvando...');
   const payload = {
     user_id: currentUser.id,
-    answers: {...answers},
+    answers: {...answers, __gaSource: gaSource || ''},
     ga_dum: gaDum,
     ga_us: gaUs,
     updated_at: new Date().toISOString()
@@ -863,7 +2335,7 @@ async function saveCurrentRecordToDatabase(){
   currentDatabaseRecordId = data.id;
   currentRecordId = data.id;
   await loadCurrentUserRecords();
-  setSaveDatabaseMessage('RN salvo no banco para '+currentUser.email+'.');
+  setSaveDatabaseMessage('Salvo.');
 }
 
 async function loadCurrentUserRecords(){
@@ -883,6 +2355,7 @@ async function loadCurrentUserRecords(){
     answers: row.answers || {},
     gaDum: row.ga_dum || null,
     gaUs: row.ga_us || null,
+    gaSource: row.answers && row.answers.__gaSource ? row.answers.__gaSource : null,
     database: true
   }));
   saveHistory(records);
@@ -944,7 +2417,7 @@ function renderHistory(){
 function saveCurrentRecord(){
   const records = loadHistory();
   const now = new Date().toISOString();
-  const record = {id:currentRecordId || (Date.now()+'-'+Math.random().toString(36).slice(2)), updatedAt:now, answers:{...answers}, gaDum, gaUs, database:false};
+  const record = {id:currentRecordId || (Date.now()+'-'+Math.random().toString(36).slice(2)), updatedAt:now, answers:{...answers}, gaDum, gaUs, gaSource, database:false};
   const index = records.findIndex(r => r.id === record.id);
   if(index >= 0) records[index] = record; else records.unshift(record);
   saveHistory(records); currentRecordId = record.id; renderHistory();
@@ -954,7 +2427,7 @@ function loadRecord(id){
   if(!record) return;
   Object.keys(answers).forEach(key => delete answers[key]);
   Object.assign(answers, record.answers || {});
-  gaDum = record.gaDum || null; gaUs = record.gaUs || null; currentRecordId = record.id;
+  gaDum = record.gaDum || null; gaUs = record.gaUs || null; gaSource = record.gaSource || (record.answers && record.answers.__gaSource) || null; currentRecordId = record.id;
   currentDatabaseRecordId = record.database ? record.id : null;
   if(calcBirthDateInput) calcBirthDateInput.value = answers[BIRTH_DATE_KEY] || '';
   if(dumDateInput) recomputeGaDum();
@@ -964,7 +2437,7 @@ function loadRecord(id){
 }
 function startNewRecord(){
   Object.keys(answers).forEach(key => delete answers[key]);
-  gaDum = null; gaUs = null; currentRecordId = null; currentDatabaseRecordId = null;
+  gaDum = null; gaUs = null; gaSource = null; currentRecordId = null; currentDatabaseRecordId = null;
   if(calcBirthDateInput) calcBirthDateInput.value = '';
   if(dumDateInput) dumDateInput.value = '';
   if(usDateInput) usDateInput.value = '';
@@ -1015,7 +2488,9 @@ const diff = daysBetween(dum, birth);
 if(diff===null || diff<0){ dumResultEl.textContent='Datas inválidas — confira a DUM e a data de nascimento.'; gaDum=null; return; }
 const weeks=Math.floor(diff/7), days=diff%7;
 gaDum={weeks,days};
+if(gaSource === 'dum') syncSelectedGaToField();
 dumResultEl.textContent = 'Idade gestacional na data do parto: '+weeks+' semanas e '+days+' dia(s)';
+if(currentPart===1) renderBuilder();
 }
 function recomputeGaUs(){
 const us = usDateInput.value; const w = usWeeksSel.value; const d = usDaysSel.value; const birth = answers[BIRTH_DATE_KEY];
@@ -1025,7 +2500,9 @@ if(elapsed===null || elapsed<0){ usResultEl.textContent='Datas inválidas — co
 const totalDays = Number(w)*7+Number(d)+elapsed;
 const weeks=Math.floor(totalDays/7), days=totalDays%7;
 gaUs={weeks,days};
+if(gaSource === 'us') syncSelectedGaToField();
 usResultEl.textContent = 'Idade gestacional na data do parto: '+weeks+' semanas e '+days+' dia(s)';
+if(currentPart===1) renderBuilder();
 }
 function setupGaCalc(){
 calcBirthDateInput = document.getElementById('calcBirthDate');
@@ -1053,7 +2530,7 @@ function makeInput(fieldDef, key){
 let input;
 if(fieldDef.t === 'select'){
 input = document.createElement('select');
-const blank = document.createElement('option'); blank.value=''; blank.textContent='— selecione —'; input.appendChild(blank);
+const blank = document.createElement('option'); blank.value=''; blank.textContent=''; blank.selected = true; input.appendChild(blank);
 fieldDef.o.forEach(o=>{ const opt=document.createElement('option'); opt.value=o; opt.textContent=o; input.appendChild(opt); });
 } else {
 input = document.createElement('input');
@@ -1076,11 +2553,23 @@ part.sections.forEach((sec, sIdx) => {
 const card = document.createElement('section'); card.className = 'card';
 const head = document.createElement('div'); head.className='card-head';
 const h2 = document.createElement('h2'); h2.textContent = sec.title; head.appendChild(h2);
-if(sec.quickNormal){
+if(sec.quickNormal || sec.fields.some(f => f.normal || (f.follow && f.l.includes('HIV')))){
 const btn = document.createElement('button'); btn.className='btn-mini'; btn.textContent='Marcar tudo normal'; btn.type='button';
-btn.addEventListener('click', () => {
-sec.fields.forEach((f,fIdx) => { if(f.normal){ answers[currentPart+'_'+sIdx+'_'+fIdx] = f.normal; } });
-renderBuilder();
+btn.addEventListener('click', (event) => {
+  event.preventDefault();
+  const scrollY = window.scrollY;
+  sec.fields.forEach((f,fIdx) => {
+    const key = currentPart+'_'+sIdx+'_'+fIdx;
+    if(f.follow && f.l.includes('HIV')) answers[key] = 'NR';
+    else if(f.normal) answers[key] = f.normal;
+    else if(f.t === 'group') {
+      f.items.forEach((item, iIdx) => {
+        if(item.normal) answers[key+'_'+iIdx] = item.normal;
+      });
+    }
+  });
+  renderBuilder();
+  window.scrollTo({top:scrollY, left:window.scrollX, behavior:'auto'});
 });
 head.appendChild(btn);
 }
@@ -1131,10 +2620,37 @@ const toggleWarn = () => { warnEl.textContent = field.warnOn.includes(input.valu
 input.addEventListener('change', toggleWarn); toggleWarn();
 inputsWrap.appendChild(warnEl);
 }
+if(field.note){
+const fieldNote = document.createElement('div');
+fieldNote.className = 'note-box';
+fieldNote.style.cssText = 'flex-basis:100%;margin:4px 0 0;padding:8px 10px;';
+fieldNote.textContent = field.note;
+inputsWrap.appendChild(fieldNote);
+}
 if(field.l === 'IG' && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
-const gaInfo = document.createElement('div'); gaInfo.style.cssText='font-size:.74rem;color:#0B5850;margin-top:4px;flex-basis:100%;';
-gaInfo.textContent = 'IG calculada — DUM: ' + (gaDum ? gaDum.weeks+'s '+gaDum.days+'d' : '—') + ' · US: ' + (gaUs ? gaUs.weeks+'s '+gaUs.days+'d' : '—');
-inputsWrap.appendChild(gaInfo);
+  syncSelectedGaToField();
+  input.value = answers[baseKey] || '';
+  input.readOnly = true;
+  input.placeholder = 'Selecione DUM ou US abaixo';
+  const sourceWrap = document.createElement('div');
+  sourceWrap.style.cssText='display:flex;gap:6px;flex-wrap:wrap;flex-basis:100%;margin-top:4px;';
+  [['dum','Usar IG pela DUM'],['us','Usar IG pelo US']].forEach(([source,label]) => {
+    const sourceBtn = document.createElement('button');
+    sourceBtn.type='button';
+    sourceBtn.className = gaSource === source ? 'btn-primary' : 'btn-mini';
+    sourceBtn.textContent = label;
+    sourceBtn.addEventListener('click', () => {
+      if(!({dum:gaDum,us:gaUs}[source])) return;
+      gaSource = source;
+      syncSelectedGaToField();
+      renderBuilder();
+    });
+    sourceWrap.appendChild(sourceBtn);
+  });
+  inputsWrap.appendChild(sourceWrap);
+  const gaInfo = document.createElement('div'); gaInfo.style.cssText='font-size:.74rem;color:#0B5850;margin-top:4px;flex-basis:100%;';
+  gaInfo.textContent = 'IG calculada — DUM: ' + (gaDum ? gaDum.weeks+'s '+gaDum.days+'d' : '—') + ' · US: ' + (gaUs ? gaUs.weeks+'s '+gaUs.days+'d' : '—') + (gaSource ? ' · selecionada: '+gaSource.toUpperCase() : '');
+  inputsWrap.appendChild(gaInfo);
 }
 if(field.l === 'IG presumida (Capurro)' && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
 const capurroLink = document.createElement('a'); capurroLink.href='https://pedb.com.br/calculadoras/capurro'; capurroLink.target='_blank'; capurroLink.rel='noopener';
@@ -1157,7 +2673,7 @@ wBox.style.display='block'; wBox.className='bilirubin-result '+info.cls; wBox.te
 };
 const applyAuto = () => {
 const info = computeInfo();
-if(!info || !info.suggestedClass || !pctgKey) return;
+if(!info || !info.suggestedClass || !pctgKey || answers[pctgKey] === info.suggestedClass) return;
 answers[pctgKey] = info.suggestedClass;
 if((info.suggestedClass==='PIG' || info.suggestedClass==='GIG') && hgtKey && !answers[hgtKey]){
 answers[hgtKey] = 'Sim';
@@ -1167,6 +2683,7 @@ renderBuilder();
 input.addEventListener('input', showInfo);
 input.addEventListener('change', () => { showInfo(); applyAuto(); });
 showInfo();
+applyAuto();
 inputsWrap.appendChild(wBox);
 }
 if(field.l === 'Bilirrubina transcutânea (BTC)' && sec.title === 'Dados de alta do RN'){
@@ -1215,6 +2732,23 @@ card.appendChild(row);
 host.appendChild(card);
 if(currentPart===0 && sIdx===0 && gaCalcEl){ host.appendChild(gaCalcEl); }
 });
+const navigation = document.createElement('div');
+navigation.className = 'tab-navigation';
+navigation.innerHTML = '<p>Continue para a próxima etapa:</p>';
+DATA.forEach((partDef, idx) => {
+  const next = document.createElement('button');
+  next.className = idx === currentPart ? 'btn-primary' : 'btn-secondary';
+  next.type = 'button';
+  next.textContent = idx === 0 ? 'Dados da mãe' : idx === 1 ? '1ª hora de vida' : 'Alta hospitalar';
+  next.addEventListener('click', () => {
+    currentPart = idx;
+    document.querySelectorAll('.tab-btn').forEach(tab => tab.classList.toggle('active', Number(tab.dataset.part) === idx));
+    renderBuilder();
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+  navigation.appendChild(next);
+});
+host.appendChild(navigation);
 }
 document.querySelectorAll('.tab-btn').forEach(btn => {
 btn.addEventListener('click', () => {
@@ -1283,7 +2817,7 @@ function buildPrintView() {
 
   PRINT_GROUPS.forEach(group => {
     const sheet = document.createElement('section');
-    sheet.className = 'sheet';
+    sheet.className = 'sheet ' + (group.pageClass || '') + (group.parts[0] === 2 ? ' alta-sheet' : '') + ' no-split-sheet';
     sheet.innerHTML = printHeaderHTML();
 
     const groupTitle = document.createElement('div');
@@ -1313,10 +2847,6 @@ function buildPrintView() {
       });
     });
 
-    const signature = document.createElement('div');
-    signature.className = 'sig';
-    signature.innerHTML = '<span class="line"></span>Assinatura do médico responsável';
-    sheet.appendChild(signature);
     host.appendChild(sheet);
   });
   setPrintDocumentTitle();
@@ -1341,10 +2871,9 @@ function showPrintPreview(){
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 const btnGenerate = document.getElementById('btnGenerate');
-const btnPrintMotherFirstHour = document.getElementById('btnPrintMotherFirstHour');
-const btnPrintDischarge = document.getElementById('btnPrintDischarge');
 const btnBackToEdit = document.getElementById('btnBackToEdit');
 const btnPrint = document.getElementById('btnPrint');
+const btnSavePdf = document.getElementById('btnSavePdf');
 const builderHost = document.getElementById('builder');
 const printView = document.getElementById('printView');
 const printHintText = document.getElementById('printHintText');
@@ -1387,8 +2916,13 @@ function setupAuth(){
   loginForm.addEventListener('submit', async event => {
     event.preventDefault();
     setLoginMessage('Entrando...');
-    const email = document.getElementById('loginEmail').value.trim();
+    const username = document.getElementById('loginEmail').value.trim().toLowerCase();
     const password = document.getElementById('loginPassword').value;
+    if(username !== LOGIN_USERNAME){
+      setLoginMessage('Nome de usuário inválido.', true);
+      return;
+    }
+    const email = LOGIN_EMAIL;
     const {data, error} = await supabaseClient.auth.signInWithPassword({email, password});
     if(error){
       setLoginMessage('Erro: ' + error.message, true);
@@ -1396,23 +2930,6 @@ function setupAuth(){
       return;
     }
     updateAuthView(data.session);
-  });
-
-  document.getElementById('btnCreateAccount').addEventListener('click', async () => {
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
-    if(!email || password.length < 6){ setLoginMessage('Informe um e-mail e uma senha com pelo menos 6 caracteres.', true); return; }
-    setLoginMessage('Criando conta...');
-    const {error} = await supabaseClient.auth.signUp({email, password, options:{emailRedirectTo:SUPABASE_REDIRECT_URL}});
-    if(error){ setLoginMessage(error.message, true); return; }
-    setLoginMessage('Conta criada. Verifique seu e-mail para confirmar o cadastro.');
-  });
-
-  document.getElementById('btnResetPassword').addEventListener('click', async () => {
-    const email = document.getElementById('loginEmail').value.trim();
-    if(!email){ setLoginMessage('Informe seu e-mail para recuperar a senha.', true); return; }
-    const {error} = await supabaseClient.auth.resetPasswordForEmail(email, {redirectTo:SUPABASE_REDIRECT_URL});
-    setLoginMessage(error ? error.message : 'Verifique seu e-mail para redefinir a senha.', Boolean(error));
   });
 
   btnLogout.addEventListener('click', async () => {
@@ -1441,7 +2958,7 @@ function generatePrint(groupIndexes = PRINT_GROUPS.map((_, index) => index)) {
   let html = '';
   
   groupIndexes.map(index => PRINT_GROUPS[index]).forEach(group => {
-    html += `<div class="sheet">`;
+    html += `<div class="sheet ${group.pageClass || ''}${group.playful ? ' playful-sheet' : ''} ${group.parts[0] === 2 ? 'alta-sheet' : ''} no-split-sheet">`;
     
     // Cabeçalho da Impressão
     html += `
@@ -1515,52 +3032,31 @@ function generatePrint(groupIndexes = PRINT_GROUPS.map((_, index) => index)) {
       });
     });
     
-    html += `<div class="sig"><span class="line"></span>Assinatura e carimbo do médico</div>`;
     html += `</div>`; // Fim sheet
   });
   
   printView.innerHTML = html;
-  
-  // Oculta a interface de preenchimento e mostra a impressão
-  builderHost.style.display = 'none';
-  printView.style.display = 'block';
-  btnGenerate.style.display = 'none';
-  btnPrintMotherFirstHour.style.display = 'inline-block';
-  btnPrintDischarge.style.display = 'inline-block';
-  btnBackToEdit.style.display = 'inline-block';
-  btnPrint.style.display = 'inline-block';
-  printHintText.style.display = 'block';
-  headerSub.textContent = 'Confira o resumo gerado antes de imprimir ou salvar o PDF.';
+
+  // Mantém a ficha na tela e usa o conteúdo gerado somente durante a impressão.
+  window.print();
 }
 
 btnSaveDatabase.addEventListener('click', saveCurrentRecordToDatabase);
 btnGenerate.addEventListener('click', () => generatePrint());
-btnPrintMotherFirstHour.addEventListener('click', () => {
-  generatePrint([0, 1]);
-  setTimeout(() => window.print(), 100);
-});
-btnPrintDischarge.addEventListener('click', () => {
-  generatePrint([2]);
-  setTimeout(() => window.print(), 100);
-});
 
 btnBackToEdit.addEventListener('click', () => {
   builderHost.style.display = 'block';
   printView.style.display = 'none';
   btnBackToEdit.style.display = 'none';
-  btnPrintMotherFirstHour.style.display = 'none';
-  btnPrintDischarge.style.display = 'none';
   btnPrint.style.display = 'none';
+  btnSavePdf.style.display = 'none';
   btnGenerate.style.display = 'inline-block';
   printHintText.style.display = 'none';
   headerSub.textContent = 'Preencha os campos selecionando as opções e gere o resumo para impressão';
 });
 
-btnPrint.addEventListener('click', () => {
-  setTimeout(() => {
-    window.print();
-  }, 100);
-});
+btnPrint.addEventListener('click', () => window.print());
+btnSavePdf.addEventListener('click', () => window.print());
 
 // Inicialização das funções base que você já tinha no código
 setupGaCalc();
