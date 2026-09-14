@@ -1,4 +1,4 @@
-<!<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -148,6 +148,35 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
 .tab-navigation{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:24px 0 10px;padding:16px;background:rgba(228,239,233,.7);border-radius:14px;}
 .tab-navigation p{width:100%;margin:0 0 2px;text-align:center;font:600 .8rem -apple-system,"Segoe UI",sans-serif;color:var(--ink-soft);}
 .tab-navigation button{min-width:150px;}
+
+/* Controle da fonte da idade gestacional — sempre visível na aba da 1ª hora. */
+.ig-source-wrap{
+  display:flex !important;
+  flex-basis:100% !important;
+  gap:8px !important;
+  flex-wrap:wrap !important;
+  margin-top:6px !important;
+  padding:8px !important;
+  background:#f0f8f5 !important;
+  border:1px solid #d5e4de !important;
+  border-radius:8px !important;
+}
+.ig-source-wrap::before{
+  content:'Fonte da IG calculada:';
+  flex-basis:100%;
+  font-size:.74rem;
+  font-weight:600;
+  color:#34495e;
+}
+.ig-source-wrap button{
+  min-width:170px;
+  flex:1 1 170px;
+}
+.ig-source-wrap button:disabled{
+  cursor:not-allowed;
+  opacity:.55;
+  transform:none;
+}
 @media print{
   .print-header{background:#e4efe9;border:2px solid #0f6e63;border-radius:14px;padding:8px;}
   .p-band{background:#dceee7!important;border-color:#0f6e63!important;border-radius:8px;color:#1b3a4b!important;}
@@ -1845,7 +1874,7 @@ const SUPABASE_REDIRECT_URL = 'https://alojamentoconjuntounipampa.github.io/app/
 const LOGIN_USERNAME = 'pediatria';
 const LOGIN_EMAIL = 'gabriel.dutrasimoes@hotmail.com';
 const supabaseConfigured = !SUPABASE_URL.includes('SEU-PROJETO') && !SUPABASE_ANON_KEY.includes('SUA_CHAVE');
-const supabaseClient = supabaseConfigured
+const supabaseClient = supabaseConfigured && window.supabase && typeof window.supabase.createClient === 'function'
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
 
@@ -2633,14 +2662,17 @@ if(field.l === 'IG' && sec.title === 'Dados de nascimento e exame físico da 1ª
   input.readOnly = true;
   input.placeholder = 'Selecione DUM ou US abaixo';
   const sourceWrap = document.createElement('div');
-  sourceWrap.style.cssText='display:flex;gap:6px;flex-wrap:wrap;flex-basis:100%;margin-top:4px;';
+  sourceWrap.className = 'ig-source-wrap';
   [['dum','Usar IG pela DUM'],['us','Usar IG pelo US']].forEach(([source,label]) => {
     const sourceBtn = document.createElement('button');
     sourceBtn.type='button';
     sourceBtn.className = gaSource === source ? 'btn-primary' : 'btn-mini';
     sourceBtn.textContent = label;
+    sourceBtn.disabled = !({dum:gaDum,us:gaUs}[source]);
+    sourceBtn.setAttribute('aria-pressed', String(gaSource === source));
     sourceBtn.addEventListener('click', () => {
-      if(!({dum:gaDum,us:gaUs}[source])) return;
+      const selectedGa = {dum:gaDum,us:gaUs}[source];
+      if(!selectedGa) return;
       gaSource = source;
       syncSelectedGaToField();
       renderBuilder();
@@ -2905,11 +2937,11 @@ function updateAuthView(session){
   }
 }
 function setupAuth(){
-  if(!supabaseConfigured){
-    loginView.style.display = 'block';
-    builderHost.style.display = 'none';
-    setLoginMessage('Configure SUPABASE_URL e SUPABASE_ANON_KEY no código para ativar o login.', true);
-    loginForm.querySelector('button[type="submit"]').disabled = true;
+  if(!supabaseConfigured || !supabaseClient){
+    /* A ficha continua funcionando mesmo se o CDN de autenticação falhar. */
+    loginView.style.display = 'none';
+    builderHost.style.display = 'block';
+    document.body.classList.remove('login-mode');
     return;
   }
 
