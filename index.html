@@ -1776,6 +1776,193 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
     padding-bottom: 1px !important;
   }
 }
+
+/* Ajustes finais de impressão: folhas compactas, legíveis e sem divisão. */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 2mm;
+  }
+
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+
+  #printView {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Cada sheet ocupa uma página e nunca é repartido entre páginas. */
+  #printView > .sheet {
+    width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 2.5mm !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: always !important;
+    break-after: page !important;
+  }
+
+  #printView > .sheet:last-child {
+    page-break-after: auto !important;
+    break-after: avoid !important;
+  }
+
+  #printView .print-header {
+    margin: 0 0 1.5mm !important;
+    padding: 0 0 1mm !important;
+    gap: 2mm !important;
+  }
+
+  #printView .print-header .ph-logo img {
+    width: 17mm !important;
+    max-height: 9mm !important;
+  }
+
+  #printView .ph-text .ph-title {
+    font-size: 9.5pt !important;
+    line-height: 1.05 !important;
+  }
+
+  #printView .ph-text .ph-sub {
+    margin-top: .5mm !important;
+    font-size: 7pt !important;
+  }
+
+  #printView .ph-text .ph-hosp {
+    margin-top: .5mm !important;
+    font-size: 6pt !important;
+  }
+
+  #printView > .sheet > .p-band {
+    margin: 0 0 1.5mm !important;
+    padding: 1mm 1.5mm !important;
+    font-size: 8pt !important;
+    line-height: 1 !important;
+  }
+
+  #printView .p-section {
+    margin: 0 0 1mm !important;
+    padding: 0 !important;
+    border: 1.2px solid #9aaeb5 !important;
+    border-radius: 2px !important;
+    overflow: hidden !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  #printView .p-section > .p-band {
+    padding: .9mm 1.5mm !important;
+    border-bottom: 1.2px solid #9aaeb5 !important;
+    font-size: 7.5pt !important;
+    line-height: 1 !important;
+  }
+
+  #printView .p-row {
+    gap: 1mm !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  #printView .p-col-2,
+  #printView .p-col-3 {
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  #printView .p-table {
+    table-layout: fixed !important;
+  }
+
+  #printView .p-table td {
+    padding: 1.1px 2.2px !important;
+    border: 1px solid #8fa3aa !important;
+    font-size: 8pt !important;
+    line-height: 1.02 !important;
+    vertical-align: middle !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  /* Rótulo mais compacto e resposta imediatamente ao lado. */
+  #printView .p-table td.lbl {
+    width: 56% !important;
+    padding-right: 1px !important;
+    background: #eef3f4 !important;
+    border-right: 2px solid #718991 !important;
+    font-weight: 700 !important;
+  }
+
+  #printView .p-table td.val {
+    width: 44% !important;
+    padding-left: 2px !important;
+    background: #fff !important;
+  }
+
+  /* Nas sorologias, o nome precisa continuar cabendo em cada coluna. */
+  #printView .p-col-3 .p-table td.lbl {
+    width: 68% !important;
+  }
+
+  #printView .p-col-3 .p-table td.val {
+    width: 32% !important;
+    text-align: center !important;
+  }
+
+  #printView .p-note {
+    margin: .8mm 1mm 1mm !important;
+    padding: .8mm 1.2mm !important;
+    font-size: 6.3pt !important;
+    line-height: 1.05 !important;
+  }
+
+  #printView .sig {
+    margin-top: 3mm !important;
+    font-size: 7pt !important;
+  }
+
+  /* Aproxima o resultado do nome do teste sem perder a separação visual. */
+  #printView .p-row {
+    gap: 0 !important;
+  }
+
+  #printView .p-col-2 + .p-col-2,
+  #printView .p-col-3 + .p-col-3 {
+    border-left: 1.5px solid #667b83 !important;
+  }
+
+  #printView .p-table td {
+    padding-left: 1px !important;
+    padding-right: 1px !important;
+  }
+
+  #printView .p-table td.lbl {
+    padding-right: 0 !important;
+    border-right: 2px solid #667b83 !important;
+  }
+
+  #printView .p-table td.val {
+    padding-left: 1px !important;
+  }
+
+  #printView .p-col-3 .p-table td.lbl {
+    width: 72% !important;
+  }
+
+  #printView .p-col-3 .p-table td.val {
+    width: 28% !important;
+  }
+}
 </style>
 </head>
 <body>
