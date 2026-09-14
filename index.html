@@ -1963,6 +1963,250 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
     width: 28% !important;
   }
 }
+/* Ajustes finais para telas pequenas: formulário confortável e sem overflow horizontal. */
+@media screen and (max-width: 640px) {
+  html, body {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    font-size: 15px;
+  }
+
+  header.app-header {
+    position: relative;
+    padding: 14px 12px;
+    gap: 12px;
+  }
+
+  header.app-header > div:first-child {
+    width: 100%;
+  }
+
+  header.app-header h1 {
+    font-size: .98rem;
+    line-height: 1.25;
+  }
+
+  header.app-header p {
+    font-size: .74rem;
+    line-height: 1.35;
+  }
+
+  .actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .actions button {
+    width: 100%;
+    min-width: 0;
+    padding: 9px 6px;
+    font-size: .76rem;
+  }
+
+  #saveDatabaseMessage {
+    grid-column: 1 / -1;
+    text-align: center;
+  }
+
+  main {
+    width: 100%;
+    max-width: none;
+    padding: 12px 8px 48px;
+  }
+
+  .tabs {
+    gap: 4px;
+    margin: 0 -2px 14px;
+    padding: 5px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tab-btn {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 9px 10px;
+    font-size: .78rem;
+  }
+
+  section.card,
+  .history-card,
+  .calc-card {
+    border-radius: 9px;
+    margin-bottom: 12px;
+  }
+
+  section.card > .card-head {
+    padding: 11px 12px;
+    align-items: flex-start;
+  }
+
+  section.card > .card-head h2 {
+    font-size: .75rem;
+    line-height: 1.3;
+  }
+
+  section.card > .card-head .btn-mini {
+    flex: 0 0 auto;
+    padding: 6px 8px;
+    font-size: .68rem;
+  }
+
+  .field-row {
+    display: block;
+    padding: 10px 12px;
+  }
+
+  .field-label {
+    min-width: 0;
+    padding: 0;
+    margin-bottom: 6px;
+    font-size: .82rem;
+    line-height: 1.3;
+  }
+
+  .field-inputs {
+    width: 100%;
+    min-width: 0;
+    gap: 6px;
+  }
+
+  .field-inputs .sub {
+    flex: 1 1 100px;
+    min-width: 0;
+  }
+
+  .field-row input,
+  .field-row select,
+  .field-inputs .sub input,
+  .field-inputs .sub select {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    padding: 9px 10px;
+    font-size: .86rem;
+  }
+
+  .field-inputs > button,
+  .field-inputs > a {
+    max-width: 100%;
+    min-height: 38px;
+    white-space: normal;
+  }
+
+  .ig-source-wrap {
+    gap: 6px !important;
+    padding: 8px !important;
+  }
+
+  .ig-source-wrap button {
+    min-width: 0;
+    flex: 1 1 100% !important;
+    padding: 9px 8px;
+  }
+
+  .calc-card > h2 {
+    padding: 11px 12px;
+    font-size: .88rem;
+  }
+
+  .calc-body {
+    padding: 12px;
+  }
+
+  .calc-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .calc-field,
+  .calc-field input,
+  .calc-field select {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .calc-result {
+    font-size: .78rem;
+    line-height: 1.35;
+    padding: 8px;
+  }
+
+  .note-box {
+    margin: 9px 10px 0;
+    padding: 9px 10px;
+    font-size: .72rem;
+  }
+
+  .tab-navigation {
+    margin: 16px 0 10px;
+    padding: 12px 8px;
+    gap: 6px;
+  }
+
+  .tab-navigation button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .history-card {
+    padding: 12px;
+  }
+
+  .history-card > div:first-child {
+    align-items: flex-start !important;
+    flex-direction: column;
+  }
+
+  .history-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .history-actions button {
+    width: 100%;
+    min-width: 0;
+    padding: 8px 6px;
+    font-size: .76rem;
+  }
+
+  .history-item {
+    padding: 10px;
+  }
+
+  /* A pré-visualização também fica legível no celular; a impressão não é afetada. */
+  #printView {
+    padding: 10px 0 20px;
+    overflow-x: auto;
+  }
+
+  #printView .sheet {
+    width: 100%;
+    min-width: 0;
+    padding: 8px;
+    border-radius: 7px;
+  }
+
+  #printView .p-row {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  #printView .p-col-2,
+  #printView .p-col-3 {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+  }
+}
 </style>
 </head>
 <body>
