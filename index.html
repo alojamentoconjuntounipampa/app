@@ -2973,7 +2973,7 @@ usWeeksSel = document.getElementById('usWeeksAtScan');
 usDaysSel = document.getElementById('usDaysAtScan');
 usResultEl = document.getElementById('usResult');
 const wBlank = document.createElement('option'); wBlank.value=''; wBlank.textContent='—'; usWeeksSel.appendChild(wBlank);
-range(12,40).forEach(w=>{ const o=document.createElement('option'); o.value=w; o.textContent=w; usWeeksSel.appendChild(o); });
+range(4,42).forEach(w=>{ const o=document.createElement('option'); o.value=w; o.textContent=w; usWeeksSel.appendChild(o); });
 const dBlank = document.createElement('option'); dBlank.value=''; dBlank.textContent='—'; usDaysSel.appendChild(dBlank);
 range(0,6).forEach(d=>{ const o=document.createElement('option'); o.value=d; o.textContent=d; usDaysSel.appendChild(o); });
 calcBirthDateInput.addEventListener('change', () => {
