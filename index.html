@@ -2381,7 +2381,9 @@ D("Data"), H("Horário"),
 N("Peso (g)"),
 S("Sexo",["Masculino","Feminino","Ambíguo"]),
 Object.assign(S("Peso x IG (percentil)",["PIG","AIG","GIG"]), {warnOn:['PIG','GIG'], warnMsg:'⚠️ Necessita HGT (protocolo de hipoglicemia) — ver seção "Rastreio de hipoglicemia e infecção".', note:'O percentil de peso para a idade gestacional é calculado automaticamente (INTERGROWTH-21st, Villar et al., Lancet 2014) a partir da IG por DUM/US e do sexo — a classificação PIG/AIG/GIG é sugerida automaticamente, mas a confirmação final é do médico responsável.'}),
-N("Comprimento (cm)"), N("PC (cm)"), N("PT (cm)"),
+N("Comprimento (cm)"), N("PC (cm)"),
+S("Formato do crânio — qualitativo",["Normocefálico","Dolicocefálico","Braquicefálico","Plagiocefálico","Trigonocefálico","Outro"]),
+N("PT (cm)"),
 S("Apgar 1º min",apgar()), S("Apgar 5º min",apgar()), S("Apgar 10º min",apgar()),
 S("Pele a pele",SN),
 S("Aspiração",["Não","Sim - orofaringe","Sim - traqueal"]),
@@ -2630,6 +2632,26 @@ else { faixa = '≥ P97 (possível macrocefalia para a IG)'; cls='warning'; }
 return {cls, text:'INTERGROWTH-21st · PC ao nascer: '+faixa+' (IG usada: '+gaWeeks+'s'+(gaDays||0)+'d · P50 de referência: '+p50.toFixed(1)+' cm)'};
 }
 function getGaForCalc(){ return getSelectedGa(); }
+
+function ig21HcZInfo(sexo, gaWeeks, gaDays, pcCm){
+  if(!sexo || sexo==='Ambíguo' || gaWeeks==null || pcCm==='' || pcCm===undefined || pcCm===null || isNaN(Number(pcCm))) return null;
+  const totalDays = gaWeeks*7 + (gaDays||0);
+  if(totalDays < IG21_HC_MIN_DAYS || totalDays > IG21_HC_MAX_DAYS){
+    return {cls:'info', text:'IG fora da faixa 33+0–42+6 semanas da referência INTERGROWTH-21st; não foi possível estimar o Z.'};
+  }
+  const table = sexo==='Masculino' ? IG21_HC_BOYS : IG21_HC_GIRLS;
+  const [p3,, ,p50,, ,p97] = table[totalDays - IG21_HC_MIN_DAYS];
+  const pc = Number(pcCm);
+  let z;
+  if(pc < p50) z = -2 * (p50 - pc) / (p50 - p3);
+  else z = 2 * (pc - p50) / (p97 - p50);
+  const zText = (z >= 0 ? '+' : '') + z.toFixed(1);
+  let classification, cls;
+  if(z < -2){ classification = 'Microcefalia'; cls = 'warning'; }
+  else if(z > 2){ classification = 'Macrocefalia'; cls = 'warning'; }
+  else { classification = 'Normal'; cls = 'success'; }
+  return {cls, text:'PC quantitativo · Z estimado: '+zText+' · '+classification+' (Microcefalia: Z < −2 · Normal: −2 ≤ Z ≤ +2 · Macrocefalia: Z > +2).'};
+}
 
 function getSelectedGa(){
   return gaSource === 'dum' ? gaDum : gaSource === 'us' ? gaUs : null;
@@ -3148,6 +3170,25 @@ input.addEventListener('change', () => { showInfo(); applyAuto(); });
 showInfo();
 applyAuto();
 inputsWrap.appendChild(wBox);
+}
+if(field.l === 'PC (cm)' && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
+const pcBox = document.createElement('div'); pcBox.className='bilirubin-result'; pcBox.style.display='none';
+const updatePc = () => {
+  const ga = getGaForCalc();
+  const info = ga ? ig21HcZInfo(answers[SEX_KEY], ga.weeks, ga.days, input.value) : null;
+  if(!info){
+    pcBox.style.display='none';
+    pcBox.className='bilirubin-result';
+    return;
+  }
+  pcBox.style.display='block';
+  pcBox.className='bilirubin-result '+info.cls;
+  pcBox.textContent = info.text;
+};
+input.addEventListener('input', updatePc);
+input.addEventListener('change', updatePc);
+updatePc();
+inputsWrap.appendChild(pcBox);
 }
 if(field.l === 'Bilirrubina transcutânea (BTC)' && sec.title === 'Dados de alta do RN'){
 const btcBox = document.createElement('div'); btcBox.className='bilirubin-result'; btcBox.style.display='none';
