@@ -77,6 +77,19 @@ section.card > .card-head h2{ font-family:-apple-system,"Segoe UI",Helvetica,Ari
 .field-row{ display:grid; grid-template-columns:240px 1fr; gap:10px; align-items:start; padding:8px 14px; border-top:1px solid #ECE7DA; font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; }
 .field-row:first-of-type{border-top:none;}
 .field-label{font-size:.85rem; color:var(--ink); padding-top:7px;}
+.field-row.abnormal{
+  background:#fff1f1;
+  border-left:4px solid #c62828;
+}
+.field-row.abnormal .field-label{
+  color:#b71c1c;
+  font-weight:700;
+}
+.field-row.abnormal input,
+.field-row.abnormal select{
+  border-color:#d32f2f !important;
+  box-shadow:0 0 0 2px rgba(211,47,47,.10);
+}
 .field-inputs{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
 .field-inputs .sub{display:flex; flex-direction:column; gap:3px;}
 .field-inputs .sub label{font-size:.68rem; color:var(--ink-soft);}
@@ -124,6 +137,13 @@ main{padding:14px 10px 70px;}
 .calc-field input, .calc-field select{max-width:none;}
 }
 #printView{display:none;}
+#problemsListCard{margin-top:18px;}
+#problemsListCard h2{color:#b71c1c;}
+#problemsList{margin:0;padding-left:22px;color:#b71c1c;font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;font-size:.82rem;line-height:1.5;}
+#problemsList:empty{display:none;}
+@media print{
+  #problemsListCard{display:none !important;}
+}
 #loginView{max-width:420px;margin:40px auto;padding:30px;background:var(--paper);border:1px solid var(--paper-line);border-radius:var(--radius);}
 #loginView h2{margin:0 0 14px;font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;font-size:1rem;}
 #loginForm{display:grid;gap:10px;}
@@ -2320,6 +2340,11 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
 </div>
 </div>
 <div id="sectionsHost"></div>
+<div id="problemsListCard" class="history-card" aria-live="polite">
+<h2>Problemas / alterações identificadas</h2>
+<ul id="problemsList"></ul>
+<p id="problemsEmpty" class="history-empty">Nenhuma alteração identificada.</p>
+</div>
 </div>
 <div id="printView"></div>
 <p class="print-hint" id="printHintText" style="display:none;">Para salvar como PDF: clique em "Imprimir / Salvar PDF" e, na janela de impressão, escolha "Salvar como PDF" como destino.</p>
@@ -3000,6 +3025,85 @@ const sexo = answers[SEX_KEY];
 if(!sexo || sexo === 'Ambíguo') return true;
 return (field.sex==='M' && sexo==='Masculino') || (field.sex==='F' && sexo==='Feminino');
 }
+
+// Identifica respostas que devem chamar atenção clínica no preenchimento.
+const INFERRED_NORMALS = {
+  'US morfológico':'Normal',
+  'Ecocardiograma fetal':'Normal',
+  'Teste do coraçãozinho':'Normal'
+};
+const PROBLEM_TEXT_FIELDS = new Set([
+  'Comorbidades','Intercorrências em gestações anteriores','Intercorrências na gestação atual',
+  'Reanimação (descrever)','Motivo do tipo de parto','Más formações','Outros achados',
+  'Genitália ambígua (descrever)','Intercorrências na 1ª hora','Intercorrências na internação'
+]);
+function fieldIsAbnormal(field, value){
+  if(value === '' || value === null || value === undefined) return false;
+  const rawValue = String(value).trim();
+  const normalizedValue = rawValue.toLowerCase();
+
+  // NR (não reagente/não realizado, quando usado nas sorologias) não é alteração.
+  if(rawValue.toUpperCase() === 'NR') return false;
+  if(field.normal) return value !== field.normal;
+  if(INFERRED_NORMALS[field.l]) return value !== INFERRED_NORMALS[field.l];
+  if(field.warnOn && field.warnOn.includes(value)) return true;
+  if(field.follow && field.l.includes('HIV')) return rawValue.toUpperCase() !== 'NR';
+  if(field.t === 'text') return PROBLEM_TEXT_FIELDS.has(field.l) && rawValue !== '';
+
+  const label = field.l.toLowerCase();
+
+  // Hábitos maternos: qualquer exposição deve ser destacada; somente "Não" é normal.
+  if(['Tabagismo', 'Etilismo', 'Uso de drogas'].includes(field.l)) {
+    return normalizedValue !== 'não';
+  }
+
+  // Campos que representam fatores de risco ou intercorrências, mesmo quando
+  // não possuem uma opção explicitamente marcada como "normal".
+  if(label === 'bolsa rota (horas)') return normalizedValue !== 'menor que 18 horas';
+  if(label.includes('profilaxia intraparto para sgb')) {
+    return !['não', 'não se aplica'].includes(normalizedValue);
+  }
+  if(label.includes('uso de corticoide')) return normalizedValue !== 'não';
+  if(label.includes('necessita') || label.includes('intercorrência') ||
+     label.includes('mal formação') || label.includes('alteração') ||
+     label.includes('sopro') || label.includes('icterícia') ||
+     label.includes('hematoma') || label.includes('organomegalia') ||
+     label.includes('distensão') || label.includes('cólica') ||
+     label.includes('edema') || label.includes('ginecomastia') ||
+     label.includes('mamilo acessório') || label.includes('tiragem') ||
+     label.includes('gemência') || label.includes('bossa') ||
+     label.includes('sinéquia') || label.includes('hidrocele') ||
+     label.includes('hérnia') || label.includes('criptorquidia')) {
+    return /sim|presente|alterad|positiv|ausente|não realizado|não realizada|maior|fétido|meconial|sanguinolento|hipo|letárg|fraco|cianót|pálid|ictéric|abaulada|deprimida|sobreposta|diástase|assimétr|patológ|babinski|extensão|hipertôn|hipotôn|grau [ii-v]/i.test(normalizedValue);
+  }
+
+  return /alterado|alterada|positivo|positiva|não realizado|não realizada/.test(normalizedValue);
+}
+function updateProblemsList(){
+  const list = document.getElementById('problemsList');
+  const empty = document.getElementById('problemsEmpty');
+  if(!list || !empty) return;
+  // Limpa destaques antigos antes de recalcular as alterações.
+  document.querySelectorAll('.field-row.abnormal').forEach(row => row.classList.remove('abnormal'));
+  const problems = [];
+  DATA.forEach((part, pIdx) => part.sections.forEach((sec, sIdx) => sec.fields.forEach((field, fIdx) => {
+    if(!fieldVisible(field)) return;
+    const key = pIdx+'_'+sIdx+'_'+fIdx;
+    const value = field.t === 'group'
+      ? field.items.map((item, i) => answers[key+'_'+i] || '').filter(Boolean).join(' — ')
+      : answers[key] || '';
+    if(fieldIsAbnormal(field, value)) problems.push({key, text:part.tabLabel+' · '+sec.title+' — '+field.l+': '+value});
+  })));
+  list.innerHTML = '';
+  problems.forEach(problem => {
+    const item = document.createElement('li');
+    item.textContent = problem.text;
+    list.appendChild(item);
+    const row = document.querySelector('[data-row-key="'+CSS.escape(problem.key)+'"]');
+    if(row) row.classList.add('abnormal');
+  });
+  empty.style.display = problems.length ? 'none' : 'block';
+}
 function utcDay(dateStr){ if(!dateStr) return null; const [y,m,d]=dateStr.split('-').map(Number); return Date.UTC(y,m-1,d); }
 function daysBetween(dateStrA, dateStrB){ const a=utcDay(dateStrA), b=utcDay(dateStrB); if(a===null||b===null) return null; return Math.round((b-a)/86400000); }
 let calcBirthDateInput, dumDateInput, dumResultEl, usDateInput, usWeeksSel, usDaysSel, usResultEl;
@@ -3060,7 +3164,7 @@ input.type = fieldDef.t==='number'?'number':(fieldDef.t==='date'?'date':(fieldDe
 }
 input.value = answers[key] || '';
 input.dataset.answerKey = key;
-const sync = () => { answers[key] = input.value; };
+const sync = () => { answers[key] = input.value; updateProblemsList(); };
 input.addEventListener('input', sync);
 input.addEventListener('change', sync);
 return input;
@@ -3100,7 +3204,7 @@ if(sec.note){ const note = document.createElement('div'); note.className='note-b
 sec.fields.forEach((field, fIdx) => {
 if(!fieldVisible(field)) return;
 const baseKey = currentPart+'_'+sIdx+'_'+fIdx;
-const row = document.createElement('div'); row.className = 'field-row';
+const row = document.createElement('div'); row.className = 'field-row'; row.dataset.rowKey = baseKey;
 const lbl = document.createElement('div'); lbl.className = 'field-label'; lbl.textContent = field.l; row.appendChild(lbl);
 const inputsWrap = document.createElement('div'); inputsWrap.className = 'field-inputs';
 if(field.t === 'group'){
@@ -3181,28 +3285,49 @@ if(field.l === 'Formato do crânio — qualitativo' && sec.title === 'Dados de n
   const reference = document.createElement('details');
   reference.className = 'skull-reference';
   const summary = document.createElement('summary');
-  summary.textContent = 'Ver imagem de referência dos formatos cranianos';
+  summary.textContent = 'Clique para consultar a imagem dos formatos cranianos';
+  summary.setAttribute('aria-label', 'Abrir imagem de referência dos formatos cranianos');
   const image = document.createElement('img');
-  image.src = '8E186340-E97E-421E-A2D8-CFA04F1BFEFD.png';
-  image.alt = 'Tipos de crânio do recém-nascido: Normal, Plagiocefalia, Braquicefalia e Escafocefalia';
+  image.alt = 'Desenhos médicos minimalistas, em vista superior e mesma escala: normocefálico, com contorno oval simétrico e sem achatamento; plagiocefálico, com achatamento posterolateral unilateral e convexidade compensatória contralateral; braquicefálico, simétrico, curto no eixo anteroposterior e largo transversalmente; e escafocefálico, alongado no eixo anteroposterior e estreito transversalmente, em formato de barco.';
+  image.title = 'Referência qualitativa dos formatos cranianos do recém-nascido';
   image.loading = 'lazy';
   image.decoding = 'async';
-  image.style.cssText = 'display:block;width:min(100%,760px);height:auto;margin-top:8px;border:1px solid #d5e4de;border-radius:8px;background:#fff;';
-  image.onerror = () => {
-    // Fallback visual caso o arquivo anexado não esteja disponível no projeto.
-    image.onerror = null;
-    image.src = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-      <svg xmlns="http://www.w3.org/2000/svg" width="760" height="230" viewBox="0 0 760 230">
-        <rect width="760" height="230" fill="#f8fcfb"/>
-        <text x="380" y="24" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold" fill="#0f6e63">Formatos cranianos do recém-nascido</text>
-        <g font-family="Arial" font-size="13" text-anchor="middle" fill="#34495e">
-          <g transform="translate(95 58)"><ellipse cx="0" cy="55" rx="48" ry="55" fill="#e8f4f0" stroke="#0f6e63" stroke-width="2"/><text x="0" y="130">Normal</text></g>
-          <g transform="translate(285 58)"><ellipse cx="0" cy="55" rx="62" ry="43" fill="#e8f4f0" stroke="#0f6e63" stroke-width="2"/><text x="0" y="130">Plagiocefalia</text></g>
-          <g transform="translate(475 58)"><ellipse cx="0" cy="55" rx="62" ry="55" fill="#e8f4f0" stroke="#0f6e63" stroke-width="2"/><text x="0" y="130">Braquicefalia</text></g>
-          <g transform="translate(665 58)"><ellipse cx="0" cy="55" rx="35" ry="67" fill="#e8f4f0" stroke="#0f6e63" stroke-width="2"/><text x="0" y="130">Escafocefalia</text></g>
-        </g>
-      </svg>`);
-  };
+  image.src = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 360" role="img" aria-labelledby="title desc">
+      <title id="title">Formatos cranianos do recém-nascido</title>
+      <desc id="desc">Vista superior de quatro crânios: normocefálico, plagiocefálico, braquicefálico e escafocefálico.</desc>
+      <rect width="1000" height="360" fill="#f8fcfb"/>
+      <g fill="#e8f4f0" stroke="#0f6e63" stroke-width="5" stroke-linejoin="round">
+        <!-- Normocefálico: contorno ovalado simétrico, sem achatamento. -->
+        <path d="M125 48 C78 48 48 86 48 140 C48 198 76 226 125 226 C174 226 202 198 202 140 C202 86 172 48 125 48 Z"/>
+        <!-- Plagiocefálico: achatamento posterolateral esquerdo e compensação direita. -->
+        <path d="M369 48 C333 48 308 66 300 94 C295 111 299 126 294 139 C288 153 278 166 282 181 C286 201 305 218 333 225 C353 230 378 228 399 220 C427 210 448 192 454 171 C459 153 451 138 449 123 C447 106 453 93 444 78 C431 57 407 48 369 48 Z"/>
+        <!-- Braquicefálico: curto no eixo ântero-posterior e largo transversalmente. -->
+        <path d="M585 72 C536 72 510 101 510 140 C510 181 536 208 585 208 C634 208 660 181 660 140 C660 101 634 72 585 72 Z"/>
+        <!-- Escafocefálico: alongado no eixo ântero-posterior e estreito transversalmente. -->
+        <path d="M820 32 C782 34 761 72 758 140 C761 208 782 246 820 248 C858 246 879 208 882 140 C879 72 858 34 820 32 Z"/>
+      </g>
+      <g fill="#1b3a4b" font-family="Arial, sans-serif" text-anchor="middle">
+        <text x="125" y="266" font-size="17" font-weight="700">Normocefálico</text>
+        <text x="375" y="266" font-size="17" font-weight="700">Plagiocefálico</text>
+        <text x="625" y="266" font-size="17" font-weight="700">Braquicefálico</text>
+        <text x="875" y="266" font-size="17" font-weight="700">Escafocefálico</text>
+        <text x="125" y="286" font-size="11">Simétrico</text>
+        <text x="125" y="301" font-size="11">sem achatamento</text>
+        <text x="375" y="286" font-size="11">Achatamento</text>
+        <text x="375" y="301" font-size="11">posterolateral unilateral</text>
+        <text x="625" y="286" font-size="11">Curto e largo</text>
+        <text x="625" y="301" font-size="11">e arredondado</text>
+        <text x="875" y="286" font-size="11">Alongado e estreito</text>
+        <text x="875" y="301" font-size="11">em forma de barco</text>
+      </g>
+      <g fill="none" stroke="#75bfae" stroke-width="3" opacity=".85">
+        <path d="M78 177 C105 191 143 192 177 175"/>
+        <path d="M304 181 C331 194 390 198 431 166"/>
+        <path d="M548 177 C570 187 602 187 622 177"/>
+        <path d="M796 208 C815 220 833 220 847 208"/>
+      </g>
+    </svg>`);
   reference.append(summary, image);
   inputsWrap.appendChild(reference);
 }
@@ -3322,6 +3447,7 @@ DATA.forEach((partDef, idx) => {
   navigation.appendChild(next);
 });
 host.appendChild(navigation);
+updateProblemsList();
 }
 document.querySelectorAll('.tab-btn').forEach(btn => {
 btn.addEventListener('click', () => {
