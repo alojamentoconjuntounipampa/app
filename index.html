@@ -3019,6 +3019,24 @@ const BIRTH_WEIGHT_KEY = findFieldKey("Dados de nascimento e exame físico da 1�
 const CURRENT_WEIGHT_KEY = findFieldKey("Dados gerais de alta","Peso atual (g)");
 const WEIGHT_LOSS_G_KEY = findFieldKey("Dados gerais de alta","Perda ponderal (g)");
 const WEIGHT_LOSS_PCT_KEY = findFieldKey("Dados gerais de alta","Perda ponderal (%)");
+
+function toxoplasmosisFirstTrimesterImmune(){
+  const igGKey = findFieldKeyInPart(0, 'Sorologias maternas — 1º trimestre', 'Toxoplasmose - IgG');
+  const igMKey = findFieldKeyInPart(0, 'Sorologias maternas — 1º trimestre', 'Toxoplasmose - IgM');
+  return answers[igGKey] === 'R' && answers[igMKey] === 'NR';
+}
+
+function toxoplasmosisFirstTrimesterSusceptible(){
+  const igGKey = findFieldKeyInPart(0, 'Sorologias maternas — 1º trimestre', 'Toxoplasmose - IgG');
+  const igMKey = findFieldKeyInPart(0, 'Sorologias maternas — 1º trimestre', 'Toxoplasmose - IgM');
+  return answers[igGKey] === 'NR' && answers[igMKey] === 'NR';
+}
+
+function isToxoplasmosisField(field, sectionTitle){
+  return sectionTitle.includes('Sorologias maternas') &&
+    (field.l === 'Toxoplasmose - IgG' || field.l === 'Toxoplasmose - IgM');
+}
+
 function fieldVisible(field){
 if(!field.sex) return true;
 const sexo = answers[SEX_KEY];
@@ -3037,10 +3055,42 @@ const PROBLEM_TEXT_FIELDS = new Set([
   'Reanimação (descrever)','Motivo do tipo de parto','Más formações','Outros achados',
   'Genitália ambígua (descrever)','Intercorrências na 1ª hora','Intercorrências na internação'
 ]);
-function fieldIsAbnormal(field, value){
-  if(value === '' || value === null || value === undefined) return false;
+function fieldIsAbnormal(field, value, context = {}){
+  const toxIgMFirstTrimesterKey = findFieldKeyInPart(0, 'Sorologias maternas — 1º trimestre', 'Toxoplasmose - IgM');
+  const toxIgMFirstTrimester = answers[toxIgMFirstTrimesterKey] || '';
+  const needsToxoplasmosisAvidity = context.sectionTitle === 'Sorologias maternas — 1º trimestre' &&
+    field.l === 'Toxoplasmose - Avidez (se IgM R)' && toxIgMFirstTrimester === 'R';
+  if(value === '' || value === null || value === undefined) return needsToxoplasmosisAvidity;
   const rawValue = String(value).trim();
   const normalizedValue = rawValue.toLowerCase();
+
+  // IgG reagente + IgM não reagente no 1º trimestre indica imunidade prévia.
+  if(isToxoplasmosisField(field, context.sectionTitle) &&
+     context.sectionTitle === 'Sorologias maternas — 1º trimestre' &&
+     toxoplasmosisFirstTrimesterImmune()) return false;
+
+  // Após IgG reagente documentado no 1º trimestre, o IgG reagente
+  // nos trimestres seguintes é compatível com imunidade prévia e não é alteração.
+  const firstTrimesterIgGKey = findFieldKeyInPart(0, 'Sorologias maternas — 1º trimestre', 'Toxoplasmose - IgG');
+  const firstTrimesterIgG = answers[firstTrimesterIgGKey] || '';
+  if(isToxoplasmosisField(field, context.sectionTitle) &&
+     field.l === 'Toxoplasmose - IgG' &&
+     context.sectionTitle !== 'Sorologias maternas — 1º trimestre' &&
+     firstTrimesterIgG === 'R' && rawValue.toUpperCase() === 'R') return false;
+
+  // Após imunidade documentada no 1º trimestre, exames de toxoplasmose não realizados
+  // nos trimestres seguintes não representam, por si só, uma alteração.
+  if(isToxoplasmosisField(field, context.sectionTitle) &&
+     context.sectionTitle !== 'Sorologias maternas — 1º trimestre' &&
+     rawValue.toLowerCase() === 'não realizado') {
+    return !toxoplasmosisFirstTrimesterImmune() && toxoplasmosisFirstTrimesterSusceptible();
+  }
+
+  // Avidez é necessária quando o IgM do primeiro trimestre é reagente.
+  if(needsToxoplasmosisAvidity && rawValue.toLowerCase() === 'não realizado') return true;
+
+  // Qualquer resultado reagente (R) é alteração, exceto IgG R + IgM NR no 1º trimestre.
+  if(rawValue.toUpperCase() === 'R') return true;
 
   // NR (não reagente/não realizado, quando usado nas sorologias) não é alteração.
   if(rawValue.toUpperCase() === 'NR') return false;
@@ -3092,7 +3142,7 @@ function updateProblemsList(){
     const value = field.t === 'group'
       ? field.items.map((item, i) => answers[key+'_'+i] || '').filter(Boolean).join(' — ')
       : answers[key] || '';
-    if(fieldIsAbnormal(field, value)) problems.push({key, text:part.tabLabel+' · '+sec.title+' — '+field.l+': '+value});
+    if(fieldIsAbnormal(field, value, {sectionTitle: sec.title})) problems.push({key, text:part.tabLabel+' · '+sec.title+' — '+field.l+': '+value});
   })));
   list.innerHTML = '';
   problems.forEach(problem => {
@@ -3427,6 +3477,45 @@ inputsWrap.appendChild(followInput);
 row.appendChild(inputsWrap);
 card.appendChild(row);
 });
+if(sec.title === 'Sorologias maternas — 1º trimestre'){
+  const toxoplasmosisInfo = document.createElement('div');
+  toxoplasmosisInfo.className = 'bilirubin-result info';
+  toxoplasmosisInfo.style.cssText = 'margin:0 14px 12px; display:none;';
+  const updateToxoplasmosisInfo = () => {
+    const igGKey = findFieldKeyInPart(0, 'Sorologias maternas — 1º trimestre', 'Toxoplasmose - IgG');
+    const igMKey = findFieldKeyInPart(0, 'Sorologias maternas — 1º trimestre', 'Toxoplasmose - IgM');
+    const igG = answers[igGKey] || '';
+    const igM = answers[igMKey] || '';
+    const immune = igG === 'R' && igM === 'NR';
+    const susceptible = igG === 'NR' && igM === 'NR';
+    const recentInfectionNeedsInvestigation = igG === 'NR' && igM === 'R';
+    const otherReactiveResult = (igG === 'R' && igM === 'R');
+
+    toxoplasmosisInfo.style.display = (immune || susceptible || recentInfectionNeedsInvestigation || otherReactiveResult) ? 'block' : 'none';
+    if (immune) {
+      toxoplasmosisInfo.className = 'bilirubin-result info';
+      toxoplasmosisInfo.textContent = 'Toxoplasmose: IgG reagente e IgM não reagente — resultado compatível com imunidade prévia, sem evidência de infecção aguda neste exame. Nos trimestres seguintes, “Não realizado” não será destacado como alteração.';
+    } else if (susceptible) {
+      toxoplasmosisInfo.className = 'bilirubin-result warning';
+      toxoplasmosisInfo.textContent = 'Toxoplasmose: IgG e IgM não reagentes — mãe suscetível. Repetir a sorologia nos três trimestres, conforme protocolo institucional.';
+    } else if (recentInfectionNeedsInvestigation) {
+      toxoplasmosisInfo.className = 'bilirubin-result warning';
+      toxoplasmosisInfo.textContent = 'Toxoplasmose: IgM reagente e IgG não reagente — resultado alterado. Repetir a sorologia e solicitar teste de avidez do IgG até 16 semanas de gestação, conforme protocolo institucional.';
+    } else if (otherReactiveResult) {
+      toxoplasmosisInfo.className = 'bilirubin-result warning';
+      toxoplasmosisInfo.textContent = 'Toxoplasmose: IgG e IgM reagentes — resultado alterado, com necessidade de investigação e acompanhamento conforme protocolo institucional.';
+    } else {
+      toxoplasmosisInfo.textContent = '';
+    }
+  };
+  sec.fields.forEach((field, fIdx) => {
+    if(field.l !== 'Toxoplasmose - IgG' && field.l !== 'Toxoplasmose - IgM') return;
+    const toxInput = card.querySelector('[data-answer-key="'+currentPart+'_'+sIdx+'_'+fIdx+'"]');
+    if(toxInput) toxInput.addEventListener('change', updateToxoplasmosisInfo);
+  });
+  updateToxoplasmosisInfo();
+  card.appendChild(toxoplasmosisInfo);
+}
 host.appendChild(card);
 if(currentPart===0 && sIdx===0 && gaCalcEl){ host.appendChild(gaCalcEl); }
 });
