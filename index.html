@@ -3493,8 +3493,8 @@ if(sec.title === 'Sorologias maternas — 1º trimestre'){
 
     toxoplasmosisInfo.style.display = (immune || susceptible || recentInfectionNeedsInvestigation || otherReactiveResult) ? 'block' : 'none';
     if (immune) {
-      toxoplasmosisInfo.className = 'bilirubin-result info';
-      toxoplasmosisInfo.textContent = 'Toxoplasmose: IgG reagente e IgM não reagente — resultado compatível com imunidade prévia, sem evidência de infecção aguda neste exame. Nos trimestres seguintes, “Não realizado” não será destacado como alteração.';
+      toxoplasmosisInfo.className = 'bilirubin-result success';
+      toxoplasmosisInfo.textContent = '✅ IMUNE — Toxoplasmose: IgG reagente e IgM não reagente, compatível com imunidade prévia e sem evidência de infecção aguda neste exame. Nos trimestres seguintes, “Não realizado” não será destacado como alteração.';
     } else if (susceptible) {
       toxoplasmosisInfo.className = 'bilirubin-result warning';
       toxoplasmosisInfo.textContent = 'Toxoplasmose: IgG e IgM não reagentes — mãe suscetível. Repetir a sorologia nos três trimestres, conforme protocolo institucional.';
@@ -3514,7 +3514,12 @@ if(sec.title === 'Sorologias maternas — 1º trimestre'){
     if(toxInput) toxInput.addEventListener('change', updateToxoplasmosisInfo);
   });
   updateToxoplasmosisInfo();
-  card.appendChild(toxoplasmosisInfo);
+  const toxIgMIndex = sec.fields.findIndex(field => field.l === 'Toxoplasmose - IgM');
+  const toxIgMRow = toxIgMIndex >= 0
+    ? card.querySelector('[data-row-key="'+currentPart+'_'+sIdx+'_'+toxIgMIndex+'"]')
+    : null;
+  if(toxIgMRow && toxIgMRow.nextSibling) card.insertBefore(toxoplasmosisInfo, toxIgMRow.nextSibling);
+  else card.appendChild(toxoplasmosisInfo);
 }
 host.appendChild(card);
 if(currentPart===0 && sIdx===0 && gaCalcEl){ host.appendChild(gaCalcEl); }
