@@ -2099,6 +2099,46 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
     white-space: normal;
   }
 
+  .skull-reference {
+    flex-basis: 100%;
+    margin-top: 4px;
+  }
+
+  .skull-reference summary {
+    display: inline-block;
+    cursor: pointer;
+    color: #0f6e63;
+    font-size: .76rem;
+    font-weight: 600;
+    padding: 7px 10px;
+    border: 1px solid #d5e4de;
+    border-radius: 6px;
+    background: #e8f4f0;
+    list-style: none;
+  }
+
+  .skull-reference summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .skull-reference summary::before {
+    content: '▸';
+    margin-right: 6px;
+  }
+
+  .skull-reference[open] summary::before {
+    content: '▾';
+  }
+
+  .skull-reference img {
+    display: block;
+    width: min(100%, 760px);
+    height: auto;
+    margin-top: 8px;
+    border: 1px solid #d5e4de;
+    border-radius: 8px;
+  }
+
   .ig-source-wrap {
     gap: 6px !important;
     padding: 8px !important;
@@ -2382,7 +2422,7 @@ N("Peso (g)"),
 S("Sexo",["Masculino","Feminino","Ambíguo"]),
 Object.assign(S("Peso x IG (percentil)",["PIG","AIG","GIG"]), {warnOn:['PIG','GIG'], warnMsg:'⚠️ Necessita HGT (protocolo de hipoglicemia) — ver seção "Rastreio de hipoglicemia e infecção".', note:'O percentil de peso para a idade gestacional é calculado automaticamente (INTERGROWTH-21st, Villar et al., Lancet 2014) a partir da IG por DUM/US e do sexo — a classificação PIG/AIG/GIG é sugerida automaticamente, mas a confirmação final é do médico responsável.'}),
 N("Comprimento (cm)"), N("PC (cm)"),
-S("Formato do crânio — qualitativo",["Normocefálico","Dolicocefálico","Braquicefálico","Plagiocefálico","Trigonocefálico","Outro"]),
+S("Formato do crânio — qualitativo",["Normal","Plagiocefalia","Braquicefalia","Escafocefalia"]),
 N("PT (cm)"),
 S("Apgar 1º min",apgar()), S("Apgar 5º min",apgar()), S("Apgar 10º min",apgar()),
 S("Pele a pele",SN),
@@ -3136,6 +3176,35 @@ if(field.l === 'IG' && sec.title === 'Dados de nascimento e exame físico da 1ª
   const gaInfo = document.createElement('div'); gaInfo.style.cssText='font-size:.74rem;color:#0B5850;margin-top:4px;flex-basis:100%;';
   gaInfo.textContent = 'IG calculada — DUM: ' + (gaDum ? gaDum.weeks+'s '+gaDum.days+'d' : '—') + ' · US: ' + (gaUs ? gaUs.weeks+'s '+gaUs.days+'d' : '—') + (gaSource ? ' · selecionada: '+gaSource.toUpperCase() : '');
   inputsWrap.appendChild(gaInfo);
+}
+if(field.l === 'Formato do crânio — qualitativo' && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
+  const reference = document.createElement('details');
+  reference.className = 'skull-reference';
+  const summary = document.createElement('summary');
+  summary.textContent = 'Ver imagem de referência dos formatos cranianos';
+  const image = document.createElement('img');
+  image.src = '8E186340-E97E-421E-A2D8-CFA04F1BFEFD.png';
+  image.alt = 'Tipos de crânio do recém-nascido: Normal, Plagiocefalia, Braquicefalia e Escafocefalia';
+  image.loading = 'lazy';
+  image.decoding = 'async';
+  image.style.cssText = 'display:block;width:min(100%,760px);height:auto;margin-top:8px;border:1px solid #d5e4de;border-radius:8px;background:#fff;';
+  image.onerror = () => {
+    // Fallback visual caso o arquivo anexado não esteja disponível no projeto.
+    image.onerror = null;
+    image.src = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="760" height="230" viewBox="0 0 760 230">
+        <rect width="760" height="230" fill="#f8fcfb"/>
+        <text x="380" y="24" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold" fill="#0f6e63">Formatos cranianos do recém-nascido</text>
+        <g font-family="Arial" font-size="13" text-anchor="middle" fill="#34495e">
+          <g transform="translate(95 58)"><ellipse cx="0" cy="55" rx="48" ry="55" fill="#e8f4f0" stroke="#0f6e63" stroke-width="2"/><text x="0" y="130">Normal</text></g>
+          <g transform="translate(285 58)"><ellipse cx="0" cy="55" rx="62" ry="43" fill="#e8f4f0" stroke="#0f6e63" stroke-width="2"/><text x="0" y="130">Plagiocefalia</text></g>
+          <g transform="translate(475 58)"><ellipse cx="0" cy="55" rx="62" ry="55" fill="#e8f4f0" stroke="#0f6e63" stroke-width="2"/><text x="0" y="130">Braquicefalia</text></g>
+          <g transform="translate(665 58)"><ellipse cx="0" cy="55" rx="35" ry="67" fill="#e8f4f0" stroke="#0f6e63" stroke-width="2"/><text x="0" y="130">Escafocefalia</text></g>
+        </g>
+      </svg>`);
+  };
+  reference.append(summary, image);
+  inputsWrap.appendChild(reference);
 }
 if(field.l === 'IG presumida (Capurro)' && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
 const capurroLink = document.createElement('a'); capurroLink.href='https://pedb.com.br/calculadoras/capurro'; capurroLink.target='_blank'; capurroLink.rel='noopener';
