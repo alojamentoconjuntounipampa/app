@@ -2572,6 +2572,8 @@ T("Intercorrências na 1ª hora")
   {l:"Horas de vida na 1ª avaliação",t:'number',auto:'hoursFromBirth'},
   {l:"Peso da 1ª avaliação (g)",t:'number'},
   {l:"Perda ponderal (%)",t:'number',auto:'weightLossFirstEvaluation'},
+  {l:"Avaliação pulmonar",t:'text'},
+  {l:"Avaliação cardíaca",t:'text'},
   {l:"Bilirrubina transcutânea (BTC)",t:'number'}
 ]}
 ] },
@@ -3129,6 +3131,9 @@ function fieldIsAbnormal(field, value, context = {}){
 
   // “Fácie atípica” é uma classificação descritiva e não deve gerar alerta automático.
   if(field.l === 'Fácie típica') return false;
+
+  // Acrocianose pode ser fisiológica no recém-nascido e é considerada normal nesta ficha.
+  if(field.l === 'Coloração' && normalizedValue === 'acrocianose') return false;
 
   // Tremor essencial é considerado normal nesta ficha e não deve gerar alerta.
   // A comparação normalizada também cobre maiúsculas, acentos e espaços extras.
