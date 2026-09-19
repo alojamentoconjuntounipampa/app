@@ -170,6 +170,47 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
 .tab-navigation button{min-width:150px;}
 
 /* Controle da fonte da idade gestacional — sempre visível na aba da 1ª hora. */
+.first-eval-group{
+  background:#eef7ff !important;
+  border-left:4px solid #3b82f6 !important;
+  border-top-color:#cfe3f7 !important;
+}
+.first-eval-group .field-label{
+  color:#155e9b !important;
+  font-weight:700;
+}
+.first-eval-group input{
+  border-color:#9bc6ea !important;
+  background:#f8fcff !important;
+}
+.first-eval-group .field-inputs{
+  flex-direction:column !important;
+  align-items:stretch !important;
+  gap:10px !important;
+}
+.first-eval-group .field-inputs .sub{
+  width:100% !important;
+  max-width:420px;
+}
+.first-eval-group .field-inputs .sub input,
+.first-eval-group .field-inputs .sub select{
+  max-width:100% !important;
+}
+.problem-stage{
+  list-style:none;
+  margin:12px 0 4px -22px;
+  padding:6px 10px;
+  background:#e8f4f0;
+  border-left:4px solid var(--accent);
+  color:var(--accent);
+  font-weight:700;
+}
+.problem-section{
+  list-style:none;
+  margin-left:-8px;
+  color:var(--ink-soft);
+  font-weight:700;
+}
 .ig-source-wrap{
   display:flex !important;
   flex-basis:100% !important;
@@ -2313,7 +2354,8 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
 <div class="tabs">
 <button class="tab-btn active" data-part="0">Dados da mãe</button>
 <button class="tab-btn" data-part="1">RN — 1ª hora de vida</button>
-<button class="tab-btn" data-part="2">Alta hospitalar</button>
+<button class="tab-btn" data-part="2">Controle — 1ª avaliação</button>
+<button class="tab-btn" data-part="3">Alta hospitalar</button>
 </div>
 <div id="gaCalc" class="calc-card">
 <h2>Calculadora de Idade Gestacional</h2>
@@ -2403,14 +2445,14 @@ S("Grupo sanguíneo do pai",BLOOD.concat(["Desconhecido"]))
 ]},
 {title:"Sorologias maternas — 1º trimestre", quickNormal:true, fields:[
 Sn("HBsAg",RNR,"NR"), Sn("HCV",RNR,"NR"), Sn("Toxoplasmose - IgG",RNR,"NR"), Sn("Toxoplasmose - IgM",RNR,"NR"),
-T("Toxoplasmose - Avidez (se IgM R)"),
+T("Toxoplasmose - Avidez (se IgM R, até 16 semanas)"),
 Sf("HIV (± CV)",RNR,HIV_FOLLOW),
 Sn("Chagas - IgG",RNR,"NR"), Sn("Chagas - IgM",RNR,"NR"),
 Sn("Sífilis - VDRL",RNR,"NR"), Sn("Sífilis - Teste rápido (TR)",RNR,"NR")
 ]},
 {title:"Sorologias maternas — 2º trimestre", quickNormal:true, fields:[
 Sn("HBsAg",RNR,"NR"), Sn("HCV",RNR,"NR"), Sn("Toxoplasmose - IgG",RNR,"NR"), Sn("Toxoplasmose - IgM",RNR,"NR"),
-T("Toxoplasmose - Avidez (se IgM R)"),
+T("Toxoplasmose - Avidez (se IgM R, até 16 semanas)"),
 Sf("HIV (± CV)",RNR,HIV_FOLLOW),
 Sn("Chagas - IgG",RNR,"NR"), Sn("Chagas - IgM",RNR,"NR"),
 Sn("Sífilis - VDRL",RNR,"NR"), Sn("Sífilis - Teste rápido (TR)",RNR,"NR")
@@ -2465,7 +2507,7 @@ S("Nº de circulares de cordão",["0","1","2","3 ou mais"])
 {title:"Exame neurológico", quickNormal:true, fields:[
 Sn("Tônus",["Normotônico","Hipotônico","Hipertônico"],"Normotônico"),
 Sn("Choro",["Forte e vigoroso","Fraco","Ausente"],"Forte e vigoroso"),
-Sn("Atividade",["Ativo","Hipoativo","Letárgico","Aleatória"],"Ativo"),
+Sn("Atividade",["Ativo","Hipoativo","Letárgico","Aleatória"],"Aleatória"),
 Sn("Tremores",["Tremor essencial","Tremor patológico","Ausente","Presente"],"Ausente")
 ]},
 {title:"Cabeça e pescoço", quickNormal:true, fields:[
@@ -2525,6 +2567,14 @@ Sn("Profilaxia de conjuntivite (PVPI)",REALIZADO,"Realizada"),
 T("Intercorrências na 1ª hora")
 ]}
 ] },
+{ label: "Controle — 1ª avaliação no alojamento conjunto", tabLabel:"Controle — 1ª avaliação", controlOnly:true, sections: [
+{title:"1ª avaliação no alojamento conjunto", fields:[
+  {l:"Horas de vida na 1ª avaliação",t:'number',auto:'hoursFromBirth'},
+  {l:"Peso da 1ª avaliação (g)",t:'number'},
+  {l:"Perda ponderal (%)",t:'number',auto:'weightLossFirstEvaluation'},
+  {l:"Bilirrubina transcutânea (BTC)",t:'number'}
+]}
+] },
 { label: "Exame físico de alta hospitalar", tabLabel:"Alta hospitalar", sections: [
 {title:"Dados gerais de alta", fields:[
 Object.assign(N("Horas de vida"), {auto:'hoursFromBirth'}),
@@ -2535,7 +2585,7 @@ Object.assign(N("Perda ponderal (%)"), {auto:'weightLoss'})
 {title:"Exame neurológico", quickNormal:true, fields:[
 Sn("Tônus",["Normotônico","Hipotônico","Hipertônico"],"Normotônico"),
 Sn("Choro",["Forte e vigoroso","Fraco","Ausente"],"Forte e vigoroso"),
-Sn("Atividade",["Ativo","Hipoativo","Letárgico","Aleatória"],"Ativo"),
+Sn("Atividade",["Ativo","Hipoativo","Letárgico","Aleatória"],"Aleatória"),
 Sn("Tremores",["Tremor essencial","Tremor patológico","Ausente","Presente"],"Ausente")
 ]},
 {title:"Cabeça e pescoço", quickNormal:true, fields:[
@@ -2643,7 +2693,7 @@ const PRINT_GROUPS = [
   {pageClass:'page-materna', label:'Dados maternos', parts:[0]},
   {pageClass:'page-rn-1', label:'RN — 1ª hora, parte 1', parts:[1], sectionRange:[0,7]},
   {pageClass:'page-rn-2', label:'RN — 1ª hora, parte 2', parts:[1], sectionRange:[7]},
-  {pageClass:'page-alta', label:'Alta hospitalar', parts:[2]}
+  {pageClass:'page-alta', label:'Alta hospitalar', parts:[3]}
 ];
 // ==================== EXTENSÃO ADITIVA ====================
 // 1) Percentil do perímetro cefálico (PC) ao nascer — INTERGROWTH-21st
@@ -3059,10 +3109,29 @@ function fieldIsAbnormal(field, value, context = {}){
   const toxIgMFirstTrimesterKey = findFieldKeyInPart(0, 'Sorologias maternas — 1º trimestre', 'Toxoplasmose - IgM');
   const toxIgMFirstTrimester = answers[toxIgMFirstTrimesterKey] || '';
   const needsToxoplasmosisAvidity = context.sectionTitle === 'Sorologias maternas — 1º trimestre' &&
-    field.l === 'Toxoplasmose - Avidez (se IgM R)' && toxIgMFirstTrimester === 'R';
+    field.l === 'Toxoplasmose - Avidez (se IgM R, até 16 semanas)' && toxIgMFirstTrimester === 'R';
   if(value === '' || value === null || value === undefined) return needsToxoplasmosisAvidity;
   const rawValue = String(value).trim();
   const normalizedValue = rawValue.toLowerCase();
+
+  // Respostas negativas em campos de texto não representam alteração.
+  // A regra vale para qualquer combinação de maiúsculas/minúsculas e acentos.
+  const isFreeTextField = field.t === 'text' ||
+    (field.t === 'group' && field.items.some(item => item.t === 'text'));
+  const normalizedNeutralText = normalizedValue.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');
+  if (isFreeTextField && ['nao', 'nada', 'nega'].includes(normalizedNeutralText)) return false;
+
+  // Chagas deve ser rastreada ao menos uma vez na gestação; a ausência do exame
+  // nos outros trimestres não constitui, por si só, uma alteração.
+  if (context.sectionTitle.includes('Sorologias maternas') && field.l.startsWith('Chagas -')) {
+    return rawValue.toUpperCase() === 'R';
+  }
+
+  // “Fácie atípica” é uma classificação descritiva e não deve gerar alerta automático.
+  if(field.l === 'Fácie típica') return false;
+
+  // Tremor essencial é considerado normal nesta ficha e não deve gerar alerta.
+  if(field.l === 'Tremores' && rawValue === 'tremor essencial') return false;
 
   // IgG reagente + IgM não reagente no 1º trimestre indica imunidade prévia.
   if(isToxoplasmosisField(field, context.sectionTitle) &&
@@ -3086,7 +3155,7 @@ function fieldIsAbnormal(field, value, context = {}){
     return !toxoplasmosisFirstTrimesterImmune() && toxoplasmosisFirstTrimesterSusceptible();
   }
 
-  // Avidez é necessária quando o IgM do primeiro trimestre é reagente.
+  // Avidez é necessária quando o IgM do primeiro trimestre é reagente e a gestação está até a 16ª semana.
   if(needsToxoplasmosisAvidity && rawValue.toLowerCase() === 'não realizado') return true;
 
   // Qualquer resultado reagente (R) é alteração, exceto IgG R + IgM NR no 1º trimestre.
@@ -3098,7 +3167,12 @@ function fieldIsAbnormal(field, value, context = {}){
   if(INFERRED_NORMALS[field.l]) return value !== INFERRED_NORMALS[field.l];
   if(field.warnOn && field.warnOn.includes(value)) return true;
   if(field.follow && field.l.includes('HIV')) return rawValue.toUpperCase() !== 'NR';
-  if(field.t === 'text') return PROBLEM_TEXT_FIELDS.has(field.l) && rawValue !== '';
+  if(field.t === 'text') {
+    if(field.l === 'Comorbidades') {
+      return !['nega comorbidades', 'sem comorbidades', 'não'].includes(normalizedValue);
+    }
+    return PROBLEM_TEXT_FIELDS.has(field.l) && rawValue !== '';
+  }
 
   const label = field.l.toLowerCase();
 
@@ -3135,24 +3209,46 @@ function updateProblemsList(){
   if(!list || !empty) return;
   // Limpa destaques antigos antes de recalcular as alterações.
   document.querySelectorAll('.field-row.abnormal').forEach(row => row.classList.remove('abnormal'));
-  const problems = [];
+  const problemsByPart = DATA.map(() => []);
   DATA.forEach((part, pIdx) => part.sections.forEach((sec, sIdx) => sec.fields.forEach((field, fIdx) => {
     if(!fieldVisible(field)) return;
     const key = pIdx+'_'+sIdx+'_'+fIdx;
     const value = field.t === 'group'
       ? field.items.map((item, i) => answers[key+'_'+i] || '').filter(Boolean).join(' — ')
       : answers[key] || '';
-    if(fieldIsAbnormal(field, value, {sectionTitle: sec.title})) problems.push({key, text:part.tabLabel+' · '+sec.title+' — '+field.l+': '+value});
+    if(fieldIsAbnormal(field, value, {sectionTitle: sec.title})) {
+      problemsByPart[pIdx].push({key, sectionTitle:sec.title, fieldLabel:field.l, value});
+    }
   })));
   list.innerHTML = '';
-  problems.forEach(problem => {
-    const item = document.createElement('li');
-    item.textContent = problem.text;
-    list.appendChild(item);
-    const row = document.querySelector('[data-row-key="'+CSS.escape(problem.key)+'"]');
-    if(row) row.classList.add('abnormal');
+  let problemCount = 0;
+  problemsByPart.forEach((partProblems, pIdx) => {
+    if(!partProblems.length) return;
+    const stage = document.createElement('li');
+    stage.className = 'problem-stage';
+    stage.textContent = DATA[pIdx].tabLabel;
+    list.appendChild(stage);
+    const sections = new Map();
+    partProblems.forEach(problem => {
+      if(!sections.has(problem.sectionTitle)) sections.set(problem.sectionTitle, []);
+      sections.get(problem.sectionTitle).push(problem);
+    });
+    sections.forEach((sectionProblems, sectionTitle) => {
+      const section = document.createElement('li');
+      section.className = 'problem-section';
+      section.textContent = sectionTitle;
+      list.appendChild(section);
+      sectionProblems.forEach(problem => {
+        const item = document.createElement('li');
+        item.textContent = problem.fieldLabel + ': ' + problem.value;
+        list.appendChild(item);
+        problemCount++;
+        const row = document.querySelector('[data-row-key="'+CSS.escape(problem.key)+'"]');
+        if(row) row.classList.add('abnormal');
+      });
+    });
   });
-  empty.style.display = problems.length ? 'none' : 'block';
+  empty.style.display = problemCount ? 'none' : 'block';
 }
 function utcDay(dateStr){ if(!dateStr) return null; const [y,m,d]=dateStr.split('-').map(Number); return Date.UTC(y,m-1,d); }
 function daysBetween(dateStrA, dateStrB){ const a=utcDay(dateStrA), b=utcDay(dateStrB); if(a===null||b===null) return null; return Math.round((b-a)/86400000); }
@@ -3254,7 +3350,10 @@ if(sec.note){ const note = document.createElement('div'); note.className='note-b
 sec.fields.forEach((field, fIdx) => {
 if(!fieldVisible(field)) return;
 const baseKey = currentPart+'_'+sIdx+'_'+fIdx;
-const row = document.createElement('div'); row.className = 'field-row'; row.dataset.rowKey = baseKey;
+const row = document.createElement('div');
+const isFirstEvaluation = field.l === '1ª avaliação no alojamento conjunto' || sec.controlOnly;
+row.className = 'field-row' + (isFirstEvaluation ? ' first-eval-group' : '');
+row.dataset.rowKey = baseKey;
 const lbl = document.createElement('div'); lbl.className = 'field-label'; lbl.textContent = field.l; row.appendChild(lbl);
 const inputsWrap = document.createElement('div'); inputsWrap.className = 'field-inputs';
 if(field.t === 'group'){
@@ -3262,11 +3361,82 @@ field.items.forEach((item, iIdx) => {
 const subWrap = document.createElement('div'); subWrap.className = 'sub';
 const subLbl = document.createElement('label'); subLbl.textContent = item.l; subWrap.appendChild(subLbl);
 const subInput = makeInput(item, baseKey+'_'+iIdx); subWrap.appendChild(subInput);
+if(item.auto === 'hoursFromBirth'){
+  const calcButton = document.createElement('button');
+  calcButton.className = 'btn-mini';
+  calcButton.type = 'button';
+  calcButton.textContent = 'Calcular horas de vida';
+  calcButton.addEventListener('click', () => {
+    const birthDate = answers[BIRTH_DATE_KEY];
+    const birthTime = answers[BIRTH_TIME_KEY];
+    if(!birthDate){
+      alert('Preencha primeiro a Data de nascimento na aba "RN — 1ª hora de vida".');
+      return;
+    }
+    const birthDateTime = new Date(birthDate + 'T' + (birthTime || '00:00') + ':00');
+    const hours = Math.max(0, Math.round((new Date() - birthDateTime) / 3600000));
+    subInput.value = hours;
+    answers[baseKey+'_'+iIdx] = String(hours);
+    updateProblemsList();
+  });
+  subWrap.appendChild(calcButton);
+}
+if(item.auto === 'weightLossFirstEvaluation'){
+  const calcButton = document.createElement('button');
+  calcButton.className = 'btn-mini';
+  calcButton.type = 'button';
+  calcButton.textContent = 'Calcular perda (%)';
+  calcButton.addEventListener('click', () => {
+    const birthWeight = Number(answers[BIRTH_WEIGHT_KEY]);
+    const evaluationWeight = Number(answers[baseKey+'_1']);
+    if(!birthWeight || !evaluationWeight){
+      alert('Preencha primeiro o Peso (g) ao nascer e o Peso da 1ª avaliação.');
+      return;
+    }
+    const lossPct = ((birthWeight - evaluationWeight) / birthWeight * 100).toFixed(1);
+    subInput.value = lossPct;
+    answers[baseKey+'_'+iIdx] = lossPct;
+    updateProblemsList();
+  });
+  subWrap.appendChild(calcButton);
+}
+if(item.l === 'Bilirrubina transcutânea (BTC)'){
+  const btcBox = document.createElement('div');
+  btcBox.className = 'bilirubin-result';
+  btcBox.style.display = 'none';
+  const updateBtc = () => {
+    const info = btcScreeningInfo(subInput.value);
+    if(!info){
+      btcBox.style.display = 'none';
+      btcBox.className = 'bilirubin-result';
+      return;
+    }
+    btcBox.style.display = 'block';
+    btcBox.className = 'bilirubin-result '+info.cls;
+    btcBox.textContent = info.text;
+  };
+  subInput.addEventListener('input', updateBtc);
+  subInput.addEventListener('change', updateBtc);
+  updateBtc();
+  subWrap.appendChild(btcBox);
+}
 inputsWrap.appendChild(subWrap);
 });
 } else {
 const input = makeInput(field, baseKey);
 inputsWrap.appendChild(input);
+if(field.l === 'Comorbidades') {
+  const normalButton = document.createElement('button');
+  normalButton.className = 'btn-mini';
+  normalButton.type = 'button';
+  normalButton.textContent = 'Marcar como normal';
+  normalButton.addEventListener('click', () => {
+    input.value = 'Sem comorbidades';
+    answers[baseKey] = input.value;
+    updateProblemsList();
+  });
+  inputsWrap.appendChild(normalButton);
+}
 if(field.auto === 'hoursFromBirth'){
 const btn = document.createElement('button'); btn.className='btn-mini'; btn.type='button'; btn.textContent='Calcular agora';
 btn.addEventListener('click', () => {
@@ -3434,7 +3604,7 @@ input.addEventListener('change', updatePc);
 updatePc();
 inputsWrap.appendChild(pcBox);
 }
-if(field.l === 'Bilirrubina transcutânea (BTC)' && sec.title === 'Dados de alta do RN'){
+if(field.l === 'Bilirrubina transcutânea (BTC)' && (sec.title === 'Dados de alta do RN' || sec.title === '1ª avaliação no alojamento conjunto')){
 const btcBox = document.createElement('div'); btcBox.className='bilirubin-result'; btcBox.style.display='none';
 const toolWrap = document.createElement('div'); toolWrap.style.cssText='flex-basis:100%;margin-top:4px;';
 attachPeditoolsAutoButton(toolWrap);
@@ -3531,7 +3701,7 @@ DATA.forEach((partDef, idx) => {
   const next = document.createElement('button');
   next.className = idx === currentPart ? 'btn-primary' : 'btn-secondary';
   next.type = 'button';
-  next.textContent = idx === 0 ? 'Dados da mãe' : idx === 1 ? '1ª hora de vida' : 'Alta hospitalar';
+  next.textContent = idx === 0 ? 'Dados da mãe' : idx === 1 ? '1ª hora de vida' : idx === 2 ? 'Controle — 1ª avaliação' : 'Alta hospitalar';
   next.addEventListener('click', () => {
     currentPart = idx;
     document.querySelectorAll('.tab-btn').forEach(tab => tab.classList.toggle('active', Number(tab.dataset.part) === idx));
@@ -3610,7 +3780,7 @@ function buildPrintView() {
 
   PRINT_GROUPS.forEach(group => {
     const sheet = document.createElement('section');
-    sheet.className = 'sheet ' + (group.pageClass || '') + (group.parts[0] === 2 ? ' alta-sheet' : '') + ' no-split-sheet';
+    sheet.className = 'sheet ' + (group.pageClass || '') + (group.parts[0] === 3 ? ' alta-sheet' : '') + ' no-split-sheet';
     sheet.innerHTML = printHeaderHTML();
 
     const groupTitle = document.createElement('div');
@@ -3751,7 +3921,7 @@ function generatePrint(groupIndexes = PRINT_GROUPS.map((_, index) => index)) {
   let html = '';
   
   groupIndexes.map(index => PRINT_GROUPS[index]).forEach(group => {
-    html += `<div class="sheet ${group.pageClass || ''}${group.playful ? ' playful-sheet' : ''} ${group.parts[0] === 2 ? 'alta-sheet' : ''} no-split-sheet">`;
+    html += `<div class="sheet ${group.pageClass || ''}${group.playful ? ' playful-sheet' : ''} ${group.parts[0] === 3 ? 'alta-sheet' : ''} no-split-sheet">`;
     
     // Cabeçalho da Impressão
     html += `
@@ -3777,7 +3947,7 @@ function generatePrint(groupIndexes = PRINT_GROUPS.map((_, index) => index)) {
         const printOnlyFields = sec.fields.filter(f => {
           const label = f.l.toLowerCase();
           // Mantém a ficha clínica completa no preenchimento, mas deixa a alta clara para a mãe.
-          if (partIdx !== 2 || sec.title !== 'Dados de alta do RN') return true;
+          if (partIdx !== 3 || sec.title !== 'Dados de alta do RN') return true;
           return ![
             'bilirrubina transcutânea (btc)',
             'bilirrubina total sérica (bt)',
@@ -3790,7 +3960,7 @@ function generatePrint(groupIndexes = PRINT_GROUPS.map((_, index) => index)) {
           // Sorologias continuam em 3 colunas.
           // Na alta, apenas Dados de alta, Amamentação e Encerramento ficam em 2 colunas.
           const isSorologia = sec.title.toLowerCase().includes('sorologia');
-          const isAltaCompacta = partIdx === 2 && ![
+          const isAltaCompacta = partIdx === 3 && ![
             'Dados de alta do RN', 'Amamentação', 'Encerramento'
           ].includes(sec.title);
           const columnCount = isSorologia || isAltaCompacta ? 3 : 2;
@@ -3817,7 +3987,7 @@ function generatePrint(groupIndexes = PRINT_GROUPS.map((_, index) => index)) {
           html += `</div>`;
         }
         
-        const hideAltaTechnicalNote = partIdx === 2 && sec.title === 'Dados de alta do RN';
+        const hideAltaTechnicalNote = partIdx === 3 && sec.title === 'Dados de alta do RN';
         if (sec.note && !hideAltaTechnicalNote) {
           html += `<div class="p-note">${sec.note}</div>`;
         }
