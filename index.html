@@ -3131,7 +3131,9 @@ function fieldIsAbnormal(field, value, context = {}){
   if(field.l === 'Fácie típica') return false;
 
   // Tremor essencial é considerado normal nesta ficha e não deve gerar alerta.
-  if(field.l === 'Tremores' && rawValue === 'tremor essencial') return false;
+  // A comparação normalizada também cobre maiúsculas, acentos e espaços extras.
+  const normalizedTremor = normalizedValue.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
+  if(field.l === 'Tremores' && normalizedTremor === 'tremor essencial') return false;
 
   // IgG reagente + IgM não reagente no 1º trimestre indica imunidade prévia.
   if(isToxoplasmosisField(field, context.sectionTitle) &&
