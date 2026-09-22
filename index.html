@@ -2477,7 +2477,7 @@ T("Intercorrências na gestação atual"),
 S("US morfológico",["Normal","Alterado","Não realizado"]),
 S("Ecocardiograma fetal",["Normal","Alterado","Não realizado"]),
 S("Uso de corticoide (doses)",["Não","Sim - 1 dose","Sim - esquema completo (2 doses)"]),
-S("Bolsa rota (horas)",["Menor que 18 horas","Maior que 18 horas"]),
+S("Bolsa rota (horas)",["Menor que 18 horas","Maior que 18 horas","Durante o parto"]),
 T("Medicações utilizadas na gestação")
 ]}
 ] },
@@ -2664,7 +2664,7 @@ Sn("Apoio plantar",["Presente","Ausente"],"Presente"),
 Sn("Galant",["Presente","Ausente"],"Presente"),
 Sn("Placing (maca/escada)",["Presente","Ausente"],"Presente")
 ]},
-{title:"Triagem neonatal", fields:[S("Teste do coraçãozinho",NORMAL_ALTERADO),T("Interpretação (coraçãozinho)"),S("Teste do olhinho",["Normal (reflexo vermelho presente)","Alterado"]),T("Interpretação (olhinho)")]},
+{title:"Triagem neonatal", fields:[G("Teste do coraçãozinho",[{l:"Mão direita (%)",t:'number'},{l:"Membro inferior (%)",t:'number'}], vs => vs.filter(Boolean).join(' / ')),S("Interpretação (coraçãozinho)",NORMAL_ALTERADO),S("Teste do olhinho",["Normal (reflexo vermelho presente)","Alterado"]),T("Interpretação (olhinho)")]},
 {title:"Dados de alta do RN", fields:[
 D("Data de alta"),
 N("Peso de alta (g)"),
@@ -2815,16 +2815,40 @@ return {cls:'info', text:'IG fora da faixa 33+0–42+6 semanas coberta pela tabe
 }
 const table = sexo==='Masculino' ? IG21_BW_BOYS : IG21_BW_GIRLS;
 const row = table[totalDays - IG21_HC_MIN_DAYS];
+const percentilePoints = [3,5,10,50,90,95,97];
+const percentileWeights = row;
 const [p3,p5,p10,p50,p90,p95,p97] = row;
 const pesoKg = Number(pesoG)/1000;
+
+// Estima o percentil exato por interpolação linear entre os pontos publicados.
+let percentile;
+if(pesoKg <= percentileWeights[0]) {
+  percentile = 3 * pesoKg / percentileWeights[0];
+} else if(pesoKg >= percentileWeights[percentileWeights.length - 1]) {
+  const last = percentileWeights.length - 1;
+  percentile = 97 + (pesoKg - percentileWeights[last]) /
+    (percentileWeights[last] - percentileWeights[last - 1]) *
+    (percentilePoints[last] - percentilePoints[last - 1]);
+} else {
+  for(let i=1; i<percentileWeights.length; i++) {
+    if(pesoKg <= percentileWeights[i]) {
+      const weightRange = percentileWeights[i] - percentileWeights[i - 1];
+      const percentileRange = percentilePoints[i] - percentilePoints[i - 1];
+      percentile = percentilePoints[i - 1] +
+        ((pesoKg - percentileWeights[i - 1]) / weightRange) * percentileRange;
+      break;
+    }
+  }
+}
+const percentileText = 'P'+percentile.toFixed(1).replace('.', ',');
 let faixa, cls, suggestedClass;
-if(pesoKg < p10){ faixa = '< P10 (Pequeno para a IG — PIG)'; cls='warning'; suggestedClass='PIG'; }
-else if(pesoKg > p90){ faixa = '> P90 (Grande para a IG — GIG)'; cls='warning'; suggestedClass='GIG'; }
-else { faixa = 'entre P10 e P90 (Adequado para a IG — AIG)'; cls='success'; suggestedClass='AIG'; }
+if(pesoKg < p10){ faixa = 'PIG'; cls='warning'; suggestedClass='PIG'; }
+else if(pesoKg > p90){ faixa = 'GIG'; cls='warning'; suggestedClass='GIG'; }
+else { faixa = 'AIG'; cls='success'; suggestedClass='AIG'; }
 let extra = '';
 if(pesoKg < p3) extra = ' · abaixo de P3';
 else if(pesoKg > p97) extra = ' · acima de P97';
-return {cls, text:'INTERGROWTH-21st · Peso ao nascer: '+faixa+extra+' (IG usada: '+gaWeeks+'s'+(gaDays||0)+'d · P50 de referência: '+p50.toFixed(2)+' kg)', suggestedClass};
+return {cls, text:'INTERGROWTH-21st · Peso ao nascer: '+faixa+' ('+percentileText+')'+extra+' (IG usada: '+gaWeeks+'s'+(gaDays||0)+'d · P50 de referência: '+p50.toFixed(2)+' kg)', suggestedClass};
 }
 
 // 3) Ferramenta automatizada AAP 2022 — integração com a API pública da PediTools
@@ -3132,6 +3156,9 @@ function fieldIsAbnormal(field, value, context = {}){
   // “Fácie atípica” é uma classificação descritiva e não deve gerar alerta automático.
   if(field.l === 'Fácie típica') return false;
 
+  // Ecocardiograma fetal não realizado não constitui, por si só, uma alteração.
+  if(field.l === 'Ecocardiograma fetal' && normalizedValue === 'não realizado') return false;
+
   // Acrocianose pode ser fisiológica no recém-nascido e é considerada normal nesta ficha.
   if(field.l === 'Coloração' && normalizedValue === 'acrocianose') return false;
 
@@ -3190,7 +3217,7 @@ function fieldIsAbnormal(field, value, context = {}){
 
   // Campos que representam fatores de risco ou intercorrências, mesmo quando
   // não possuem uma opção explicitamente marcada como "normal".
-  if(label === 'bolsa rota (horas)') return normalizedValue !== 'menor que 18 horas';
+  if(label === 'bolsa rota (horas)') return !['menor que 18 horas', 'durante o parto'].includes(normalizedValue);
   if(label.includes('profilaxia intraparto para sgb')) {
     return !['não', 'não se aplica'].includes(normalizedValue);
   }
