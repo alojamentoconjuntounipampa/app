@@ -107,6 +107,24 @@ footer.hint{ font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; fo
 .history-card h2{ margin:0 0 8px; font-size:.78rem; text-transform:none; letter-spacing:.06em; color:var(--ink-soft); }
 .history-empty{ margin:0; color:var(--ink-soft); font-size:.76rem; }
 .history-list{ display:grid; gap:6px; }
+/* O atributo hidden precisa prevalecer sobre o display:grid do histórico. */
+.history-list[hidden]{ display:none !important; }
+.history-group + .history-group{ margin-top:14px; }
+.history-group-title{ margin:0 0 6px; padding:7px 10px; background:var(--accent-soft); border-left:3px solid var(--accent); color:var(--ink); font-size:.76rem; font-weight:700; }
+.history-group-toggle{
+  display:block;
+  width:100%;
+  min-height:0;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  text-align:left;
+  font:inherit;
+  cursor:pointer;
+}
+.history-group-toggle::before{ content:'▸'; display:inline-block; margin-right:7px; transition:transform .15s ease; }
+.history-group-toggle[aria-expanded="true"]::before{ transform:rotate(90deg); }
+.history-group-toggle:hover{ background:#d8efe8; transform:none; }
 .history-item{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 10px; background:#fff; border:1px solid var(--paper-line); border-radius:var(--radius); }
 .history-info{ min-width:0; font-size:.78rem; }
 .history-info strong{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -2925,6 +2943,24 @@ const HISTORY_STORAGE_KEY = 'fichaNeonatalHistorico';
 const DATABASE_TABLE = 'registros_neonatais';
 let currentUser = null;
 let currentDatabaseRecordId = null;
+let autoSaveTimer = null;
+let databaseAutoSaveTimer = null;
+
+// Salva alterações sem interromper o preenchimento com gravações a cada tecla.
+function scheduleAutoSave(){
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(() => {
+    if (!Object.keys(answers).length) return;
+    saveCurrentRecord();
+
+    if (supabaseClient && currentUser) {
+      clearTimeout(databaseAutoSaveTimer);
+      databaseAutoSaveTimer = setTimeout(() => {
+        saveCurrentRecordToDatabase();
+      }, 500);
+    }
+  }, 700);
+}
 
 function setSaveDatabaseMessage(message, error = false){
   if(!saveDatabaseMessage) return;
@@ -3008,39 +3044,93 @@ function recordDisplayName(record){
 function formatRecordDate(value){
   return new Date(value).toLocaleString('pt-BR', {dateStyle:'short', timeStyle:'short'});
 }
+function recordBirthDate(record){
+  return record && record.answers ? (record.answers[BIRTH_DATE_KEY] || '') : '';
+}
+function formatBirthDate(value){
+  if(!value) return 'Data de nascimento não informada';
+  const [year, month, day] = value.split('-').map(Number);
+  if(!year || !month || !day) return 'Data de nascimento não informada';
+  return new Date(year, month - 1, day).toLocaleDateString('pt-BR');
+}
 function renderHistory(){
   const list = document.getElementById('historyList');
   const empty = document.getElementById('historyEmpty');
   if(!list || !empty) return;
-  const records = loadHistory();
+  const records = loadHistory().sort((a, b) => {
+    const dateA = recordBirthDate(a) || '0000-00-00';
+    const dateB = recordBirthDate(b) || '0000-00-00';
+    return dateB.localeCompare(dateA) || String(b.updatedAt || '').localeCompare(String(a.updatedAt || ''));
+  });
   list.innerHTML = '';
   empty.style.display = records.length ? 'none' : 'block';
+
+  const groups = new Map();
   records.forEach(record => {
-    const item = document.createElement('div'); item.className = 'history-item';
-    const info = document.createElement('div'); info.className = 'history-info';
-    const name = document.createElement('strong'); name.textContent = recordDisplayName(record);
-    const date = document.createElement('span'); date.textContent = 'Salvo em '+formatRecordDate(record.updatedAt);
-    info.append(name, date);
-    const actions = document.createElement('div'); actions.className = 'history-actions';
-    const open = document.createElement('button'); open.className='btn-mini'; open.type='button'; open.textContent='Reeditar';
-    open.addEventListener('click', () => loadRecord(record.id));
-    const remove = document.createElement('button'); remove.className='btn-secondary'; remove.type='button'; remove.textContent='Excluir';
-    remove.addEventListener('click', async () => {
-      if(!confirm('Excluir este registro do histórico?')) return;
-      saveHistory(loadHistory().filter(r => r.id !== record.id));
-      if(currentRecordId === record.id) currentRecordId = null;
-      if(record.database && supabaseClient && currentUser){
-        await supabaseClient.from(DATABASE_TABLE).delete().eq('id', record.id).eq('user_id', currentUser.id);
-      }
-      renderHistory();
+    const birthDate = recordBirthDate(record) || 'sem-data';
+    if(!groups.has(birthDate)) groups.set(birthDate, []);
+    groups.get(birthDate).push(record);
+  });
+
+  groups.forEach((groupRecords, birthDate) => {
+    const group = document.createElement('div');
+    group.className = 'history-group';
+    const heading = document.createElement('button');
+    heading.className = 'history-group-title history-group-toggle';
+    heading.type = 'button';
+    heading.textContent = birthDate === 'sem-data'
+      ? 'Data de nascimento não informada'
+      : 'Nascimento em ' + formatBirthDate(birthDate);
+    heading.setAttribute('aria-expanded', 'false');
+
+    const groupList = document.createElement('div');
+    groupList.className = 'history-list';
+    groupList.hidden = true;
+    heading.setAttribute('aria-controls', 'history-group-' + birthDate.replace(/[^a-zA-Z0-9]/g, '-'));
+    groupList.id = 'history-group-' + birthDate.replace(/[^a-zA-Z0-9]/g, '-');
+    heading.addEventListener('click', () => {
+      const willOpen = groupList.hidden;
+      groupList.hidden = !willOpen;
+      heading.setAttribute('aria-expanded', String(willOpen));
     });
-    actions.append(open, remove); item.append(info, actions); list.appendChild(item);
+    group.appendChild(heading);
+    groupRecords.forEach(record => {
+      const item = document.createElement('div'); item.className = 'history-item';
+      const info = document.createElement('div'); info.className = 'history-info';
+      const name = document.createElement('strong'); name.textContent = recordDisplayName(record);
+      const date = document.createElement('span'); date.textContent = 'Salvo em '+formatRecordDate(record.updatedAt);
+      info.append(name, date);
+      const actions = document.createElement('div'); actions.className = 'history-actions';
+      const open = document.createElement('button'); open.className='btn-mini'; open.type='button'; open.textContent='Reeditar';
+      open.addEventListener('click', () => loadRecord(record.id));
+      const remove = document.createElement('button'); remove.className='btn-secondary'; remove.type='button'; remove.textContent='Excluir';
+      remove.addEventListener('click', async () => {
+        if(!confirm('Excluir este registro do histórico?')) return;
+        saveHistory(loadHistory().filter(r => r.id !== record.id));
+        if(currentRecordId === record.id) currentRecordId = null;
+        if(record.database && supabaseClient && currentUser){
+          await supabaseClient.from(DATABASE_TABLE).delete().eq('id', record.id).eq('user_id', currentUser.id);
+        }
+        renderHistory();
+      });
+      actions.append(open, remove); item.append(info, actions); groupList.appendChild(item);
+    });
+    group.appendChild(groupList);
+    list.appendChild(group);
   });
 }
 function saveCurrentRecord(){
   const records = loadHistory();
   const now = new Date().toISOString();
-  const record = {id:currentRecordId || (Date.now()+'-'+Math.random().toString(36).slice(2)), updatedAt:now, answers:{...answers}, gaDum, gaUs, gaSource, database:false};
+  const record = {
+    id: currentRecordId || (Date.now()+'-'+Math.random().toString(36).slice(2)),
+    updatedAt: now,
+    answers: {...answers},
+    gaDum,
+    gaUs,
+    gaSource,
+    database: Boolean(currentDatabaseRecordId)
+  };
   const index = records.findIndex(r => r.id === record.id);
   if(index >= 0) records[index] = record; else records.unshift(record);
   saveHistory(records); currentRecordId = record.id; renderHistory();
@@ -3056,7 +3146,19 @@ function loadRecord(id){
   if(dumDateInput) recomputeGaDum();
   if(usDateInput) recomputeGaUs();
   currentPart = 0; document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.part === '0'));
-  returnToEdit(); renderBuilder();
+  returnToEdit();
+  renderBuilder();
+  requestAnimationFrame(() => {
+    const historyContent = document.getElementById('historyContent');
+    const historyToggle = document.getElementById('btnToggleHistory');
+    if (historyContent && !historyContent.hidden) {
+      historyContent.hidden = true;
+      historyToggle?.setAttribute('aria-expanded', 'false');
+      if (historyToggle) historyToggle.textContent = 'Abrir histórico';
+    }
+    const formStart = document.querySelector('.tabs') || document.getElementById('sectionsHost');
+    formStart?.scrollIntoView({behavior:'smooth', block:'start'});
+  });
 }
 function startNewRecord(){
   Object.keys(answers).forEach(key => delete answers[key]);
@@ -3283,6 +3385,7 @@ function updateProblemsList(){
     });
   });
   empty.style.display = problemCount ? 'none' : 'block';
+  scheduleAutoSave();
 }
 function utcDay(dateStr){ if(!dateStr) return null; const [y,m,d]=dateStr.split('-').map(Number); return Date.UTC(y,m-1,d); }
 function daysBetween(dateStrA, dateStrB){ const a=utcDay(dateStrA), b=utcDay(dateStrB); if(a===null||b===null) return null; return Math.round((b-a)/86400000); }
@@ -3295,6 +3398,7 @@ if(diff===null || diff<0){ dumResultEl.textContent='Datas inválidas — confira
 const weeks=Math.floor(diff/7), days=diff%7;
 gaDum={weeks,days};
 if(gaSource === 'dum') syncSelectedGaToField();
+scheduleAutoSave();
 dumResultEl.textContent = 'Idade gestacional na data do parto: '+weeks+' semanas e '+days+' dia(s)';
 if(currentPart===1) renderBuilder();
 }
@@ -3307,6 +3411,7 @@ const totalDays = Number(w)*7+Number(d)+elapsed;
 const weeks=Math.floor(totalDays/7), days=totalDays%7;
 gaUs={weeks,days};
 if(gaSource === 'us') syncSelectedGaToField();
+scheduleAutoSave();
 usResultEl.textContent = 'Idade gestacional na data do parto: '+weeks+' semanas e '+days+' dia(s)';
 if(currentPart===1) renderBuilder();
 }
@@ -3325,6 +3430,7 @@ range(0,6).forEach(d=>{ const o=document.createElement('option'); o.value=d; o.t
 calcBirthDateInput.addEventListener('change', () => {
 answers[BIRTH_DATE_KEY] = calcBirthDateInput.value;
 recomputeGaDum(); recomputeGaUs();
+scheduleAutoSave();
 if(currentPart===1) renderBuilder();
 });
 dumDateInput.addEventListener('change', recomputeGaDum);
@@ -3344,7 +3450,11 @@ input.type = fieldDef.t==='number'?'number':(fieldDef.t==='date'?'date':(fieldDe
 }
 input.value = answers[key] || '';
 input.dataset.answerKey = key;
-const sync = () => { answers[key] = input.value; updateProblemsList(); };
+const sync = () => {
+  answers[key] = input.value;
+  updateProblemsList();
+  scheduleAutoSave();
+};
 input.addEventListener('input', sync);
 input.addEventListener('change', sync);
 return input;
@@ -3526,6 +3636,7 @@ if(field.l === 'IG' && sec.title === 'Dados de nascimento e exame físico da 1ª
       if(!selectedGa) return;
       gaSource = source;
       syncSelectedGaToField();
+      scheduleAutoSave();
       renderBuilder();
     });
     sourceWrap.appendChild(sourceBtn);
@@ -4040,6 +4151,11 @@ function generatePrint(groupIndexes = PRINT_GROUPS.map((_, index) => index)) {
 
 btnSaveDatabase.addEventListener('click', saveCurrentRecordToDatabase);
 btnGenerate.addEventListener('click', () => generatePrint());
+
+// Garante o salvamento ao sair ou ocultar a página.
+window.addEventListener('pagehide', () => {
+  if (Object.keys(answers).length) saveCurrentRecord();
+});
 
 btnBackToEdit.addEventListener('click', () => {
   builderHost.style.display = 'block';
