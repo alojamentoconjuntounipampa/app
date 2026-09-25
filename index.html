@@ -2366,7 +2366,7 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
 <header class="app-header">
 <div>
 <h1>Ficha de Avaliação Neonatal — Alojamento Conjunto</h1>
-<p id="headerSub">Preencha os campos selecionando as opções e gere o resumo para impressão</p>
+<p id="headerSub"></p>
 </div>
 <div class="actions">
 <button class="btn-ghost" id="btnBackToEdit" style="display:none;">← Voltar a preencher</button>
@@ -2374,7 +2374,6 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
 <button class="btn-secondary" id="btnSaveDatabase" type="button" style="display:none;">Salvar no banco</button>
 <button class="btn-secondary" id="btnPrint" style="display:none;">Imprimir</button>
 <button class="btn-secondary" id="btnSavePdf" style="display:none;">Salvar PDF</button>
-<button class="btn-ghost" id="btnLogout" type="button" style="display:none;">Sair</button>
 <span id="saveDatabaseMessage" aria-live="polite" style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:.75rem;color:#C9D6D2;"></span>
 </div>
 </header>
@@ -4220,7 +4219,6 @@ const headerSub = document.getElementById('headerSub');
 const loginView = document.getElementById('loginView');
 const loginForm = document.getElementById('loginForm');
 const loginMessage = document.getElementById('loginMessage');
-const btnLogout = document.getElementById('btnLogout');
 const btnSaveDatabase = document.getElementById('btnSaveDatabase');
 const saveDatabaseMessage = document.getElementById('saveDatabaseMessage');
 const evaluatorNameInput = document.getElementById('evaluatorName');
@@ -4243,7 +4241,6 @@ function updateAuthView(session){
   document.body.classList.toggle('login-mode', !loggedIn);
   loginView.style.display = loggedIn ? 'none' : 'block';
   builderHost.style.display = loggedIn ? 'block' : 'none';
-  btnLogout.style.display = loggedIn ? 'inline-block' : 'none';
   btnSaveDatabase.style.display = loggedIn ? 'inline-block' : 'none';
   if(loggedIn) loadCurrentUserRecords();
   if(!loggedIn){
@@ -4279,11 +4276,6 @@ function setupAuth(){
     updateAuthView(data.session);
   });
 
-  btnLogout.addEventListener('click', async () => {
-    await supabaseClient.auth.signOut();
-    updateAuthView(null);
-  });
-
   supabaseClient.auth.onAuthStateChange((_event, session) => updateAuthView(session));
   supabaseClient.auth.getSession().then(({data}) => updateAuthView(data.session));
 }
@@ -4294,7 +4286,7 @@ function returnToEdit(){
   document.getElementById('btnGenerate').style.display = 'inline-block';
   document.getElementById('btnPrint').style.display = 'none';
   document.getElementById('btnBackToEdit').style.display = 'none';
-  document.getElementById('headerSub').textContent = 'Preencha os campos selecionando as opções e gere o resumo para impressão';
+  document.getElementById('headerSub').textContent = '';
 }
 
 gaCalcEl = document.getElementById('gaCalc');
@@ -4406,7 +4398,7 @@ btnBackToEdit.addEventListener('click', () => {
   btnSavePdf.style.display = 'none';
   btnGenerate.style.display = 'inline-block';
   printHintText.style.display = 'none';
-  headerSub.textContent = 'Preencha os campos selecionando as opções e gere o resumo para impressão';
+  headerSub.textContent = '';
 });
 
 btnPrint.addEventListener('click', () => { setPrintDocumentTitle(); window.print(); });
