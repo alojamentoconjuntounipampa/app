@@ -105,12 +105,15 @@ section.card > .card-head h2{ font-family:-apple-system,"Segoe UI",Helvetica,Ari
 footer.hint{ font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; font-size:.76rem; color:var(--ink-soft); text-align:center; margin-top:20px; }
 .history-card{ background:var(--paper); border:1px solid var(--paper-line); border-radius:var(--radius); margin:0 0 14px; padding:12px 14px; font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; }
 .history-card h2{ margin:0 0 8px; font-size:.78rem; text-transform:none; letter-spacing:.06em; color:var(--ink-soft); }
+#historyCount{display:inline-block;margin-left:7px;padding:3px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font:600 .7rem -apple-system,"Segoe UI",sans-serif;letter-spacing:0;vertical-align:middle;}
 .history-empty{ margin:0; color:var(--ink-soft); font-size:.76rem; }
 .history-list{ display:grid; gap:6px; }
 /* O atributo hidden precisa prevalecer sobre o display:grid do histórico. */
 .history-list[hidden]{ display:none !important; }
 .history-group + .history-group{ margin-top:14px; }
 .history-group-title{ margin:0 0 6px; padding:7px 10px; background:var(--accent-soft); border-left:3px solid var(--accent); color:var(--ink); font-size:.76rem; font-weight:700; }
+.history-group-title[data-group-key="uti-neo"]{ background:#e8eefb; border-left-color:#4267a8; color:#29477e; }
+.history-group-title[data-group-key="altas"]{ background:#fff0c2; border-left-color:#d08a00; color:#7a4b00; font-size:.82rem; }
 .history-group-toggle{
   display:block;
   width:100%;
@@ -2357,7 +2360,7 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
 <div id="builder">
 <div class="history-card" id="historyCard">
 <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-<h2>Histórico de RNs</h2>
+<h2>Histórico de RNs <span id="historyCount" aria-live="polite">0 RNs</span></h2>
 <div class="history-actions">
 <button class="btn-mini" id="btnToggleHistory" type="button" aria-expanded="false">Abrir histórico</button>
 <button class="btn-mini" id="btnNewRecord" type="button">+ Novo RN</button>
@@ -2939,6 +2942,8 @@ const answers = {};
 let gaDum = null, gaUs = null;
 let gaSource = null; // 'dum' ou 'us' — fonte escolhida para preencher a IG do RN
 let currentRecordId = null;
+let currentRecordAlta = false;
+let currentRecordUtiNeo = false;
 const HISTORY_STORAGE_KEY = 'fichaNeonatalHistorico';
 const DATABASE_TABLE = 'registros_neonatais';
 let currentUser = null;
@@ -2976,7 +2981,7 @@ async function saveCurrentRecordToDatabase(){
   setSaveDatabaseMessage('Salvando...');
   const payload = {
     user_id: currentUser.id,
-    answers: {...answers, __gaSource: gaSource || ''},
+    answers: {...answers, __gaSource: gaSource || '', __alta: currentRecordAlta, __utiNeo: currentRecordUtiNeo},
     ga_dum: gaDum,
     ga_us: gaUs,
     updated_at: new Date().toISOString()
@@ -3015,6 +3020,8 @@ async function loadCurrentUserRecords(){
     gaDum: row.ga_dum || null,
     gaUs: row.ga_us || null,
     gaSource: row.answers && row.answers.__gaSource ? row.answers.__gaSource : null,
+    alta: row.answers && row.answers.__alta === true,
+    utiNeo: row.answers && row.answers.__utiNeo === true,
     database: true
   }));
   saveHistory(records);
@@ -3047,6 +3054,19 @@ function formatRecordDate(value){
 function recordBirthDate(record){
   return record && record.answers ? (record.answers[BIRTH_DATE_KEY] || '') : '';
 }
+function recordBirthDateTime(record){
+  const birthDate = recordBirthDate(record);
+  if(!birthDate) return null;
+  const birthTime = record.answers && record.answers[BIRTH_TIME_KEY]
+    ? record.answers[BIRTH_TIME_KEY]
+    : '00:00';
+  const birthDateTime = new Date(birthDate + 'T' + birthTime + ':00');
+  return Number.isNaN(birthDateTime.getTime()) ? null : birthDateTime;
+}
+function recordIsAlta(record){
+  const birthDateTime = recordBirthDateTime(record);
+  return birthDateTime && (Date.now() - birthDateTime.getTime()) > 48 * 60 * 60 * 1000;
+}
 function formatBirthDate(value){
   if(!value) return 'Data de nascimento não informada';
   const [year, month, day] = value.split('-').map(Number);
@@ -3062,32 +3082,66 @@ function renderHistory(){
     const dateB = recordBirthDate(b) || '0000-00-00';
     return dateB.localeCompare(dateA) || String(b.updatedAt || '').localeCompare(String(a.updatedAt || ''));
   });
+  const historyCount = document.getElementById('historyCount');
+  if (historyCount) {
+    const activeRecords = records.filter(record => {
+      const isAlta = record.alta === true || (record.answers && record.answers.__alta === true);
+      const isUtiNeo = record.utiNeo === true || (record.answers && record.answers.__utiNeo === true);
+      return !isAlta && !isUtiNeo;
+    });
+    historyCount.textContent = activeRecords.length + (activeRecords.length === 1 ? ' RN' : ' RNs');
+  }
   list.innerHTML = '';
   empty.style.display = records.length ? 'none' : 'block';
 
   const groups = new Map();
   records.forEach(record => {
+    // Somente a alta registrada pelo usuário move o RN para a chave “Altas”.
+    // Registros com mais de 48 horas permanecem na data de nascimento para receber o alerta.
+    const alta = record.alta === true;
+    const utiNeo = record.utiNeo === true || (record.answers && record.answers.__utiNeo === true);
     const birthDate = recordBirthDate(record) || 'sem-data';
-    if(!groups.has(birthDate)) groups.set(birthDate, []);
-    groups.get(birthDate).push(record);
+    const groupKey = utiNeo ? 'uti-neo' : alta ? 'altas' : birthDate;
+    if(!groups.has(groupKey)) groups.set(groupKey, []);
+    groups.get(groupKey).push(record);
   });
 
-  groups.forEach((groupRecords, birthDate) => {
+  // Mantém Altas sempre como a última seção do histórico.
+  const orderedGroups = [...groups.entries()].sort(([keyA], [keyB]) => {
+    if (keyA === 'altas') return 1;
+    if (keyB === 'altas') return -1;
+    return 0;
+  });
+
+  orderedGroups.forEach(([groupKey, groupRecords]) => {
     const group = document.createElement('div');
     group.className = 'history-group';
     const heading = document.createElement('button');
     heading.className = 'history-group-title history-group-toggle';
     heading.type = 'button';
-    heading.textContent = birthDate === 'sem-data'
-      ? 'Data de nascimento não informada'
-      : 'Nascimento em ' + formatBirthDate(birthDate);
+    const hasOver48hWithoutAlta = groupKey !== 'altas' && groupKey !== 'uti-neo' &&
+      groupRecords.some(record => !record.alta && recordIsAlta(record));
+    heading.textContent = groupKey === 'altas'
+      ? 'Altas'
+      : groupKey === 'uti-neo'
+        ? 'UTI Neo'
+        : groupKey === 'sem-data'
+          ? 'Data de nascimento não informada'
+        : 'Nascimento em ' + formatBirthDate(groupKey) +
+          (hasOver48hWithoutAlta ? ' — ⚠ Internação >48h' : '');
+    if(hasOver48hWithoutAlta){
+      heading.style.background = '#fde7e7';
+      heading.style.borderLeftColor = '#c62828';
+      heading.style.color = '#b71c1c';
+    }
     heading.setAttribute('aria-expanded', 'false');
 
     const groupList = document.createElement('div');
     groupList.className = 'history-list';
     groupList.hidden = true;
-    heading.setAttribute('aria-controls', 'history-group-' + birthDate.replace(/[^a-zA-Z0-9]/g, '-'));
-    groupList.id = 'history-group-' + birthDate.replace(/[^a-zA-Z0-9]/g, '-');
+    const safeGroupKey = groupKey.replace(/[^a-zA-Z0-9]/g, '-');
+    heading.setAttribute('aria-controls', 'history-group-' + safeGroupKey);
+    groupList.id = 'history-group-' + safeGroupKey;
     heading.addEventListener('click', () => {
       const willOpen = groupList.hidden;
       groupList.hidden = !willOpen;
@@ -3103,6 +3157,57 @@ function renderHistory(){
       const actions = document.createElement('div'); actions.className = 'history-actions';
       const open = document.createElement('button'); open.className='btn-mini'; open.type='button'; open.textContent='Reeditar';
       open.addEventListener('click', () => loadRecord(record.id));
+      const altaButton = document.createElement('button');
+      altaButton.className = record.alta === true ? 'btn-secondary' : 'btn-mini';
+      altaButton.type = 'button';
+      altaButton.textContent = record.alta === true ? 'Retirar de Altas' : 'Mover para Altas';
+      altaButton.addEventListener('click', async () => {
+        const records = loadHistory();
+        const updatedRecord = records.find(r => r.id === record.id);
+        if (!updatedRecord) return;
+        updatedRecord.alta = !updatedRecord.alta;
+        if (updatedRecord.alta) updatedRecord.utiNeo = false;
+        updatedRecord.updatedAt = new Date().toISOString();
+        updatedRecord.answers = {...updatedRecord.answers, __alta: updatedRecord.alta, __utiNeo: updatedRecord.utiNeo === true};
+        saveHistory(records);
+        if (updatedRecord.id === currentRecordId) {
+          currentRecordAlta = updatedRecord.alta;
+          currentRecordUtiNeo = updatedRecord.utiNeo === true;
+        }
+        if (updatedRecord.database && supabaseClient && currentUser) {
+          const { error } = await supabaseClient
+            .from(DATABASE_TABLE)
+            .update({ answers: {...updatedRecord.answers, __alta: updatedRecord.alta}, updated_at: updatedRecord.updatedAt })
+            .eq('id', updatedRecord.id)
+            .eq('user_id', currentUser.id);
+          if (error) setSaveDatabaseMessage('Não foi possível atualizar a alta: ' + error.message, true);
+        }
+        renderHistory();
+      });
+      const utiButton = document.createElement('button');
+      utiButton.className = record.utiNeo === true ? 'btn-secondary' : 'btn-mini';
+      utiButton.type = 'button';
+      utiButton.textContent = record.utiNeo === true ? 'Retirar da UTI Neo' : 'Mover para UTI Neo';
+      utiButton.addEventListener('click', async () => {
+        const records = loadHistory();
+        const updatedRecord = records.find(r => r.id === record.id);
+        if (!updatedRecord) return;
+        updatedRecord.utiNeo = !updatedRecord.utiNeo;
+        if (updatedRecord.utiNeo) updatedRecord.alta = false;
+        updatedRecord.updatedAt = new Date().toISOString();
+        updatedRecord.answers = {...updatedRecord.answers, __alta: updatedRecord.alta === true, __utiNeo: updatedRecord.utiNeo};
+        saveHistory(records);
+        if (updatedRecord.id === currentRecordId) currentRecordUtiNeo = updatedRecord.utiNeo;
+        if (updatedRecord.database && supabaseClient && currentUser) {
+          const { error } = await supabaseClient
+            .from(DATABASE_TABLE)
+            .update({ answers: updatedRecord.answers, updated_at: updatedRecord.updatedAt })
+            .eq('id', updatedRecord.id)
+            .eq('user_id', currentUser.id);
+          if (error) setSaveDatabaseMessage('Não foi possível atualizar a UTI Neo: ' + error.message, true);
+        }
+        renderHistory();
+      });
       const remove = document.createElement('button'); remove.className='btn-secondary'; remove.type='button'; remove.textContent='Excluir';
       remove.addEventListener('click', async () => {
         if(!confirm('Excluir este registro do histórico?')) return;
@@ -3113,7 +3218,7 @@ function renderHistory(){
         }
         renderHistory();
       });
-      actions.append(open, remove); item.append(info, actions); groupList.appendChild(item);
+      actions.append(open, altaButton, utiButton, remove); item.append(info, actions); groupList.appendChild(item);
     });
     group.appendChild(groupList);
     list.appendChild(group);
@@ -3122,13 +3227,15 @@ function renderHistory(){
 function saveCurrentRecord(){
   const records = loadHistory();
   const now = new Date().toISOString();
-  const record = {
+    const record = {
     id: currentRecordId || (Date.now()+'-'+Math.random().toString(36).slice(2)),
     updatedAt: now,
-    answers: {...answers},
+    answers: {...answers, __alta: currentRecordAlta, __utiNeo: currentRecordUtiNeo},
     gaDum,
     gaUs,
     gaSource,
+    alta: currentRecordAlta,
+    utiNeo: currentRecordUtiNeo,
     database: Boolean(currentDatabaseRecordId)
   };
   const index = records.findIndex(r => r.id === record.id);
@@ -3140,7 +3247,9 @@ function loadRecord(id){
   if(!record) return;
   Object.keys(answers).forEach(key => delete answers[key]);
   Object.assign(answers, record.answers || {});
-  gaDum = record.gaDum || null; gaUs = record.gaUs || null; gaSource = record.gaSource || (record.answers && record.answers.__gaSource) || null; currentRecordId = record.id;
+  gaDum = record.gaDum || null; gaUs = record.gaUs || null; gaSource = record.gaSource || (record.answers && record.answers.__gaSource) || null;     currentRecordAlta = record.alta === true;
+  currentRecordUtiNeo = record.utiNeo === true || (record.answers && record.answers.__utiNeo === true);
+  currentRecordId = record.id;
   currentDatabaseRecordId = record.database ? record.id : null;
   if(calcBirthDateInput) calcBirthDateInput.value = answers[BIRTH_DATE_KEY] || '';
   if(dumDateInput) recomputeGaDum();
@@ -3162,7 +3271,7 @@ function loadRecord(id){
 }
 function startNewRecord(){
   Object.keys(answers).forEach(key => delete answers[key]);
-  gaDum = null; gaUs = null; gaSource = null; currentRecordId = null; currentDatabaseRecordId = null;
+  gaDum = null; gaUs = null; gaSource = null; currentRecordAlta = false; currentRecordUtiNeo = false; currentRecordId = null; currentDatabaseRecordId = null;
   if(calcBirthDateInput) calcBirthDateInput.value = '';
   if(dumDateInput) dumDateInput.value = '';
   if(usDateInput) usDateInput.value = '';
