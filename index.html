@@ -3174,39 +3174,10 @@ function recordBirthDateTime(record){
   const birthDateTime = new Date(birthDate + 'T' + birthTime + ':00');
   return Number.isNaN(birthDateTime.getTime()) ? null : birthDateTime;
 }
-function formatAgeAtBirth(birthTime){
-  const birth = new Date(birthTime);
-  const now = new Date();
-  if(Number.isNaN(birth.getTime())) return '';
-
-  let years = now.getFullYear() - birth.getFullYear();
-  let months = now.getMonth() - birth.getMonth();
-  let days = now.getDate() - birth.getDate();
-  if(days < 0){
-    months--;
-    days += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
-  }
-  if(months < 0){ years--; months += 12; }
-
-  if(years > 0){
-    const yearText = years + (years === 1 ? ' ano' : ' anos');
-    return yearText + (months ? ' e ' + months + (months === 1 ? ' mês' : ' meses') : '');
-  }
-  if(months > 0){
-    const monthText = months + (months === 1 ? ' mês' : ' meses');
-    return monthText + (days ? ' e ' + days + (days === 1 ? ' dia' : ' dias') : '');
-  }
-  const elapsedDays = Math.max(0, Math.floor((now - birth) / 86400000));
-  return elapsedDays + (elapsedDays === 1 ? ' dia' : ' dias');
-}
 function updateHistoryAgeBadges(){
   document.querySelectorAll('[data-birth-time]').forEach(badge => {
     const birthTime = Number(badge.dataset.birthTime);
     if(!Number.isFinite(birthTime)) return;
-    if(badge.dataset.alta === 'true'){
-      badge.textContent = formatAgeAtBirth(birthTime) + ' de vida';
-      return;
-    }
     const hours = Math.max(0, Math.floor((Date.now() - birthTime) / 3600000));
     badge.textContent = hours + (hours === 1 ? ' hora de vida' : ' horas de vida');
   });
@@ -3307,11 +3278,10 @@ function renderHistory(){
       nameLine.appendChild(name);
       const isAlta = record.alta === true || (record.answers && record.answers.__alta === true);
       const birthDateTime = recordBirthDateTime(record);
-      if(birthDateTime){
+      if(!isAlta && birthDateTime){
         const age = document.createElement('span');
         age.className = 'history-age';
         age.dataset.birthTime = String(birthDateTime.getTime());
-        age.dataset.alta = String(isAlta);
         nameLine.appendChild(age);
       }
       const date = document.createElement('span'); date.textContent = 'Salvo em '+formatRecordDate(record.updatedAt);
@@ -3538,6 +3508,9 @@ function fieldIsAbnormal(field, value, context = {}){
 
   // “Fácie atípica” é uma classificação descritiva e não deve gerar alerta automático.
   if(field.l === 'Fácie típica') return false;
+
+  // O teste do coraçãozinho e sua interpretação não recebem destaque automático em vermelho.
+  if(field.l === 'Teste do coraçãozinho' || field.l === 'Interpretação (coraçãozinho)') return false;
 
   // Ecocardiograma fetal não realizado não constitui, por si só, uma alteração.
   if(field.l === 'Ecocardiograma fetal' && normalizedValue === 'não realizado') return false;
