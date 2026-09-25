@@ -3186,9 +3186,12 @@ function renderHistory(){
   const empty = document.getElementById('historyEmpty');
   if(!list || !empty) return;
   const records = loadHistory().sort((a, b) => {
-    const dateA = recordBirthDate(a) || '0000-00-00';
-    const dateB = recordBirthDate(b) || '0000-00-00';
-    return dateB.localeCompare(dateA) || String(b.updatedAt || '').localeCompare(String(a.updatedAt || ''));
+    const birthDateTimeA = recordBirthDateTime(a);
+    const birthDateTimeB = recordBirthDateTime(b);
+    if (!birthDateTimeA && !birthDateTimeB) return 0;
+    if (!birthDateTimeA) return 1;
+    if (!birthDateTimeB) return -1;
+    return birthDateTimeB.getTime() - birthDateTimeA.getTime();
   });
   const historyCount = document.getElementById('historyCount');
   if (historyCount) {
