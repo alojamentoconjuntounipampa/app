@@ -3151,7 +3151,8 @@ function saveHistory(records){
   localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(records));
 }
 function recordDisplayName(record){
-  return (record.answers['0_0_0'] || record.answers['1_0_0'] || 'RN sem nome').trim();
+  const motherName = (record.answers['0_0_0'] || '').trim();
+  return motherName ? 'RN de ' + motherName : 'RN sem nome';
 }
 function recordEvaluatorName(record){
   return (record.answers && record.answers[EVALUATOR_NAME_KEY] || 'Aluno não informado').trim();
@@ -4193,10 +4194,8 @@ function buildPrintView() {
 }
 
 function setPrintDocumentTitle(){
-  const motherName = (answers['0_0_0'] || 'RN').trim();
-  const now = new Date();
-  const dateStr = String(now.getDate()).padStart(2, '0') + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + now.getFullYear();
-  document.title = 'RN de ' + motherName + ' — ' + dateStr;
+  const motherName = (answers['0_0_0'] || '').trim();
+  document.title = 'RN de (' + (motherName || 'sem nome') + ')';
 }
 
 function showPrintPreview(){
@@ -4385,6 +4384,7 @@ function generatePrint(groupIndexes = PRINT_GROUPS.map((_, index) => index)) {
   });
   
   printView.innerHTML = html;
+  setPrintDocumentTitle();
 
   // Mantém a ficha na tela e usa o conteúdo gerado somente durante a impressão.
   window.print();
@@ -4409,8 +4409,8 @@ btnBackToEdit.addEventListener('click', () => {
   headerSub.textContent = 'Preencha os campos selecionando as opções e gere o resumo para impressão';
 });
 
-btnPrint.addEventListener('click', () => window.print());
-btnSavePdf.addEventListener('click', () => window.print());
+btnPrint.addEventListener('click', () => { setPrintDocumentTitle(); window.print(); });
+btnSavePdf.addEventListener('click', () => { setPrintDocumentTitle(); window.print(); });
 
 // Inicialização das funções base que você já tinha no código
 setupGaCalc();
