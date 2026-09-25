@@ -93,6 +93,10 @@ section.card > .card-head h2{ font-family:-apple-system,"Segoe UI",Helvetica,Ari
 .field-inputs{display:flex; flex-wrap:wrap; gap:8px; align-items:center;}
 .field-inputs .sub{display:flex; flex-direction:column; gap:3px;}
 .field-inputs .sub label{font-size:.68rem; color:var(--ink-soft);}
+.gestational-history-inputs{display:grid !important; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:8px !important; align-items:end !important;}
+.gestational-history-inputs .sub{min-width:0;}
+.gestational-history-inputs .sub input,
+.gestational-history-inputs .sub select{min-width:0; max-width:none;}
 .field-row select, .field-row input{ font-size:.83rem; padding:7px 9px; border-radius:var(--radius); border:1px solid var(--paper-line); background:#fff; color:var(--ink); width:100%; max-width:260px; font-family:inherit; }
 .field-row select{ cursor:pointer; }
 .follow-input{display:none; max-width:260px;}
@@ -131,7 +135,7 @@ footer.hint{ font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; fo
 .history-item{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 10px; background:#fff; border:1px solid var(--paper-line); border-radius:var(--radius); }
 .history-info{ min-width:0; font-size:.78rem; }
 .history-info strong{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.history-info span{ color:var(--ink-soft); font-size:.7rem; }
+.history-info span{ display:block; color:var(--ink-soft); font-size:.7rem; }
 .history-actions{ display:flex; gap:5px; flex-shrink:0; }
 .history-actions button{
   min-height:40px;
@@ -162,6 +166,9 @@ main{padding:14px 10px 70px;}
 #problemsListCard h2{color:#b71c1c;}
 #problemsList{margin:0;padding-left:22px;color:#b71c1c;font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;font-size:.82rem;line-height:1.5;}
 #problemsList:empty{display:none;}
+.evaluator-card{margin-bottom:16px;}
+.evaluator-card .field-row{border-top:none;}
+.evaluator-card input{max-width:420px;}
 @media print{
   #problemsListCard{display:none !important;}
 }
@@ -2329,6 +2336,30 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
     width: 100% !important;
   }
 }
+.gestational-history-inputs {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+  width: 100% !important;
+  align-items: end !important;
+}
+.gestational-history-inputs .sub {
+  width: auto !important;
+  min-width: 0 !important;
+  flex: none !important;
+}
+.gestational-history-inputs .sub label {
+  white-space: nowrap;
+  font-size: .68rem;
+}
+.gestational-history-inputs .sub input,
+.gestational-history-inputs .sub select {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  padding-left: 5px !important;
+  padding-right: 5px !important;
+}
 </style>
 </head>
 <body>
@@ -2358,6 +2389,15 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
 <p id="loginMessage" role="status"></p>
 </div>
 <div id="builder">
+<section class="card evaluator-card" id="evaluatorCard">
+<div class="card-head"><h2>Identificação da avaliação</h2></div>
+<div class="field-row">
+<label class="field-label" for="evaluatorName">Nome do Aluno(a)</label>
+<div class="field-inputs">
+<input type="text" id="evaluatorName" placeholder="Digite o nome do Aluno(a)" autocomplete="name">
+</div>
+</div>
+</section>
 <div class="history-card" id="historyCard">
 <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
 <h2>Histórico de RNs <span id="historyCount" aria-live="polite">0 RNs</span></h2>
@@ -2459,7 +2499,7 @@ const DATA = [
 { label: "Ficha de avaliação neonatal — Dados maternos", tabLabel:"Dados da mãe", sections: [
 {title:"Dados da mãe", fields:[
 T("Nome"), N("Idade"),
-G("Histórico gestacional",[{l:"GESTA",t:'text'},{l:"PV",t:'select',o:range(0,10)},{l:"PC",t:'select',o:range(0,10)},{l:"A",t:'select',o:range(0,10)}], vs => "G:"+(vs[0]||'-')+" PV:"+(vs[1]||'-')+" PC:"+(vs[2]||'-')+" A:"+(vs[3]||'-')),
+G("Histórico gestacional",[{l:"GESTA",t:'select',o:range(0,12)},{l:"PV",t:'select',o:range(0,10)},{l:"PC",t:'select',o:range(0,10)},{l:"A",t:'select',o:range(0,10)}], vs => "G:"+(vs[0]||'-')+" PV:"+(vs[1]||'-')+" PC:"+(vs[2]||'-')+" A:"+(vs[3]||'-')),
 S("Filhos vivos",range(0,10)),
 S("Grupo sanguíneo (mãe)",BLOOD),
 S("Grupo sanguíneo do pai",BLOOD.concat(["Desconhecido"]))
@@ -2700,12 +2740,7 @@ S("Outros fatores de risco para neurotoxicidade",[
 "Instabilidade clínica significativa nas últimas 24 h",
 "Albumina <3,0 g/dL"
 ]),
-S("Avaliação AAP 2022 (conforme calculadora oficial)",[
-"Sem indicação de fototerapia",
-"Indicação de fototerapia",
-"Escalonamento de cuidado / avaliar exsanguineotransfusão",
-"Não avaliado / RN <35 semanas"
-])
+S("Avaliação AAP 2022 (conforme calculadora oficial)",["Fototerapia indicada","Fototerapia não indicada"])
 ], note:"BTC é triagem, não decide fototerapia. AAP 2022 (Kemper AR et al., Pediatrics 2022;150(3):e2022058859) recomenda confirmar com BT sérica quando BTC ≥15 mg/dL ou dentro de 3 mg/dL do limiar de fototerapia. Os limiares oficiais são publicados como curvas gráficas por IG/idade em horas/fator de risco (não uma tabela numérica simples) — confirme o limiar exato e a indicação na calculadora oficial (PediTools/BiliTool, AAP 2022) e registre o resultado abaixo. Válido para RN ≥35 semanas; não usar para RN <35 semanas."},
 {title:"Amamentação", fields:[S("Tipo de amamentação",["Aleitamento materno exclusivo (AME)","Leite materno + Fórmula","Apenas fórmula"])]},
 {title:"Encerramento", fields:[S("Profilaxias neonatais realizadas",["Sim - todas realizadas","Não - pendências (descrever)"]),T("Intercorrências na internação"),T("Orientações de alta")]}
@@ -2890,31 +2925,101 @@ const hoursKey = findFieldKey('Dados gerais de alta','Horas de vida');
 const hours = hoursKey ? answers[hoursKey] : '';
 if(hours===''||hours===undefined||hours===null||isNaN(Number(hours))) return {error:'Preencha "Horas de vida" (aba Alta hospitalar) antes de calcular — use o botão "Calcular agora" daquele campo.'};
 const btKey = findFieldKey('Dados de alta do RN','Bilirrubina total sérica (BT)');
-const btcKey = findFieldKey('Dados de alta do RN','Bilirrubina transcutânea (BTC)');
 const riskKey = findFieldKey('Dados de alta do RN','Outros fatores de risco para neurotoxicidade');
-const bt = btKey ? answers[btKey] : '';
-const btc = btcKey ? answers[btcKey] : '';
-let bili = '', biliSource = null;
-if(bt!==''&&bt!==undefined&&bt!==null){ bili = bt; biliSource = 'BT sérica'; }
-else if(btc!==''&&btc!==undefined&&btc!==null){ bili = btc; biliSource = 'BTC (apenas triagem — confirme com BT sérica se indicado)'; }
+const bili = btKey ? answers[btKey] : '';
+if(bili===''||bili===undefined||bili===null||!Number.isFinite(Number(bili))) return {error:'Preencha a bilirrubina total sérica (BT). A BTC é apenas triagem e não deve determinar a indicação de fototerapia.'};
 const riskVal = riskKey ? answers[riskKey] : '';
-let risk = 'both';
-if(riskVal === 'Não') risk = 'none';
-else if(riskVal) risk = 'any';
-let url = 'https://peditools.org/bili2022/api/?ga='+encodeURIComponent(gaWeeks)+'&age='+encodeURIComponent(Math.round(Number(hours)))+'&risk='+risk;
-if(bili!==''){ url += '&bili='+encodeURIComponent(bili); }
-return {url, biliSource, gaWeeks, hours};
+if(!riskVal) return {error:'Selecione os fatores de risco para neurotoxicidade antes de calcular.'};
+const risk = riskVal === 'Não' ? 'none' : 'any';
+const url = 'https://peditools.org/bili2022/api/?ga='+encodeURIComponent(gaWeeks)+'&age='+encodeURIComponent(Math.round(Number(hours)))+'&risk='+risk+'&bili='+encodeURIComponent(bili);
+return {url, bili:Number(bili), gaWeeks, hours:Number(hours)};
+}
+function interpretPeditoolsResult(payload, bilirubin){
+  let data = payload;
+  try { data = JSON.parse(payload); } catch (_) {}
+
+  const normalize = value => String(value ?? '').trim().toLowerCase();
+  const indicationFromValue = value => {
+    if(typeof value === 'boolean') return value ? true : false;
+    const text = normalize(value);
+    if(/not indicated|not recommend|not required|no phototherapy|below.*threshold|não indicada|nao indicada/.test(text)) return false;
+    if(/phototherapy indicated|phototherapy recommended|phototherapy required|indicated for phototherapy|fototerapia indicada/.test(text)) return true;
+    return null;
+  };
+  let explicitResult = null;
+  let threshold = null;
+  const visit = (value, parentKey = '') => {
+    if(value && typeof value === 'object'){
+      Object.entries(value).forEach(([key, child]) => {
+        const normalizedKey = (parentKey+' '+key).toLowerCase().replace(/[^a-z]/g, '');
+        if(/phototherapy.*(indicated|recommended|required)|((indicated|recommended|required).*phototherapy)/.test(normalizedKey)){
+          const result = indicationFromValue(child);
+          if(result !== null) explicitResult = result;
+        }
+        if(/phototherapy.*threshold|threshold.*phototherapy/.test(normalizedKey)){
+          const match = String(child).match(/-?\d+(?:\.\d+)?/);
+          if(match) threshold = Number(match[0]);
+        }
+        visit(child, normalizedKey);
+      });
+    }
+  };
+  visit(data);
+
+  if(explicitResult !== null) return explicitResult;
+  if(Number.isFinite(threshold)) return bilirubin >= threshold;
+
+  const text = typeof data === 'string' ? data : JSON.stringify(data);
+  if(/phototherapy\s+(?:is\s+)?(?:not\s+indicated|not\s+recommended|not\s+required)/i.test(text)) return false;
+  if(/phototherapy\s+(?:is\s+)?(?:indicated|recommended|required)/i.test(text)) return true;
+  return null;
 }
 function attachPeditoolsAutoButton(container){
 const btn = document.createElement('button'); btn.className='btn-mini'; btn.type='button';
-btn.textContent = '⚙️ Calcular automaticamente na PediTools (AAP 2022)';
+btn.textContent = '⚙️ Calcular e preencher pela PediTools (AAP 2022)';
 const statusEl = document.createElement('div'); statusEl.className='bilirubin-result'; statusEl.style.display='none';
-btn.addEventListener('click', () => {
+btn.addEventListener('click', async () => {
 const r = getPeditoolsRequest();
 if(r.error){ statusEl.style.display='block'; statusEl.className='bilirubin-result warning'; statusEl.textContent = r.error; return; }
-statusEl.style.display='block'; statusEl.className='bilirubin-result success';
-statusEl.textContent = 'Abrindo a PediTools com IG '+r.gaWeeks+' sem, '+r.hours+'h de vida'+(r.biliSource ? ' e '+r.biliSource : ' (sem bilirrubina — mostrará só os limiares)')+' já preenchidos. Confira o resultado na aba que abrir e registre-o no campo "Avaliação AAP 2022" abaixo.';
-window.open(r.url, '_blank', 'noopener');
+// Abre a calculadora durante o clique do usuário para evitar bloqueio de pop-up
+// caso a consulta da API falhe ou o navegador impeça a leitura da resposta.
+  window.open(r.url, '_blank', 'noopener');
+btn.disabled = true;
+statusEl.style.display='block'; statusEl.className='bilirubin-result info';
+statusEl.textContent = 'Calculadora PediTools aberta. Tentando obter a indicação automaticamente…';
+try {
+  const response = await fetch(r.url, {headers:{Accept:'application/json, text/html'}});
+  if(!response.ok) throw new Error('A PediTools respondeu com status '+response.status+'.');
+  const result = interpretPeditoolsResult(await response.text(), r.bili);
+  if(result === null){
+    statusEl.className='bilirubin-result warning';
+    statusEl.textContent = 'A calculadora foi aberta, mas sua resposta não trouxe uma indicação reconhecível. O navegador não disponibilizou um resultado que pudesse ser preenchido automaticamente; confira a PediTools e registre a opção manualmente.';
+    return;
+  }
+  const resultKey = findFieldKey('Dados de alta do RN','Avaliação AAP 2022 (conforme calculadora oficial)');
+  const select = resultKey && document.querySelector('[data-answer-key="'+CSS.escape(resultKey)+'"]');
+  const value = result ? 'Fototerapia indicada' : 'Fototerapia não indicada';
+  if(!resultKey){
+    statusEl.className='bilirubin-result warning';
+    statusEl.textContent = 'O campo de avaliação AAP 2022 não foi encontrado. Nenhuma opção foi alterada.';
+    return;
+  }
+  if(select){
+    select.value = value;
+    select.dispatchEvent(new Event('input', {bubbles:true}));
+    select.dispatchEvent(new Event('change', {bubbles:true}));
+  } else {
+    answers[resultKey] = value;
+    scheduleAutoSave();
+  }
+  statusEl.className='bilirubin-result success';
+  statusEl.textContent = 'PediTools AAP 2022: '+value+'. Confira os dados e valide a conduta conforme o protocolo institucional.';
+} catch(error) {
+  statusEl.className='bilirubin-result warning';
+  statusEl.textContent = 'A calculadora foi aberta, mas o navegador não permitiu consultar a API da PediTools ('+error.message+'). Nenhuma opção foi alterada; confira o resultado na outra aba e selecione manualmente a indicação.';
+} finally {
+  btn.disabled = false;
+}
 });
 container.appendChild(btn); container.appendChild(statusEl);
 }
@@ -3048,6 +3153,9 @@ function saveHistory(records){
 function recordDisplayName(record){
   return (record.answers['0_0_0'] || record.answers['1_0_0'] || 'RN sem nome').trim();
 }
+function recordEvaluatorName(record){
+  return (record.answers && record.answers[EVALUATOR_NAME_KEY] || 'Aluno não informado').trim();
+}
 function formatRecordDate(value){
   return new Date(value).toLocaleString('pt-BR', {dateStyle:'short', timeStyle:'short'});
 }
@@ -3153,7 +3261,8 @@ function renderHistory(){
       const info = document.createElement('div'); info.className = 'history-info';
       const name = document.createElement('strong'); name.textContent = recordDisplayName(record);
       const date = document.createElement('span'); date.textContent = 'Salvo em '+formatRecordDate(record.updatedAt);
-      info.append(name, date);
+      const editor = document.createElement('span'); editor.textContent = 'Editado por: '+recordEvaluatorName(record);
+      info.append(name, date, editor);
       const actions = document.createElement('div'); actions.className = 'history-actions';
       const open = document.createElement('button'); open.className='btn-mini'; open.type='button'; open.textContent='Reeditar';
       open.addEventListener('click', () => loadRecord(record.id));
@@ -3247,11 +3356,16 @@ function loadRecord(id){
   if(!record) return;
   Object.keys(answers).forEach(key => delete answers[key]);
   Object.assign(answers, record.answers || {});
-  gaDum = record.gaDum || null; gaUs = record.gaUs || null; gaSource = record.gaSource || (record.answers && record.answers.__gaSource) || null;     currentRecordAlta = record.alta === true;
+  // O aluno deve se identificar novamente a cada reedição.
+  delete answers[EVALUATOR_NAME_KEY];
+  gaDum = record.gaDum || null; gaUs = record.gaUs || null; gaSource = record.gaSource || (record.answers && record.answers.__gaSource) || null;
+  currentRecordAlta = record.alta === true || Boolean(String(answers[DISCHARGE_INSTRUCTIONS_KEY] || '').trim());
   currentRecordUtiNeo = record.utiNeo === true || (record.answers && record.answers.__utiNeo === true);
+  if (currentRecordAlta) currentRecordUtiNeo = false;
   currentRecordId = record.id;
   currentDatabaseRecordId = record.database ? record.id : null;
   if(calcBirthDateInput) calcBirthDateInput.value = answers[BIRTH_DATE_KEY] || '';
+  if(evaluatorNameInput) evaluatorNameInput.value = answers[EVALUATOR_NAME_KEY] || '';
   if(dumDateInput) recomputeGaDum();
   if(usDateInput) recomputeGaUs();
   currentPart = 0; document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.part === '0'));
@@ -3273,6 +3387,7 @@ function startNewRecord(){
   Object.keys(answers).forEach(key => delete answers[key]);
   gaDum = null; gaUs = null; gaSource = null; currentRecordAlta = false; currentRecordUtiNeo = false; currentRecordId = null; currentDatabaseRecordId = null;
   if(calcBirthDateInput) calcBirthDateInput.value = '';
+  if(evaluatorNameInput) evaluatorNameInput.value = '';
   if(dumDateInput) dumDateInput.value = '';
   if(usDateInput) usDateInput.value = '';
   if(usWeeksSel) usWeeksSel.value = '';
@@ -3306,6 +3421,8 @@ const BIRTH_WEIGHT_KEY = findFieldKey("Dados de nascimento e exame físico da 1�
 const CURRENT_WEIGHT_KEY = findFieldKey("Dados gerais de alta","Peso atual (g)");
 const WEIGHT_LOSS_G_KEY = findFieldKey("Dados gerais de alta","Perda ponderal (g)");
 const WEIGHT_LOSS_PCT_KEY = findFieldKey("Dados gerais de alta","Perda ponderal (%)");
+const DISCHARGE_INSTRUCTIONS_KEY = findFieldKey('Encerramento', 'Orientações de alta');
+const EVALUATOR_NAME_KEY = '__evaluatorName';
 
 function toxoplasmosisFirstTrimesterImmune(){
   const igGKey = findFieldKeyInPart(0, 'Sorologias maternas — 1º trimestre', 'Toxoplasmose - IgG');
@@ -3561,6 +3678,10 @@ input.value = answers[key] || '';
 input.dataset.answerKey = key;
 const sync = () => {
   answers[key] = input.value;
+  if (key === DISCHARGE_INSTRUCTIONS_KEY) {
+    currentRecordAlta = input.value.trim() !== '';
+    if (currentRecordAlta) currentRecordUtiNeo = false;
+  }
   updateProblemsList();
   scheduleAutoSave();
 };
@@ -3608,7 +3729,8 @@ const isFirstEvaluation = field.l === '1ª avaliação no alojamento conjunto' |
 row.className = 'field-row' + (isFirstEvaluation ? ' first-eval-group' : '');
 row.dataset.rowKey = baseKey;
 const lbl = document.createElement('div'); lbl.className = 'field-label'; lbl.textContent = field.l; row.appendChild(lbl);
-const inputsWrap = document.createElement('div'); inputsWrap.className = 'field-inputs';
+  const inputsWrap = document.createElement('div');
+inputsWrap.className = 'field-inputs' + (field.l === 'Histórico gestacional' ? ' gestational-history-inputs' : '');
 if(field.t === 'group'){
 field.items.forEach((item, iIdx) => {
 const subWrap = document.createElement('div'); subWrap.className = 'sub';
@@ -3995,6 +4117,7 @@ return '<div class="print-header">' +
 '<p class="ph-title">Ficha de avaliação neonatal</p>' +
 '<p class="ph-sub">Alojamento Conjunto</p>' +
 '<p class="ph-hosp">Hospital Santa Casa de Uruguaiana — Serviço de Pediatria · UNIPAMPA, Curso de Medicina</p>' +
+'<p class="ph-hosp">Aluno: '+escapeHTML(answers[EVALUATOR_NAME_KEY] || 'Não informado')+'</p>' +
 '</div>' +
 '<div class="ph-logo" style="width:44px;"></div>' +
 '</div>';
@@ -4101,6 +4224,14 @@ const loginMessage = document.getElementById('loginMessage');
 const btnLogout = document.getElementById('btnLogout');
 const btnSaveDatabase = document.getElementById('btnSaveDatabase');
 const saveDatabaseMessage = document.getElementById('saveDatabaseMessage');
+const evaluatorNameInput = document.getElementById('evaluatorName');
+
+function syncEvaluatorName(){
+  answers[EVALUATOR_NAME_KEY] = evaluatorNameInput.value.trim();
+  scheduleAutoSave();
+}
+
+evaluatorNameInput.addEventListener('input', syncEvaluatorName);
 
 function setLoginMessage(message, error = false){
   loginMessage.textContent = message;
@@ -4184,6 +4315,7 @@ function generatePrint(groupIndexes = PRINT_GROUPS.map((_, index) => index)) {
         <div class="ph-text">
           <h2 class="ph-title">${group.label}</h2>
           <p class="ph-sub">Hospital Santa Casa de Uruguaiana</p>
+          <p class="ph-hosp">Aluno: ${escapeHTML(answers[EVALUATOR_NAME_KEY] || 'Não informado')}</p>
         </div>
       </div>`;
       
