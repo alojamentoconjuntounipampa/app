@@ -134,6 +134,9 @@ footer.hint{ font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; fo
 .history-group-toggle:hover{ background:#d8efe8; transform:none; }
 .history-item{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 10px; background:#fff; border:1px solid var(--paper-line); border-radius:var(--radius); }
 .history-info{ min-width:0; font-size:.78rem; }
+.history-name-line{display:flex;align-items:center;gap:8px;min-width:0;}
+.history-name-line strong{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.history-age{flex:0 0 auto;padding:3px 7px;border-radius:999px;background:#e8f4f0;color:#0f6e63!important;font-size:.68rem!important;font-weight:700;white-space:nowrap;}
 .history-info strong{ display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .history-info span{ display:block; color:var(--ink-soft); font-size:.7rem; }
 .history-actions{ display:flex; gap:5px; flex-shrink:0; }
@@ -3171,6 +3174,14 @@ function recordBirthDateTime(record){
   const birthDateTime = new Date(birthDate + 'T' + birthTime + ':00');
   return Number.isNaN(birthDateTime.getTime()) ? null : birthDateTime;
 }
+function updateHistoryAgeBadges(){
+  document.querySelectorAll('[data-birth-time]').forEach(badge => {
+    const birthTime = Number(badge.dataset.birthTime);
+    if(!Number.isFinite(birthTime)) return;
+    const hours = Math.max(0, Math.floor((Date.now() - birthTime) / 3600000));
+    badge.textContent = hours + (hours === 1 ? ' hora de vida' : ' horas de vida');
+  });
+}
 function recordIsAlta(record){
   const birthDateTime = recordBirthDateTime(record);
   return birthDateTime && (Date.now() - birthDateTime.getTime()) > 48 * 60 * 60 * 1000;
@@ -3262,10 +3273,20 @@ function renderHistory(){
     groupRecords.forEach(record => {
       const item = document.createElement('div'); item.className = 'history-item';
       const info = document.createElement('div'); info.className = 'history-info';
+      const nameLine = document.createElement('div'); nameLine.className = 'history-name-line';
       const name = document.createElement('strong'); name.textContent = recordDisplayName(record);
+      nameLine.appendChild(name);
+      const isAlta = record.alta === true || (record.answers && record.answers.__alta === true);
+      const birthDateTime = recordBirthDateTime(record);
+      if(!isAlta && birthDateTime){
+        const age = document.createElement('span');
+        age.className = 'history-age';
+        age.dataset.birthTime = String(birthDateTime.getTime());
+        nameLine.appendChild(age);
+      }
       const date = document.createElement('span'); date.textContent = 'Salvo em '+formatRecordDate(record.updatedAt);
       const editor = document.createElement('span'); editor.textContent = 'Editado por: '+recordEvaluatorName(record);
-      info.append(name, date, editor);
+      info.append(nameLine, date, editor);
       const actions = document.createElement('div'); actions.className = 'history-actions';
       const open = document.createElement('button'); open.className='btn-mini'; open.type='button'; open.textContent='Reeditar';
       open.addEventListener('click', () => loadRecord(record.id));
@@ -3335,6 +3356,7 @@ function renderHistory(){
     group.appendChild(groupList);
     list.appendChild(group);
   });
+  updateHistoryAgeBadges();
 }
 function saveCurrentRecord(){
   const records = loadHistory();
@@ -4416,6 +4438,7 @@ document.getElementById('btnNewRecord').addEventListener('click', () => {
   startNewRecord();
 });
 renderHistory();
+setInterval(updateHistoryAgeBadges, 60000);
 renderBuilder();
 
 </script>
