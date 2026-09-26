@@ -73,6 +73,14 @@ section.card > .card-head h2{ font-family:-apple-system,"Segoe UI",Helvetica,Ari
 .calc-field input, .calc-field select{ font-size:.85rem; padding:7px 8px; border-radius:var(--radius); border:1px solid var(--paper-line); font-family:inherit; }
 .calc-result{ font-size:.85rem; background:var(--accent-soft); color:#0B5850; border-radius:var(--radius); padding:8px 10px; font-weight:600; }
 .calc-hint{font-size:.72rem; color:var(--ink-soft); margin-top:4px;}
+.ga-snapshot{margin-top:14px;padding:12px;background:#f0f8f5;border:1px solid #d5e4de;border-radius:8px;}
+.ga-snapshot h3{margin:0 0 8px;font-size:.82rem;color:var(--accent);}
+.ga-snapshot dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:0;}
+.ga-snapshot dl div{min-width:0;padding:7px 9px;background:#fff;border:1px solid #e2ece8;border-radius:6px;}
+.ga-snapshot dt{font-size:.68rem;color:var(--ink-soft);}
+.ga-snapshot dd{margin:3px 0 0;font-size:.82rem;font-weight:700;overflow-wrap:anywhere;}
+.ga-snapshot p{margin:8px 0 0;font-size:.68rem;color:var(--ink-soft);line-height:1.4;}
+@media(max-width:480px){.ga-snapshot dl{grid-template-columns:1fr;}}
 .note-box{ margin:12px 14px 0; background:var(--warn-bg); border:1px solid #E7CFB4; border-radius:var(--radius); padding:10px 12px; font-size:.76rem; color:var(--warn); font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; line-height:1.45; white-space:pre-line; }
 .field-row{ display:grid; grid-template-columns:240px 1fr; gap:10px; align-items:start; padding:8px 14px; border-top:1px solid #ECE7DA; font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; }
 .field-row:first-of-type{border-top:none;}
@@ -2442,6 +2450,18 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
 </div>
 <div class="calc-result" id="usResult">Preencha os dados do ultrassom e a data de nascimento para calcular.</div>
 </div>
+<div class="ga-snapshot" aria-live="polite">
+<h3>Dados da IG registrados para este RN</h3>
+<dl>
+<div><dt>DUM informada</dt><dd id="savedDumDate">Não informada</dd></div>
+<div><dt>IG calculada pela DUM</dt><dd id="savedDumGa">Não calculada</dd></div>
+<div><dt>US informado</dt><dd id="savedUsDate">Não informado</dd></div>
+<div><dt>IG no US</dt><dd id="savedUsAtScan">Não informada</dd></div>
+<div><dt>IG calculada pelo US</dt><dd id="savedUsGa">Não calculada</dd></div>
+<div><dt>IG selecionada para o RN</dt><dd id="savedSelectedGa">Não selecionada</dd></div>
+</dl>
+<p>Esses dados são salvos junto com o registro deste RN e reaparecem ao reeditá-lo.</p>
+</div>
 </div>
 </div>
 <div id="sectionsHost"></div>
@@ -2835,8 +2855,8 @@ function getSelectedGa(){
 function syncSelectedGaToField(){
   const igKey = findFieldKey('Dados de nascimento e exame físico da 1ª hora','IG');
   const ga = getSelectedGa();
-  if(!igKey || !ga) return;
-  answers[igKey] = ga.weeks + 's ' + ga.days + 'd';
+  if(!igKey || (!ga && !gaSource)) return;
+  answers[igKey] = ga ? ga.weeks + 's ' + ga.days + 'd' : '';
 }
 
 // 1b) Percentil de peso ao nascer — INTERGROWTH-21st (mesma fonte da tabela de PC acima).
@@ -3059,6 +3079,58 @@ let autoSaveTimer = null;
 let databaseAutoSaveTimer = null;
 
 // Salva alterações sem interromper o preenchimento com gravações a cada tecla.
+function getGaInputState(){
+  return {
+    dumDate: document.getElementById('dumDate')?.value || '',
+    usDate: document.getElementById('usDate')?.value || '',
+    usWeeksAtScan: document.getElementById('usWeeksAtScan')?.value || '',
+    usDaysAtScan: document.getElementById('usDaysAtScan')?.value || ''
+  };
+}
+function getGaSnapshot(){
+  return {
+    inputs: getGaInputState(),
+    dum: gaDum ? {...gaDum} : null,
+    us: gaUs ? {...gaUs} : null,
+    source: gaSource || '',
+    selected: getSelectedGa() ? {...getSelectedGa()} : null
+  };
+}
+function formatGaSnapshotDate(value){
+  if(!value) return 'Não informada';
+  const [year, month, day] = value.split('-').map(Number);
+  return year && month && day ? new Date(year, month - 1, day).toLocaleDateString('pt-BR') : 'Não informada';
+}
+function formatGaSnapshotGa(value){
+  return value ? value.weeks+' semanas e '+value.days+' dia(s)' : 'Não calculada';
+}
+function updateGaSnapshotDisplay(){
+  const inputs = getGaInputState();
+  const setText = (id, text) => {
+    const element = document.getElementById(id);
+    if(element) element.textContent = text;
+  };
+  setText('savedDumDate', formatGaSnapshotDate(inputs.dumDate));
+  setText('savedDumGa', formatGaSnapshotGa(gaDum));
+  setText('savedUsDate', formatGaSnapshotDate(inputs.usDate));
+  const usAtScan = inputs.usWeeksAtScan && inputs.usDaysAtScan !== ''
+    ? inputs.usWeeksAtScan+' semanas e '+inputs.usDaysAtScan+' dia(s)'
+    : 'Não informada';
+  setText('savedUsAtScan', usAtScan);
+  setText('savedUsGa', formatGaSnapshotGa(gaUs));
+  setText('savedSelectedGa', gaSource ? formatGaSnapshotGa(getSelectedGa())+' ('+gaSource.toUpperCase()+')' : 'Não selecionada');
+}
+function restoreGaInputState(state = {}){
+  const dumInput = document.getElementById('dumDate');
+  const usInput = document.getElementById('usDate');
+  const weeksInput = document.getElementById('usWeeksAtScan');
+  const daysInput = document.getElementById('usDaysAtScan');
+  if(dumInput) dumInput.value = state.dumDate || '';
+  if(usInput) usInput.value = state.usDate || '';
+  if(weeksInput) weeksInput.value = state.usWeeksAtScan || '';
+  if(daysInput) daysInput.value = state.usDaysAtScan || '';
+}
+
 function scheduleAutoSave(){
   clearTimeout(autoSaveTimer);
   autoSaveTimer = setTimeout(() => {
@@ -3088,7 +3160,7 @@ async function saveCurrentRecordToDatabase(){
   setSaveDatabaseMessage('Salvando...');
   const payload = {
     user_id: currentUser.id,
-    answers: {...answers, __gaSource: gaSource || '', __alta: currentRecordAlta, __utiNeo: currentRecordUtiNeo},
+    answers: {...answers, __gaSource: gaSource || '', __gaInputs: getGaInputState(), __gaSnapshot: getGaSnapshot(), __alta: currentRecordAlta, __utiNeo: currentRecordUtiNeo},
     ga_dum: gaDum,
     ga_us: gaUs,
     updated_at: new Date().toISOString()
@@ -3126,6 +3198,8 @@ async function loadCurrentUserRecords(){
     answers: row.answers || {},
     gaDum: row.ga_dum || null,
     gaUs: row.ga_us || null,
+    gaInputs: row.answers && row.answers.__gaInputs ? row.answers.__gaInputs : {},
+    gaSnapshot: row.answers && row.answers.__gaSnapshot ? row.answers.__gaSnapshot : null,
     gaSource: row.answers && row.answers.__gaSource ? row.answers.__gaSource : null,
     alta: row.answers && row.answers.__alta === true,
     utiNeo: row.answers && row.answers.__utiNeo === true,
@@ -3364,9 +3438,11 @@ function saveCurrentRecord(){
     const record = {
     id: currentRecordId || (Date.now()+'-'+Math.random().toString(36).slice(2)),
     updatedAt: now,
-    answers: {...answers, __alta: currentRecordAlta, __utiNeo: currentRecordUtiNeo},
+    answers: {...answers, __gaSource: gaSource || '', __gaInputs: getGaInputState(), __gaSnapshot: getGaSnapshot(), __alta: currentRecordAlta, __utiNeo: currentRecordUtiNeo},
     gaDum,
     gaUs,
+    gaInputs: getGaInputState(),
+    gaSnapshot: getGaSnapshot(),
     gaSource,
     alta: currentRecordAlta,
     utiNeo: currentRecordUtiNeo,
@@ -3383,7 +3459,12 @@ function loadRecord(id){
   Object.assign(answers, record.answers || {});
   // O aluno deve se identificar novamente a cada reedição.
   delete answers[EVALUATOR_NAME_KEY];
-  gaDum = record.gaDum || null; gaUs = record.gaUs || null; gaSource = record.gaSource || (record.answers && record.answers.__gaSource) || null;
+  const savedGaSnapshot = record.gaSnapshot || (record.answers && record.answers.__gaSnapshot) || null;
+  gaDum = (savedGaSnapshot && savedGaSnapshot.dum) || record.gaDum || null;
+  gaUs = (savedGaSnapshot && savedGaSnapshot.us) || record.gaUs || null;
+  gaSource = (savedGaSnapshot && savedGaSnapshot.source) || record.gaSource || (record.answers && record.answers.__gaSource) || null;
+  const savedGaInputs = (savedGaSnapshot && savedGaSnapshot.inputs) || record.gaInputs || (record.answers && record.answers.__gaInputs);
+  restoreGaInputState(savedGaInputs || {});
   currentRecordAlta = record.alta === true || Boolean(String(answers[DISCHARGE_INSTRUCTIONS_KEY] || '').trim());
   currentRecordUtiNeo = record.utiNeo === true || (record.answers && record.answers.__utiNeo === true);
   if (currentRecordAlta) currentRecordUtiNeo = false;
@@ -3391,8 +3472,19 @@ function loadRecord(id){
   currentDatabaseRecordId = record.database ? record.id : null;
   if(calcBirthDateInput) calcBirthDateInput.value = answers[BIRTH_DATE_KEY] || '';
   if(evaluatorNameInput) evaluatorNameInput.value = answers[EVALUATOR_NAME_KEY] || '';
-  if(dumDateInput) recomputeGaDum();
-  if(usDateInput) recomputeGaUs();
+  if(savedGaInputs){
+    recomputeGaDum();
+    recomputeGaUs();
+  } else {
+    dumResultEl.textContent = gaDum
+      ? 'Idade gestacional na data do parto: '+gaDum.weeks+' semanas e '+gaDum.days+' dia(s)'
+      : 'Preencha a DUM e a data de nascimento para calcular.';
+    usResultEl.textContent = gaUs
+      ? 'Idade gestacional na data do parto: '+gaUs.weeks+' semanas e '+gaUs.days+' dia(s)'
+      : 'Preencha os dados do ultrassom e a data de nascimento para calcular.';
+  }
+  syncSelectedGaToField();
+  updateGaSnapshotDisplay();
   currentPart = 0; document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.part === '0'));
   returnToEdit();
   renderBuilder();
@@ -3413,10 +3505,10 @@ function startNewRecord(){
   gaDum = null; gaUs = null; gaSource = null; currentRecordAlta = false; currentRecordUtiNeo = false; currentRecordId = null; currentDatabaseRecordId = null;
   if(calcBirthDateInput) calcBirthDateInput.value = '';
   if(evaluatorNameInput) evaluatorNameInput.value = '';
-  if(dumDateInput) dumDateInput.value = '';
-  if(usDateInput) usDateInput.value = '';
-  if(usWeeksSel) usWeeksSel.value = '';
-  if(usDaysSel) usDaysSel.value = '';
+  restoreGaInputState({});
+  updateGaSnapshotDisplay();
+  if(dumResultEl) dumResultEl.textContent = 'Preencha a DUM e a data de nascimento para calcular.';
+  if(usResultEl) usResultEl.textContent = 'Preencha os dados do ultrassom e a data de nascimento para calcular.';
   renderBuilder();
 }
 let currentPart = 0;
@@ -3646,25 +3738,27 @@ function daysBetween(dateStrA, dateStrB){ const a=utcDay(dateStrA), b=utcDay(dat
 let calcBirthDateInput, dumDateInput, dumResultEl, usDateInput, usWeeksSel, usDaysSel, usResultEl;
 function recomputeGaDum(){
 const dum = dumDateInput.value; const birth = answers[BIRTH_DATE_KEY];
-if(!dum || !birth){ dumResultEl.textContent='Preencha a DUM e a data de nascimento para calcular.'; gaDum=null; return; }
+if(!dum || !birth){ dumResultEl.textContent='Preencha a DUM e a data de nascimento para calcular.'; gaDum=null; if(gaSource === 'dum') syncSelectedGaToField(); updateGaSnapshotDisplay(); scheduleAutoSave(); return; }
 const diff = daysBetween(dum, birth);
-if(diff===null || diff<0){ dumResultEl.textContent='Datas inválidas — confira a DUM e a data de nascimento.'; gaDum=null; return; }
+if(diff===null || diff<0){ dumResultEl.textContent='Datas inválidas — confira a DUM e a data de nascimento.'; gaDum=null; if(gaSource === 'dum') syncSelectedGaToField(); updateGaSnapshotDisplay(); scheduleAutoSave(); return; }
 const weeks=Math.floor(diff/7), days=diff%7;
 gaDum={weeks,days};
 if(gaSource === 'dum') syncSelectedGaToField();
+updateGaSnapshotDisplay();
 scheduleAutoSave();
 dumResultEl.textContent = 'Idade gestacional na data do parto: '+weeks+' semanas e '+days+' dia(s)';
 if(currentPart===1) renderBuilder();
 }
 function recomputeGaUs(){
 const us = usDateInput.value; const w = usWeeksSel.value; const d = usDaysSel.value; const birth = answers[BIRTH_DATE_KEY];
-if(!us || w==='' || d==='' || !birth){ usResultEl.textContent='Preencha os dados do ultrassom e a data de nascimento para calcular.'; gaUs=null; return; }
+if(!us || w==='' || d==='' || !birth){ usResultEl.textContent='Preencha os dados do ultrassom e a data de nascimento para calcular.'; gaUs=null; if(gaSource === 'us') syncSelectedGaToField(); updateGaSnapshotDisplay(); scheduleAutoSave(); return; }
 const elapsed = daysBetween(us, birth);
-if(elapsed===null || elapsed<0){ usResultEl.textContent='Datas inválidas — confira as datas.'; gaUs=null; return; }
+if(elapsed===null || elapsed<0){ usResultEl.textContent='Datas inválidas — confira as datas.'; gaUs=null; if(gaSource === 'us') syncSelectedGaToField(); updateGaSnapshotDisplay(); scheduleAutoSave(); return; }
 const totalDays = Number(w)*7+Number(d)+elapsed;
 const weeks=Math.floor(totalDays/7), days=totalDays%7;
 gaUs={weeks,days};
 if(gaSource === 'us') syncSelectedGaToField();
+updateGaSnapshotDisplay();
 scheduleAutoSave();
 usResultEl.textContent = 'Idade gestacional na data do parto: '+weeks+' semanas e '+days+' dia(s)';
 if(currentPart===1) renderBuilder();
@@ -3895,6 +3989,7 @@ if(field.l === 'IG' && sec.title === 'Dados de nascimento e exame físico da 1ª
       if(!selectedGa) return;
       gaSource = source;
       syncSelectedGaToField();
+      updateGaSnapshotDisplay();
       scheduleAutoSave();
       renderBuilder();
     });
