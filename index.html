@@ -2451,7 +2451,7 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
 <div class="calc-result" id="usResult">Preencha os dados do ultrassom e a data de nascimento para calcular.</div>
 </div>
 <div class="ga-snapshot" aria-live="polite">
-<h3>Dados da IG registrados para este RN</h3>
+<h3>Resumo obstétrico fixado neste registro do RN</h3>
 <dl>
 <div><dt>DUM informada</dt><dd id="savedDumDate">Não informada</dd></div>
 <div><dt>IG calculada pela DUM</dt><dd id="savedDumGa">Não calculada</dd></div>
@@ -2826,7 +2826,10 @@ else if(pc < p97){ faixa = 'entre P90 e P97'; cls='info'; }
 else { faixa = '≥ P97 (possível macrocefalia para a IG)'; cls='warning'; }
 return {cls, text:'INTERGROWTH-21st · PC ao nascer: '+faixa+' (IG usada: '+gaWeeks+'s'+(gaDays||0)+'d · P50 de referência: '+p50.toFixed(1)+' cm)'};
 }
-function getGaForCalc(){ return getSelectedGa(); }
+function getGaForCalc(){
+  const currentGa = getSelectedGa();
+  return currentGa || (gaRecordSnapshot && gaRecordSnapshot.source === gaSource ? gaRecordSnapshot.selected : null);
+}
 
 function ig21HcZInfo(sexo, gaWeeks, gaDays, pcCm){
   if(!sexo || sexo==='Ambíguo' || gaWeeks==null || pcCm==='' || pcCm===undefined || pcCm===null || isNaN(Number(pcCm))) return null;
@@ -2854,7 +2857,7 @@ function getSelectedGa(){
 
 function syncSelectedGaToField(){
   const igKey = findFieldKey('Dados de nascimento e exame físico da 1ª hora','IG');
-  const ga = getSelectedGa();
+  const ga = getSelectedGa() || (gaRecordSnapshot && gaRecordSnapshot.source === gaSource ? gaRecordSnapshot.selected : null);
   if(!igKey || (!ga && !gaSource)) return;
   answers[igKey] = ga ? ga.weeks + 's ' + ga.days + 'd' : '';
 }
@@ -3067,6 +3070,7 @@ return {cls:'info', text:'BTC: '+v.toFixed(1)+' mg/dL. AAP 2022 também recomend
 
 const answers = {};
 let gaDum = null, gaUs = null;
+let gaRecordSnapshot = null; // Cópia persistida dos resultados obstétricos deste RN.
 let gaSource = null; // 'dum' ou 'us' — fonte escolhida para preencher a IG do RN
 let currentRecordId = null;
 let currentRecordAlta = false;
@@ -3096,6 +3100,14 @@ function getGaSnapshot(){
     selected: getSelectedGa() ? {...getSelectedGa()} : null
   };
 }
+function cloneGaSnapshot(snapshot){
+  return snapshot ? JSON.parse(JSON.stringify(snapshot)) : null;
+}
+function saveGaSnapshot(){
+  gaRecordSnapshot = cloneGaSnapshot(getGaSnapshot());
+  updateGaSnapshotDisplay();
+  scheduleAutoSave();
+}
 function formatGaSnapshotDate(value){
   if(!value) return 'Não informada';
   const [year, month, day] = value.split('-').map(Number);
@@ -3105,20 +3117,21 @@ function formatGaSnapshotGa(value){
   return value ? value.weeks+' semanas e '+value.days+' dia(s)' : 'Não calculada';
 }
 function updateGaSnapshotDisplay(){
-  const inputs = getGaInputState();
+  const snapshot = gaRecordSnapshot || getGaSnapshot();
+  const inputs = snapshot.inputs || {};
   const setText = (id, text) => {
     const element = document.getElementById(id);
     if(element) element.textContent = text;
   };
   setText('savedDumDate', formatGaSnapshotDate(inputs.dumDate));
-  setText('savedDumGa', formatGaSnapshotGa(gaDum));
+  setText('savedDumGa', formatGaSnapshotGa(snapshot.dum));
   setText('savedUsDate', formatGaSnapshotDate(inputs.usDate));
   const usAtScan = inputs.usWeeksAtScan && inputs.usDaysAtScan !== ''
     ? inputs.usWeeksAtScan+' semanas e '+inputs.usDaysAtScan+' dia(s)'
     : 'Não informada';
   setText('savedUsAtScan', usAtScan);
-  setText('savedUsGa', formatGaSnapshotGa(gaUs));
-  setText('savedSelectedGa', gaSource ? formatGaSnapshotGa(getSelectedGa())+' ('+gaSource.toUpperCase()+')' : 'Não selecionada');
+  setText('savedUsGa', formatGaSnapshotGa(snapshot.us));
+  setText('savedSelectedGa', snapshot.source ? formatGaSnapshotGa(snapshot.selected)+' ('+snapshot.source.toUpperCase()+')' : 'Não selecionada');
 }
 function restoreGaInputState(state = {}){
   const dumInput = document.getElementById('dumDate');
@@ -3160,7 +3173,7 @@ async function saveCurrentRecordToDatabase(){
   setSaveDatabaseMessage('Salvando...');
   const payload = {
     user_id: currentUser.id,
-    answers: {...answers, __gaSource: gaSource || '', __gaInputs: getGaInputState(), __gaSnapshot: getGaSnapshot(), __alta: currentRecordAlta, __utiNeo: currentRecordUtiNeo},
+    answers: {...answers, __gaSource: gaSource || '', __gaInputs: getGaInputState(), __gaSnapshot: cloneGaSnapshot(gaRecordSnapshot || getGaSnapshot()), __alta: currentRecordAlta, __utiNeo: currentRecordUtiNeo},
     ga_dum: gaDum,
     ga_us: gaUs,
     updated_at: new Date().toISOString()
@@ -3438,11 +3451,11 @@ function saveCurrentRecord(){
     const record = {
     id: currentRecordId || (Date.now()+'-'+Math.random().toString(36).slice(2)),
     updatedAt: now,
-    answers: {...answers, __gaSource: gaSource || '', __gaInputs: getGaInputState(), __gaSnapshot: getGaSnapshot(), __alta: currentRecordAlta, __utiNeo: currentRecordUtiNeo},
+    answers: {...answers, __gaSource: gaSource || '', __gaInputs: getGaInputState(), __gaSnapshot: cloneGaSnapshot(gaRecordSnapshot || getGaSnapshot()), __alta: currentRecordAlta, __utiNeo: currentRecordUtiNeo},
     gaDum,
     gaUs,
     gaInputs: getGaInputState(),
-    gaSnapshot: getGaSnapshot(),
+    gaSnapshot: cloneGaSnapshot(gaRecordSnapshot || getGaSnapshot()),
     gaSource,
     alta: currentRecordAlta,
     utiNeo: currentRecordUtiNeo,
@@ -3463,8 +3476,9 @@ function loadRecord(id){
   gaDum = (savedGaSnapshot && savedGaSnapshot.dum) || record.gaDum || null;
   gaUs = (savedGaSnapshot && savedGaSnapshot.us) || record.gaUs || null;
   gaSource = (savedGaSnapshot && savedGaSnapshot.source) || record.gaSource || (record.answers && record.answers.__gaSource) || null;
-  const savedGaInputs = (savedGaSnapshot && savedGaSnapshot.inputs) || record.gaInputs || (record.answers && record.answers.__gaInputs);
+  const savedGaInputs = record.gaInputs || (record.answers && record.answers.__gaInputs) || (savedGaSnapshot && savedGaSnapshot.inputs);
   restoreGaInputState(savedGaInputs || {});
+  gaRecordSnapshot = cloneGaSnapshot(savedGaSnapshot) || getGaSnapshot();
   currentRecordAlta = record.alta === true || Boolean(String(answers[DISCHARGE_INSTRUCTIONS_KEY] || '').trim());
   currentRecordUtiNeo = record.utiNeo === true || (record.answers && record.answers.__utiNeo === true);
   if (currentRecordAlta) currentRecordUtiNeo = false;
@@ -3502,7 +3516,7 @@ function loadRecord(id){
 }
 function startNewRecord(){
   Object.keys(answers).forEach(key => delete answers[key]);
-  gaDum = null; gaUs = null; gaSource = null; currentRecordAlta = false; currentRecordUtiNeo = false; currentRecordId = null; currentDatabaseRecordId = null;
+  gaDum = null; gaUs = null; gaRecordSnapshot = null; gaSource = null; currentRecordAlta = false; currentRecordUtiNeo = false; currentRecordId = null; currentDatabaseRecordId = null;
   if(calcBirthDateInput) calcBirthDateInput.value = '';
   if(evaluatorNameInput) evaluatorNameInput.value = '';
   restoreGaInputState({});
@@ -3744,8 +3758,7 @@ if(diff===null || diff<0){ dumResultEl.textContent='Datas inválidas — confira
 const weeks=Math.floor(diff/7), days=diff%7;
 gaDum={weeks,days};
 if(gaSource === 'dum') syncSelectedGaToField();
-updateGaSnapshotDisplay();
-scheduleAutoSave();
+saveGaSnapshot();
 dumResultEl.textContent = 'Idade gestacional na data do parto: '+weeks+' semanas e '+days+' dia(s)';
 if(currentPart===1) renderBuilder();
 }
@@ -3758,8 +3771,7 @@ const totalDays = Number(w)*7+Number(d)+elapsed;
 const weeks=Math.floor(totalDays/7), days=totalDays%7;
 gaUs={weeks,days};
 if(gaSource === 'us') syncSelectedGaToField();
-updateGaSnapshotDisplay();
-scheduleAutoSave();
+saveGaSnapshot();
 usResultEl.textContent = 'Idade gestacional na data do parto: '+weeks+' semanas e '+days+' dia(s)';
 if(currentPart===1) renderBuilder();
 }
@@ -3989,8 +4001,7 @@ if(field.l === 'IG' && sec.title === 'Dados de nascimento e exame físico da 1ª
       if(!selectedGa) return;
       gaSource = source;
       syncSelectedGaToField();
-      updateGaSnapshotDisplay();
-      scheduleAutoSave();
+      saveGaSnapshot();
       renderBuilder();
     });
     sourceWrap.appendChild(sourceBtn);
