@@ -27,6 +27,8 @@ header.app-header h1{ font-size:1.05rem; margin:0 0 2px 0; font-weight:600; lett
 .tabs{border:0;gap:6px;flex-wrap:wrap;}
 header.app-header p{ margin:0; font-size:.78rem; color:#C9D6D2; font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; }
 .actions{display:flex; gap:8px; font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; flex-wrap:wrap;}
+.form-actions{max-width:960px;margin:18px auto 28px;padding:12px 16px;align-items:center;justify-content:flex-end;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.8);border-radius:12px;box-shadow:0 4px 16px rgba(27,58,75,.08);}
+.form-actions #saveDatabaseMessage{flex:1 1 100%;text-align:right;}
 button{
   font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
   cursor:pointer;
@@ -148,6 +150,20 @@ footer.hint{ font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif; fo
   border-radius:8px;
   white-space:nowrap;
 }
+.history-bulk-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0;padding:10px;background:#f0f8f5;border:1px solid #d5e4de;border-radius:8px;font-size:.78rem;}
+.history-bulk-tools[hidden]{display:none!important;}
+.history-bulk-tools .bulk-count{font-weight:700;color:var(--accent);margin-right:auto;}
+.history-select{display:flex;align-items:center;gap:5px;font-size:.72rem;white-space:nowrap;}
+.history-select input,.history-bulk-tools input{width:18px;height:18px;min-width:18px;max-width:none;accent-color:var(--accent);}
+.history-bulk-message{flex-basis:100%;margin:0;font-size:.74rem;line-height:1.4;}
+.history-bulk-progress{display:flex;flex-basis:100%;align-items:center;gap:10px;}
+.history-bulk-progress[hidden]{display:none!important;}
+.history-bulk-progress progress{flex:1;min-width:0;height:12px;accent-color:var(--accent);}
+@media (max-width:640px){
+  .history-bulk-tools{align-items:stretch;}
+  .history-bulk-tools button{flex:1 1 100%;}
+  .history-bulk-tools .bulk-count{width:100%;}
+} 
 @media (max-width:640px){
   .history-item{ align-items:flex-start; flex-direction:column; }
   .history-actions{ width:100%; }
@@ -172,6 +188,25 @@ main{padding:14px 10px 70px;}
 .evaluator-card{margin-bottom:16px;}
 .evaluator-card .field-row{border-top:none;}
 .evaluator-card input{max-width:420px;}
+.evaluator-card .field-inputs{flex-wrap:nowrap;}
+.evaluator-card .field-inputs input{flex:1 1 auto;min-width:0;}
+.evaluator-card #btnContinueAfterEvaluator{flex:0 0 42px;width:42px;min-width:42px;padding:8px;font-size:1.1rem;line-height:1;}
+.entry-gate{max-width:620px;margin:24px auto;padding:20px;}
+.entry-gate p{color:var(--ink-soft);font-size:.85rem;line-height:1.5;margin:0 0 14px;}
+.entry-gate label{display:block;margin-bottom:6px;font:600 .78rem -apple-system,"Segoe UI",sans-serif;color:var(--ink-soft);}
+.entry-gate select{width:100%;max-width:none;padding:10px;border:1px solid var(--paper-line);border-radius:8px;background:#fff;color:var(--ink);font:inherit;}
+ .entry-gate button{margin-top:12px;width:100%;}
+.entry-gate .entry-choice-label{margin:0 0 8px;font:600 .78rem -apple-system,"Segoe UI",sans-serif;color:var(--ink-soft);}
+.entry-choice-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+.entry-gate #entryHistoryPicker{margin-top:12px;padding-top:12px;border-top:1px solid var(--paper-line);}
+.entry-gate #entryHistoryPicker[hidden]{display:none!important;}
+@media (max-width:480px){.entry-choice-actions{grid-template-columns:1fr;}}
+#builder.entry-locked > :not(#entryGate),
+#builder.evaluator-required > :not(#evaluatorCard){display:none!important;}
+body.workflow-locked .tabs{display:none!important;}
+body.workflow-locked .form-actions,
+#builder.history-mode + .form-actions{display:none!important;}
+[hidden]{display:none!important;}
 @media print{
   #problemsListCard{display:none !important;}
 }
@@ -871,12 +906,14 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
   section.card,
   .history-card,
   .calc-card {
-    background: #fff;
-    border: 1px solid #e8f4f0;
+    background: rgba(255, 255, 255, .68);
+    border: 1px solid rgba(255, 255, 255, .72);
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(15,110,99,.1);
     margin-bottom: 16px;
     overflow: hidden;
+    backdrop-filter: blur(16px) saturate(135%);
+    -webkit-backdrop-filter: blur(16px) saturate(135%);
   }
 
   section.card > .card-head {
@@ -2363,22 +2400,204 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
   padding-left: 5px !important;
   padding-right: 5px !important;
 }
+/* Faixa compacta em vidro translúcido sobre fundo espectral difuso. */
+@media screen {
+  body {
+    background:
+      radial-gradient(ellipse at 8% 14%, rgba(112, 225, 210, .33), transparent 36%),
+      radial-gradient(ellipse at 92% 12%, rgba(177, 151, 255, .25), transparent 34%),
+      radial-gradient(ellipse at 78% 86%, rgba(255, 197, 146, .24), transparent 38%),
+      radial-gradient(ellipse at 18% 90%, rgba(145, 192, 255, .22), transparent 36%),
+      linear-gradient(145deg, #e9f5f1 0%, #e9eef6 48%, #f4eee9 100%) !important;
+    background-attachment: fixed;
+  }
+
+  main { padding-top: 14px; }
+
+  .tabs {
+    position: sticky;
+    top: 82px;
+    z-index: 15;
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 6px !important;
+    width: min(100%, 900px);
+    margin: 0 auto 18px !important;
+    padding: 8px !important;
+    overflow: visible !important;
+    border: 1px solid rgba(255,255,255,.68) !important;
+    border-radius: 18px !important;
+    background: rgba(250, 253, 252, .58) !important;
+    box-shadow: 0 10px 30px rgba(38, 67, 76, .12), inset 0 1px 0 rgba(255,255,255,.85);
+    backdrop-filter: blur(22px) saturate(155%);
+    -webkit-backdrop-filter: blur(22px) saturate(155%);
+  }
+
+  .tabs .tab-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 0;
+    min-height: 44px;
+    margin: 0 !important;
+    padding: 8px 10px !important;
+    border: 1px solid transparent !important;
+    border-radius: 12px !important;
+    color: #3f5a68 !important;
+    font-size: .82rem !important;
+    font-weight: 600 !important;
+    white-space: nowrap;
+    transition: background .2s ease, color .2s ease, box-shadow .2s ease;
+  }
+
+  .tabs .tab-btn:hover { background: rgba(255,255,255,.5) !important; }
+  .tabs .tab-btn.active {
+    background: linear-gradient(135deg, rgba(15,110,99,.95), rgba(21,148,127,.92)) !important;
+    color: #fff !important;
+    border-color: rgba(255,255,255,.55) !important;
+    box-shadow: 0 4px 12px rgba(15,110,99,.22), inset 0 1px 0 rgba(255,255,255,.22);
+  }
+  .nav-icon { font-size: 1.05rem; line-height: 1; }
+  #historyCard { display: none; scroll-margin-top: 82px; }
+  #builder.history-mode > :not(#historyCard) { display: none !important; }
+  #builder.history-mode > #historyCard { display: block !important; }
+  #builder.history-mode #btnToggleHistory { display: none; }
+  .tabs.print-navigation-hidden { display: none !important; }
+}
+
+body.login-mode .tabs { display: none !important; }
+
+@media screen and (max-width: 640px) {
+  main { padding-top: 10px; }
+  .tabs {
+    top: 6px;
+    gap: 4px !important;
+    padding: 6px !important;
+    border-radius: 15px !important;
+  }
+  .tabs .tab-btn {
+    flex-direction: column;
+    gap: 3px;
+    min-height: 48px;
+    padding: 5px 2px !important;
+    font-size: .62rem !important;
+    white-space: normal;
+    line-height: 1.1;
+  }
+  .tabs .tab-btn .nav-icon { font-size: 1.15rem; }
+  .tabs .tab-label { display: block; text-align: center; }
+}
+
+@media screen and (max-width: 370px) {
+  .tabs { gap: 2px !important; padding: 5px !important; }
+  .tabs .tab-btn { font-size: .56rem !important; }
+  .tabs .tab-btn .nav-icon { font-size: 1.05rem; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .tabs { backdrop-filter: none; -webkit-backdrop-filter: none; background: #eef6f3 !important; }
+}
+
+/* Dock inferior sempre acessível; o fluxo do formulário mantém espaço abaixo. */
+@media screen {
+  main { padding-bottom: calc(112px + env(safe-area-inset-bottom)); }
+  .tabs {
+    position: fixed !important;
+    top: auto !important;
+    right: 50% !important;
+    bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+    left: auto !important;
+    z-index: 50 !important;
+    transform: translateX(50%);
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(58px, 1fr)) !important;
+    gap: 5px !important;
+    width: min(620px, calc(100% - 24px)) !important;
+    margin: 0 !important;
+    padding: 7px !important;
+    overflow: visible !important;
+    border: 1px solid rgba(255,255,255,.72) !important;
+    border-radius: 20px !important;
+    background: rgba(248,252,251,.72) !important;
+    box-shadow: 0 12px 38px rgba(27,58,75,.24), inset 0 1px 0 rgba(255,255,255,.9) !important;
+    backdrop-filter: blur(24px) saturate(165%);
+    -webkit-backdrop-filter: blur(24px) saturate(165%);
+  }
+  .tabs .tab-btn {
+    flex-direction: column;
+    gap: 3px;
+    min-height: 52px;
+    padding: 6px 3px !important;
+    border-radius: 13px !important;
+    font-size: .68rem !important;
+    line-height: 1.1;
+    white-space: normal;
+  }
+  .tabs .tab-btn .nav-icon { font-size: 1.1rem; }
+  .tabs .tab-btn.active { color: #fff !important; }
+  .history-record-picker {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 1.2fr);
+    align-items: center;
+    gap: 14px;
+    margin: 12px 0;
+    padding: 16px;
+    border: 1px solid rgba(15,110,99,.18);
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(228,239,233,.92), rgba(232,238,251,.86));
+  }
+  .history-record-picker strong { color: var(--ink); font-size: .9rem; }
+  .history-record-picker p { margin: 4px 0 0; color: var(--ink-soft); font-size: .76rem; }
+  .history-record-picker-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .history-record-picker-controls label { flex-basis: 100%; font-size: .72rem; font-weight: 600; color: var(--ink-soft); }
+  .history-record-picker-controls select { flex: 1 1 180px; min-width: 0; padding: 9px 10px; border: 1px solid #c7d9d2; border-radius: 8px; background: rgba(255,255,255,.9); color: var(--ink); font: inherit; }
+  .history-record-picker-controls button { flex: 0 0 auto; }
+}
+@media screen and (max-width: 640px) {
+  main { padding-bottom: calc(108px + env(safe-area-inset-bottom)); }
+  .tabs { bottom: calc(8px + env(safe-area-inset-bottom)) !important; width: calc(100% - 16px) !important; gap: 3px !important; padding: 6px !important; border-radius: 17px !important; }
+  .tabs .tab-btn { min-width: 0; min-height: 49px; font-size: .59rem !important; }
+  .tabs .tab-btn .nav-icon { font-size: 1.04rem; }
+  .history-record-picker { grid-template-columns: 1fr; padding: 13px; }
+  .history-record-picker-controls { align-items: stretch; }
+  .history-record-picker-controls select, .history-record-picker-controls button { flex: 1 1 100%; width: 100%; }
+}
+.history-new-action { display:flex; justify-content:flex-end; margin:12px 0; }
+@media screen and (max-width:640px) {
+  .history-new-action button { width:100%; }
+}
+@media print { .tabs, .history-record-picker, #btnContinueAfterEvaluator, .discharge-print-fab { display: none !important; } }
+
+/* Atalho de impressão da guia de alta, flutuante acima do dock inferior. */
+.discharge-print-fab {
+  display: none;
+  position: fixed;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: calc(94px + env(safe-area-inset-bottom));
+  z-index: 60;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(255,255,255,.65);
+  border-radius: 999px;
+  padding: 11px 16px;
+  box-shadow: 0 10px 28px rgba(15,80,72,.3);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.discharge-print-fab.visible { display: inline-flex; }
+@media screen and (max-width:640px) {
+  .discharge-print-fab { right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); padding: 10px 13px; font-size: .78rem; }
+}
 </style>
 </head>
-<body>
+<body class="workflow-locked">
 <header class="app-header">
 <div>
 <h1>Ficha de Avaliação Neonatal — Alojamento Conjunto</h1>
 <p id="headerSub"></p>
 </div>
-<div class="actions">
-<button class="btn-ghost" id="btnBackToEdit" style="display:none;">← Voltar a preencher</button>
-<button class="btn-primary" id="btnGenerate">Imprimir / Salvar</button>
-<button class="btn-secondary" id="btnSaveDatabase" type="button" style="display:none;">Salvar no banco</button>
-<button class="btn-secondary" id="btnPrint" style="display:none;">Imprimir</button>
-<button class="btn-secondary" id="btnSavePdf" style="display:none;">Salvar PDF</button>
-<span id="saveDatabaseMessage" aria-live="polite" style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:.75rem;color:#C9D6D2;"></span>
-</div>
+
 </header>
 <main>
 <div id="loginView" style="display:none;">
@@ -2390,13 +2609,38 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
 </form>
 <p id="loginMessage" role="status"></p>
 </div>
-<div id="builder">
+<nav class="tabs" aria-label="Navegação da ficha">
+<button class="tab-btn active" data-part="0" type="button" aria-label="Dados da mãe"><span class="nav-icon" aria-hidden="true">♧</span><span class="tab-label">Dados da mãe</span></button>
+<button class="tab-btn" data-part="1" type="button" aria-label="RN — 1ª hora de vida"><span class="nav-icon" aria-hidden="true">♡</span><span class="tab-label">RN — 1ª hora</span></button>
+<button class="tab-btn" data-part="2" type="button" aria-label="Controle — 1ª avaliação"><span class="nav-icon" aria-hidden="true">◷</span><span class="tab-label">1ª avaliação</span></button>
+<button class="tab-btn" data-part="3" type="button" aria-label="Alta hospitalar"><span class="nav-icon" aria-hidden="true">⌂</span><span class="tab-label">Alta hospitalar</span></button>
+<button class="tab-btn history-nav-btn" id="btnHistoryNav" type="button" aria-label="Histórico" aria-pressed="false"><span class="nav-icon" aria-hidden="true">▤</span><span class="tab-label">Histórico</span></button>
+</nav>
+<button class="btn-primary discharge-print-fab" id="btnPrintDischargeQuick" type="button" aria-label="Imprimir ficha" title="Imprimir ficha">🖨️ <span>Imprimir</span></button>
+<div id="builder" class="entry-locked">
+<section class="history-card entry-gate" id="entryGate" aria-labelledby="entryGateTitle">
+<h2 id="entryGateTitle">Iniciar avaliação neonatal</h2>
+<p>Para começar, selecione um RN salvo para reeditar ou escolha iniciar um RN novo. Em seguida, informe o nome do aluno responsável.</p>
+<p class="entry-choice-label">Como deseja continuar?</p>
+<div class="entry-choice-actions">
+  <button class="btn-primary" id="btnStartNewFromGate" type="button">Iniciar RN novo</button>
+  <button class="btn-secondary" id="btnChooseHistoryFromGate" type="button">Reeditar RN do histórico</button>
+</div>
+<div id="entryHistoryPicker" hidden>
+  <label for="entryRecordChoice">Selecione um RN salvo</label>
+  <select id="entryRecordChoice" required>
+    <option value="">Selecione um RN salvo</option>
+  </select>
+  <button class="btn-primary" id="btnEnterRecord" type="button" disabled>Continuar</button>
+</div>
+</section>
 <section class="card evaluator-card" id="evaluatorCard">
 <div class="card-head"><h2>Identificação da avaliação</h2></div>
 <div class="field-row">
 <label class="field-label" for="evaluatorName">Nome do Aluno(a)</label>
 <div class="field-inputs">
-<input type="text" id="evaluatorName" placeholder="Digite o nome do Aluno(a)" autocomplete="name">
+<input type="text" id="evaluatorName" placeholder="Digite o nome do Aluno(a)" autocomplete="name" required>
+<button class="btn-primary" id="btnContinueAfterEvaluator" type="button" aria-label="Confirmar aluno e ir para os dados da mãe" title="Confirmar e ir para os dados da mãe" disabled><span aria-hidden="true">✓</span></button>
 </div>
 </div>
 </section>
@@ -2405,21 +2649,29 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
 <h2>Histórico de RNs <span id="historyCount" aria-live="polite">0 RNs</span></h2>
 <div class="history-actions">
 <button class="btn-mini" id="btnToggleHistory" type="button" aria-expanded="false">Abrir histórico</button>
-<button class="btn-mini" id="btnNewRecord" type="button">+ Novo RN</button>
 </div>
 </div>
 <div id="historyContent" hidden>
+<div class="history-new-action">
+  <button class="btn-primary" id="btnNewFromHistory" type="button">Iniciar RN novo</button>
+</div>
+<div id="historyBulkTools" class="history-bulk-tools" hidden>
+  <label class="history-select"><input type="checkbox" id="selectAllHistory"> Selecionar todos</label>
+  <span class="bulk-count" id="historySelectionCount">0 selecionados</span>
+  <button class="btn-mini" type="button" data-bulk-action="uti">Mover para UTI Neo</button>
+  <button class="btn-mini" type="button" data-bulk-action="alta">Mover para Altas</button>
+  <button class="btn-secondary" type="button" data-bulk-action="delete">Excluir selecionados</button>
+  <p class="history-bulk-message" id="historyBulkMessage" role="status" aria-live="polite"></p>
+  <div class="history-bulk-progress" id="historyBulkProgress" hidden>
+    <progress id="historyBulkProgressBar" max="100" value="0" aria-label="Progresso da ação em lote"></progress>
+    <button class="btn-mini" id="btnCancelBulkHistory" type="button">Cancelar restante</button>
+  </div>
+</div>
 <div id="historyList" class="history-list"></div>
 <p id="historyEmpty" class="history-empty">Nenhum RN salvo ainda. O registro será salvo automaticamente ao gerar o resumo para impressão.</p>
 </div>
 </div>
 
-<div class="tabs">
-<button class="tab-btn active" data-part="0">Dados da mãe</button>
-<button class="tab-btn" data-part="1">RN — 1ª hora de vida</button>
-<button class="tab-btn" data-part="2">Controle — 1ª avaliação</button>
-<button class="tab-btn" data-part="3">Alta hospitalar</button>
-</div>
 <div id="gaCalc" class="calc-card">
 <h2>Calculadora de Idade Gestacional</h2>
 <div class="calc-body">
@@ -2470,6 +2722,15 @@ body.login-mode .login-actions button{background:#fff;border-color:#d8e2dd;}
 <ul id="problemsList"></ul>
 <p id="problemsEmpty" class="history-empty">Nenhuma alteração identificada.</p>
 </div>
+</div>
+<div class="actions form-actions no-print" aria-label="Ações da ficha">
+<button class="btn-ghost" id="btnBackToEdit" style="display:none;">← Voltar a preencher</button>
+<button class="btn-primary" id="btnGenerate">Imprimir / Salvar</button>
+<button class="btn-secondary" id="btnSaveDatabase" type="button" style="display:none;">Salvar no banco</button>
+<button class="btn-secondary" id="btnRetryPending" type="button" style="display:none;">Tentar sincronizar pendências</button>
+<button class="btn-secondary" id="btnPrint" style="display:none;">Imprimir</button>
+<button class="btn-secondary" id="btnSavePdf" style="display:none;">Salvar PDF</button>
+<span id="saveDatabaseMessage" aria-live="polite" style="font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;font-size:.75rem;color:var(--ink-soft);"></span>
 </div>
 <div id="printView"></div>
 <p class="print-hint" id="printHintText" style="display:none;">Para salvar como PDF: clique em "Imprimir / Salvar PDF" e, na janela de impressão, escolha "Salvar como PDF" como destino.</p>
@@ -2851,12 +3112,20 @@ function ig21HcZInfo(sexo, gaWeeks, gaDays, pcCm){
 function getSelectedGa(){
   return gaSource === 'dum' ? gaDum : gaSource === 'us' ? gaUs : null;
 }
+function clearSelectedGaSource(source, context){
+  if(!contextMatchesActive(context) || gaSource !== source) return;
+  const igKey = findFieldKey('Dados de nascimento e exame físico da 1ª hora','IG');
+  if(igKey) answers[igKey] = '';
+}
 
-function syncSelectedGaToField(){
+function syncSelectedGaToField(context = createOpContext(currentRecordId)){
+  if(!contextMatchesActive(context)) return false;
   const igKey = findFieldKey('Dados de nascimento e exame físico da 1ª hora','IG');
   const ga = getSelectedGa();
-  if(!igKey || !ga) return;
+  if(!igKey || !ga) return false;
   answers[igKey] = ga.weeks + 's ' + ga.days + 'd';
+  recordRevision++;
+  return true;
 }
 
 // 1b) Percentil de peso ao nascer — INTERGROWTH-21st (mesma fonte da tabela de PC acima).
@@ -3001,6 +3270,9 @@ const btn = document.createElement('button'); btn.className='btn-mini'; btn.type
 btn.textContent = '⚙️ Calcular e preencher pela PediTools (AAP 2022)';
 const statusEl = document.createElement('div'); statusEl.className='bilirubin-result'; statusEl.style.display='none';
 btn.addEventListener('click', async () => {
+let operationContext;
+try { operationContext = createOpContext(currentRecordId); }
+catch(error){ statusEl.style.display='block'; statusEl.className='bilirubin-result warning'; statusEl.textContent = error.message; return; }
 const r = getPeditoolsRequest();
 if(r.error){ statusEl.style.display='block'; statusEl.className='bilirubin-result warning'; statusEl.textContent = r.error; return; }
 // Abre a calculadora durante o clique do usuário para evitar bloqueio de pop-up
@@ -3013,6 +3285,11 @@ try {
   const response = await fetch(r.url, {headers:{Accept:'application/json, text/html'}});
   if(!response.ok) throw new Error('A PediTools respondeu com status '+response.status+'.');
   const result = interpretPeditoolsResult(await response.text(), r.bili);
+  if(!contextMatchesActive(operationContext) || operationContext.revision !== recordRevision){
+    statusEl.className='bilirubin-result warning';
+    statusEl.textContent = 'Resultado ignorado: o RN foi trocado ou seus dados mudaram durante o cálculo. Recalcule no registro atual.';
+    return;
+  }
   if(result === null){
     statusEl.className='bilirubin-result warning';
     statusEl.textContent = 'A calculadora foi aberta, mas sua resposta não trouxe uma indicação reconhecível. O navegador não disponibilizou um resultado que pudesse ser preenchido automaticamente; confira a PediTools e registre a opção manualmente.';
@@ -3071,25 +3348,323 @@ let gaSource = null; // 'dum' ou 'us' — fonte escolhida para preencher a IG do
 let currentRecordId = null;
 let currentRecordAlta = false;
 let currentRecordUtiNeo = false;
+const selectedHistoryIds = new Set();
+let activeBulkHistoryRun = null;
 const HISTORY_STORAGE_KEY = 'fichaNeonatalHistorico';
 const DATABASE_TABLE = 'registros_neonatais';
 let currentUser = null;
 let currentDatabaseRecordId = null;
 let autoSaveTimer = null;
 let databaseAutoSaveTimer = null;
+// false pauses automatic remote sync; local snapshots and pending queues remain active/recoverable.
+const SAFE_CONTEXT_MODE = true;
+const PENDING_QUEUE_PREFIX = HISTORY_STORAGE_KEY + ':pending:';
+let activeSessionToken = null;
+let operationSequence = 0;
+let recordRevision = 0;
+const recordSaveQueues = new Map();
+const recordSaveAbortControllers = new Map();
 
-// Salva alterações sem interromper o preenchimento com gravações a cada tecla.
+function createStableId(){
+  if(window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+  const bytes = new Uint8Array(16);
+  if(window.crypto && typeof window.crypto.getRandomValues === 'function') window.crypto.getRandomValues(bytes);
+  else for(let i=0;i<bytes.length;i++) bytes[i] = Math.floor(Math.random() * 256);
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = [...bytes].map(value => value.toString(16).padStart(2,'0')).join('');
+  return hex.slice(0,8)+'-'+hex.slice(8,12)+'-'+hex.slice(12,16)+'-'+hex.slice(16,20)+'-'+hex.slice(20);
+}
+function ensureCurrentRecordId(){
+  if(!currentRecordId) currentRecordId = createStableId();
+  if(!activeSessionToken) activeSessionToken = createStableId();
+  return currentRecordId;
+}
+function createOpContext(recordId = currentRecordId){
+  if(!recordId) throw new Error('Não há RN selecionado para esta operação.');
+  return Object.freeze({
+    recordId: String(recordId),
+    sessionToken: recordId === currentRecordId ? activeSessionToken : null,
+    opId: createStableId() + '-' + (++operationSequence),
+    createdAt: new Date().toISOString(),
+    revision: recordId === currentRecordId ? recordRevision : null
+  });
+}
+function contextMatchesActive(context){
+  return Boolean(context && context.recordId === currentRecordId && context.sessionToken && context.sessionToken === activeSessionToken);
+}
+function cloneData(value){ return JSON.parse(JSON.stringify(value)); }
+function captureCurrentRecordSnapshot(recordId = currentRecordId){
+  if(!recordId || recordId !== currentRecordId) return null;
+  return Object.freeze({
+    recordId: String(recordId),
+    answers: cloneData(answers),
+    gaDum: gaDum ? cloneData(gaDum) : null,
+    gaUs: gaUs ? cloneData(gaUs) : null,
+    gaInputs: {
+      dumDate: dumDateInput?.value || '', usDate: usDateInput?.value || '',
+      usWeeks: usWeeksSel?.value || '', usDays: usDaysSel?.value || ''
+    },
+    gaSource,
+    alta: currentRecordAlta,
+    utiNeo: currentRecordUtiNeo,
+    databaseId: currentDatabaseRecordId || null,
+    capturedAt: new Date().toISOString()
+  });
+}
+function queueStorageKey(recordId){ return PENDING_QUEUE_PREFIX + encodeURIComponent(String(recordId)); }
+function readPendingQueue(recordId){
+  const key = queueStorageKey(recordId);
+  const raw = localStorage.getItem(key) || '[]';
+  try {
+    const queue = JSON.parse(raw);
+    return Array.isArray(queue) ? queue : [];
+  } catch (_) {
+    const backupKey = HISTORY_STORAGE_KEY + ':pending-corrupt:' + Date.now();
+    try { localStorage.setItem(backupKey, raw); } catch (_) {}
+    setSaveDatabaseMessage('Uma fila local está corrompida; seu conteúdo bruto foi preservado para recuperação.', true);
+    return [];
+  }
+}
+function writePendingQueue(recordId, queue){
+  localStorage.setItem(queueStorageKey(recordId), JSON.stringify(queue));
+  updatePendingStatus();
+}
+function updatePendingStatus(){
+  if(!saveDatabaseMessage) return;
+  let count = 0;
+  const pendingNames = new Set();
+  for(let i=0;i<localStorage.length;i++){
+    const key = localStorage.key(i);
+    if(!key || !key.startsWith(PENDING_QUEUE_PREFIX)) continue;
+    try {
+      const queue = JSON.parse(localStorage.getItem(key) || '[]');
+      const pending = queue.filter(item => item.state !== 'done' && item.state !== 'superseded');
+      count += pending.length;
+      if(pending.length){
+        const latest = pending[pending.length - 1];
+        const mother = latest.snapshot && latest.snapshot.answers && latest.snapshot.answers['0_0_0'];
+        pendingNames.add(mother ? 'RN de '+String(mother).trim() : 'RN '+decodeURIComponent(key.slice(PENDING_QUEUE_PREFIX.length)).slice(0,8));
+      }
+    } catch (_) {}
+  }
+  const retryButton = document.getElementById('btnRetryPending');
+  if(retryButton) retryButton.style.display = count ? 'inline-block' : 'none';
+  if(count) {
+    const modeNote = SAFE_CONTEXT_MODE ? '' : ' A sincronização automática está desativada; use “Tentar sincronizar pendências” quando desejar.';
+    setSaveDatabaseMessage(count + ' operação(ões) pendente(s): '+[...pendingNames].join(', ')+'.'+modeNote, true);
+  } else if(saveDatabaseMessage.textContent.includes('pendente')) setSaveDatabaseMessage('');
+}
+function persistSnapshotLocally(context, snapshot){
+  if(!context || !snapshot || context.recordId !== snapshot.recordId) throw new Error('Contexto e snapshot de RN incompatíveis.');
+  const existing = loadHistory().find(record => String(record.id) === context.recordId);
+  const record = {
+    ...(existing || {}),
+    id: context.recordId,
+    updatedAt: snapshot.capturedAt || new Date().toISOString(),
+    answers: {...snapshot.answers, __gaInputs:snapshot.gaInputs || {}, __gaSource:snapshot.gaSource || '', __alta:snapshot.alta === true, __utiNeo:snapshot.utiNeo === true},
+    gaDum:snapshot.gaDum,
+    gaUs:snapshot.gaUs,
+    gaInputs:snapshot.gaInputs || {},
+    gaSource:snapshot.gaSource,
+    alta:snapshot.alta === true,
+    utiNeo:snapshot.utiNeo === true,
+    database:Boolean(snapshot.databaseId || (existing && existing.database)),
+    databaseId:snapshot.databaseId || (existing && (existing.databaseId || (existing.database ? existing.id : null))) || null
+  };
+  saveRecordToLocal(record);
+  return record;
+}
+function enqueueOperation(context, snapshot, type = 'record-save'){
+  if(!context || !snapshot || context.recordId !== snapshot.recordId) throw new Error('Operação sem identidade válida do RN.');
+  let queue = readPendingQueue(context.recordId);
+  queue.filter(item => item.state === 'queued' || item.state === 'failed').forEach(item => { item.state = 'superseded'; item.updatedAt = new Date().toISOString(); });
+  const item = {
+    context: cloneData(context), snapshot: cloneData(snapshot), type,
+    state: 'queued', createdAt: context.createdAt, updatedAt: new Date().toISOString(),
+    attempts: 0, error: null, userId: currentUser ? currentUser.id : null
+  };
+  queue.push(item);
+  const supersededItems = queue.filter(entry => entry.state === 'superseded');
+  if(supersededItems.length > 2){
+    const keepIds = new Set(supersededItems.slice(-2));
+    queue = queue.filter(entry => entry.state !== 'superseded' || keepIds.has(entry));
+  }
+  writePendingQueue(context.recordId, queue);
+  persistSnapshotLocally(context, snapshot);
+  renderHistory();
+  return item;
+}
+// A fila serializa esta aba; conflitos entre abas/versões remotas ficam para a fase posterior.
+async function processQueueForRecord(recordId){
+  if(!recordId || !supabaseClient || !currentUser) return {ok:false, reason:'offline-or-unauthenticated'};
+  const key = String(recordId);
+  if(recordSaveQueues.has(key)) return recordSaveQueues.get(key);
+  const processing = (async () => {
+    let queue = readPendingQueue(key);
+    // Process in enqueue order so an older snapshot cannot reach the server
+    // after a newer snapshot for the same RN.
+    const item = queue.find(entry => entry.state === 'queued' || entry.state === 'failed');
+    if(!item) return {ok:true, reason:'nothing-pending'};
+    if(item.userId && item.userId !== currentUser.id) return {ok:false, reason:'different-user'};
+    item.userId = currentUser.id;
+    item.state = 'running'; item.attempts = (item.attempts || 0) + 1; item.updatedAt = new Date().toISOString(); item.error = null;
+    writePendingQueue(key, queue);
+    try {
+      const snap = item.snapshot;
+      const existingRecord = loadHistory().find(record => String(record.id) === key);
+      const isUuidRecordId = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(key);
+      const legacyRemoteNeedsReconciliation = Boolean(existingRecord && existingRecord.database &&
+        !snap.databaseId && !existingRecord.databaseId && !isUuidRecordId);
+      if(legacyRemoteNeedsReconciliation){
+        throw new Error('Registro legado marcado como remoto sem databaseId confiável; pendência local preservada para reconciliação. Nenhum novo registro remoto foi criado.');
+      }
+      let dbId = snap.databaseId || (existingRecord && (existingRecord.databaseId || (existingRecord.database ? existingRecord.id : null))) ||
+        (isUuidRecordId ? key : null);
+      if(!dbId){
+        dbId = createStableId();
+        snap.databaseId = dbId;
+        item.snapshot.databaseId = dbId;
+        if(existingRecord){ existingRecord.databaseId = dbId; saveRecordToLocal(existingRecord); }
+        writePendingQueue(key, queue);
+      }
+      const payload = {
+        user_id: item.userId,
+        answers: {...snap.answers, __gaInputs:snap.gaInputs || {}, __gaSource:snap.gaSource || '', __alta:snap.alta === true, __utiNeo:snap.utiNeo === true},
+        ga_dum: snap.gaDum,
+        ga_us: snap.gaUs,
+        updated_at: new Date().toISOString()
+      };
+      if(dbId) payload.id = dbId;
+      else if(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(key)) payload.id = key;
+      const controller = new AbortController();
+      recordSaveAbortControllers.set(key, controller);
+      const {data, error} = await supabaseClient.from(DATABASE_TABLE)
+        .upsert(payload, {onConflict:'id'})
+        .abortSignal(controller.signal)
+        .select('id, user_id, answers, ga_dum, ga_us, updated_at').single();
+      if(error) throw error;
+      const record = loadHistory().find(entry => String(entry.id) === key);
+      if(record){ record.database = true; record.databaseId = data.id; record.updatedAt = data.updated_at; saveRecordToLocal(record); }
+
+      // Reconcile against the latest persisted queue: enqueueOperation may have
+      // appended a newer snapshot while this remote request was in flight.
+      const latestQueue = readPendingQueue(key);
+      const completedItem = latestQueue.find(entry => entry.context && entry.context.opId === item.context.opId);
+      if(completedItem){
+        completedItem.state = 'done';
+        completedItem.remoteId = data.id;
+        completedItem.updatedAt = new Date().toISOString();
+        completedItem.error = null;
+        queue = latestQueue.filter(entry => entry.state !== 'superseded');
+        const done = queue.filter(entry => entry.state === 'done').slice(-5);
+        queue = [...queue.filter(entry => entry.state !== 'done'), ...done];
+        writePendingQueue(key, queue);
+      } else {
+        queue = latestQueue;
+      }
+      if(contextMatchesActive(item.context)){
+        currentDatabaseRecordId = data.id;
+        if(queue.some(entry => ['queued','running','failed'].includes(entry.state))) {
+          setSaveDatabaseMessage('Salvo no banco; há alterações mais recentes deste RN pendentes de sincronização.', true);
+        } else {
+          setSaveDatabaseMessage('Salvo no banco.');
+        }
+      }
+      renderHistory();
+      return {ok:true, id:data.id};
+    } catch(error) {
+      const latestQueue = readPendingQueue(key);
+      const failedItem = latestQueue.find(entry => entry.context && entry.context.opId === item.context.opId);
+      if(failedItem){
+        failedItem.state = 'failed';
+        failedItem.error = error && error.message ? error.message : String(error);
+        failedItem.updatedAt = new Date().toISOString();
+        queue = latestQueue;
+        writePendingQueue(key, queue);
+      } else {
+        queue = latestQueue;
+      }
+      if(contextMatchesActive(item.context)) {
+        const errorMessage = error && error.message ? error.message : String(error);
+        setSaveDatabaseMessage(errorMessage.includes('reconciliação')
+          ? errorMessage
+          : 'RN com alterações locais pendentes de sincronização.', true);
+      }
+      return {ok:false, error:error && error.message ? error.message : String(error)};
+    }
+  })().finally(() => {
+    recordSaveAbortControllers.delete(key);
+    recordSaveQueues.delete(key);
+    const remainingQueue = readPendingQueue(key);
+    if(!remainingQueue.some(entry => entry.state === 'failed') && remainingQueue.some(entry => entry.state === 'queued')) {
+      queueMicrotask(() => processQueueForRecord(key));
+    }
+  });
+  recordSaveQueues.set(key, processing);
+  return processing;
+}
+function withTimeout(promise, timeoutMs, onTimeout = null){
+  let timer;
+  return Promise.race([promise, new Promise(resolve => {
+    timer = setTimeout(() => { if(onTimeout) onTimeout(); resolve({ok:false, reason:'timeout'}); }, timeoutMs);
+  })]).finally(() => clearTimeout(timer));
+}
+function persistRecoverableSnapshot(recordId = currentRecordId){
+  if(!recordId || recordId !== currentRecordId) return null;
+  const context = createOpContext(recordId);
+  const snapshot = captureCurrentRecordSnapshot(recordId);
+  if(!snapshot) return null;
+  enqueueOperation(context, snapshot, 'switch-flush');
+  return {context, snapshot};
+}
+async function flushPendingForRecord(recordId, timeoutMs = 1500){
+  if(!recordId) return {ok:false, reason:'missing-record-id'};
+  return withTimeout(processQueueForRecord(recordId), timeoutMs, () => recordSaveAbortControllers.get(String(recordId))?.abort());
+}
+let switchPromise = Promise.resolve();
+function switchRecordSafely(activateNext){
+  const performSwitch = async () => {
+    const oldId = currentRecordId;
+    if(oldId){
+      clearTimeout(autoSaveTimer); clearTimeout(databaseAutoSaveTimer);
+      try { persistRecoverableSnapshot(oldId); }
+      catch(error){
+        setSaveDatabaseMessage('Não foi possível garantir a cópia local do RN atual. A troca foi cancelada para evitar perda de dados.', true);
+        alert('A troca de RN foi cancelada: não foi possível salvar uma cópia local recuperável. '+error.message);
+        return;
+      }
+      if(SAFE_CONTEXT_MODE){
+        const result = await flushPendingForRecord(oldId, 1500);
+        if(!result.ok){
+          const savedRecord = loadHistory().find(record => String(record.id) === String(oldId));
+          setSaveDatabaseMessage((savedRecord ? recordDisplayName(savedRecord) : 'RN '+String(oldId).slice(0,8))+' foi preservado localmente; sincronização pendente. A navegação continuará.', true);
+        }
+      } else {
+        setSaveDatabaseMessage('Modo de reversão: cópia local preservada; sincronização remota pausada.', true);
+      }
+    }
+    activateNext();
+  };
+  switchPromise = switchPromise.then(performSwitch, performSwitch);
+  return switchPromise;
+}
 function scheduleAutoSave(){
+  if(!Object.keys(answers).length) return;
+  if(!currentRecordId) ensureCurrentRecordId();
   clearTimeout(autoSaveTimer);
+  const context = createOpContext(currentRecordId);
+  const snapshot = captureCurrentRecordSnapshot(context.recordId);
   autoSaveTimer = setTimeout(() => {
-    if (!Object.keys(answers).length) return;
-    saveCurrentRecord();
-
-    if (supabaseClient && currentUser) {
-      clearTimeout(databaseAutoSaveTimer);
-      databaseAutoSaveTimer = setTimeout(() => {
-        saveCurrentRecordToDatabase();
-      }, 500);
+    if(!snapshot) return;
+    try {
+      enqueueOperation(context, snapshot, 'autosave');
+      if(SAFE_CONTEXT_MODE && supabaseClient && currentUser) {
+        clearTimeout(databaseAutoSaveTimer);
+        databaseAutoSaveTimer = setTimeout(() => { processQueueForRecord(context.recordId); }, 500);
+      }
+    } catch(error) {
+      setSaveDatabaseMessage('Falha ao persistir localmente; não troque de RN até liberar espaço/armazenamento. '+error.message, true);
     }
   }, 700);
 }
@@ -3100,60 +3675,108 @@ function setSaveDatabaseMessage(message, error = false){
   saveDatabaseMessage.style.color = error ? '#F3B3B3' : '#C9D6D2';
 }
 
-async function saveCurrentRecordToDatabase(){
+async function saveCurrentRecordToDatabase(context = null, snapshot = null){
   if(!supabaseClient || !currentUser){
-    setSaveDatabaseMessage('Faça login antes de salvar.', true);
-    return;
+    setSaveDatabaseMessage('Faça login antes de salvar; o snapshot permanece salvo localmente.', true);
+    return {ok:false, reason:'offline-or-unauthenticated'};
   }
-  setSaveDatabaseMessage('Salvando...');
-  const payload = {
-    user_id: currentUser.id,
-    answers: {...answers, __gaSource: gaSource || '', __alta: currentRecordAlta, __utiNeo: currentRecordUtiNeo},
-    ga_dum: gaDum,
-    ga_us: gaUs,
-    updated_at: new Date().toISOString()
-  };
-  if(currentDatabaseRecordId) payload.id = currentDatabaseRecordId;
-  const {data, error} = await supabaseClient
-    .from(DATABASE_TABLE)
-    .upsert(payload, {onConflict:'id'})
-    .select('id, user_id, answers, ga_dum, ga_us, updated_at')
-    .single();
-  if(error){
-    setSaveDatabaseMessage('Não foi possível salvar no banco: '+error.message, true);
-    return;
+  try {
+    const operationContext = context || createOpContext(currentRecordId);
+    const operationSnapshot = snapshot || captureCurrentRecordSnapshot(operationContext.recordId);
+    if(!operationSnapshot || operationContext.recordId !== operationSnapshot.recordId) throw new Error('RN de origem inválido para salvar.');
+    enqueueOperation(operationContext, operationSnapshot, 'manual-save');
+    setSaveDatabaseMessage('Salvando...');
+    return await processQueueForRecord(operationContext.recordId);
+  } catch(error) {
+    setSaveDatabaseMessage('Não foi possível preparar o salvamento: '+error.message, true);
+    return {ok:false, error:error.message};
   }
-  currentDatabaseRecordId = data.id;
-  currentRecordId = data.id;
-  await loadCurrentUserRecords();
-  setSaveDatabaseMessage('Salvo.');
 }
+function recoverPendingLocalSnapshots(){
+  const keys = [];
+  for(let i=0;i<localStorage.length;i++){
+    const key = localStorage.key(i);
+    if(key && key.startsWith(PENDING_QUEUE_PREFIX)) keys.push(key);
+  }
+  keys.forEach(key => {
+    const id = decodeURIComponent(key.slice(PENDING_QUEUE_PREFIX.length));
+    const queue = readPendingQueue(id);
+    const pending = queue.filter(item => ['queued','running','failed'].includes(item.state))
+      .sort((a,b) => String(a.createdAt).localeCompare(String(b.createdAt))).pop();
+    if(!pending || !pending.snapshot) return;
+    const existing = loadHistory().find(record => String(record.id) === id);
+    if(!existing || String(existing.updatedAt || '') <= String(pending.snapshot.capturedAt || pending.createdAt || '')){
+      try { persistSnapshotLocally(pending.context, pending.snapshot); }
+      catch(error){ setSaveDatabaseMessage('Uma pendência está preservada na fila, mas não pôde ser restaurada no histórico local: '+error.message, true); }
+    }
+  });
+  updatePendingStatus();
+}
+function retryPendingSaves(){
+  const ids = [];
+  for(let i=0;i<localStorage.length;i++){
+    const key = localStorage.key(i);
+    if(!key || !key.startsWith(PENDING_QUEUE_PREFIX)) continue;
+    const id = decodeURIComponent(key.slice(PENDING_QUEUE_PREFIX.length));
+    const queue = readPendingQueue(id);
+    let changed = false;
+    queue.forEach(item => { if(item.state === 'running'){ item.state = 'failed'; item.error = 'A página foi recarregada durante a operação; pendência recuperada.'; changed = true; } });
+    if(changed) writePendingQueue(id, queue);
+    if(queue.some(item => item.state === 'queued' || item.state === 'failed')) ids.push(id);
+  }
+  if(!supabaseClient || !currentUser){ updatePendingStatus(); return Promise.resolve([]); }
+  return Promise.all(ids.map(id => processQueueForRecord(id)));
+}
+
+function saveCurrentRecord(recordId = currentRecordId, suppliedSnapshot = null, suppliedContext = null){
+  if(!recordId || recordId !== currentRecordId) return null;
+  ensureCurrentRecordId();
+  const context = suppliedContext || createOpContext(recordId);
+  const snapshot = suppliedSnapshot || captureCurrentRecordSnapshot(recordId);
+  if(!snapshot) return null;
+  enqueueOperation(context, snapshot, 'local-save');
+  return snapshot;
+}
+
 
 async function loadCurrentUserRecords(){
   if(!supabaseClient || !currentUser) return;
+  const requestedUserId = currentUser.id;
   const {data, error} = await supabaseClient
     .from(DATABASE_TABLE)
     .select('id, user_id, answers, ga_dum, ga_us, updated_at')
-    .eq('user_id', currentUser.id)
+    .eq('user_id', requestedUserId)
     .order('updated_at', {ascending:false});
+  if(currentUser?.id !== requestedUserId) return;
   if(error){
     setSaveDatabaseMessage('Banco ainda não configurado: '+error.message, true);
     return;
   }
   const records = (data || []).map(row => ({
     id: row.id,
+    databaseId: row.id,
     updatedAt: row.updated_at,
     answers: row.answers || {},
     gaDum: row.ga_dum || null,
     gaUs: row.ga_us || null,
+    gaInputs: row.answers && row.answers.__gaInputs ? row.answers.__gaInputs : {},
     gaSource: row.answers && row.answers.__gaSource ? row.answers.__gaSource : null,
     alta: row.answers && row.answers.__alta === true,
     utiNeo: row.answers && row.answers.__utiNeo === true,
     database: true
   }));
-  // Espelha cada registro individualmente; não há mais uma lista local para substituir.
-  records.forEach(saveRecordToLocal);
+  records.forEach(record => {
+    const matchingLocal = loadHistory().find(local => local.database &&
+      String(local.databaseId || local.id) === String(record.databaseId));
+    const localId = matchingLocal ? matchingLocal.id : record.id;
+    const localRecord = {...record, id:localId, databaseId:record.databaseId};
+    if(String(localId) === String(currentRecordId)) return;
+    const hasPending = readPendingQueue(localId).some(item => ['queued','running','failed'].includes(item.state));
+    if(!hasPending) saveRecordToLocal(localRecord);
+  });
   renderHistory();
+  updatePendingStatus();
+  if(SAFE_CONTEXT_MODE) retryPendingSaves();
 }
 
 function toggleHistory(){
@@ -3228,6 +3851,17 @@ function recordDisplayName(record){
 function recordEvaluatorName(record){
   return (record.answers && record.answers[EVALUATOR_NAME_KEY] || 'Aluno não informado').trim();
 }
+function snapshotFromStoredRecord(record){
+  return Object.freeze({
+    recordId:String(record.id), answers:cloneData(record.answers || {}),
+    gaDum:record.gaDum || null, gaUs:record.gaUs || null,
+    gaInputs:record.gaInputs || (record.answers && record.answers.__gaInputs) || {},
+    gaSource:record.gaSource || (record.answers && record.answers.__gaSource) || null,
+    alta:record.alta === true, utiNeo:record.utiNeo === true,
+    databaseId:record.databaseId || (record.database ? record.id : null),
+    capturedAt:new Date().toISOString()
+  });
+}
 function formatRecordDate(value){
   return new Date(value).toLocaleString('pt-BR', {dateStyle:'short', timeStyle:'short'});
 }
@@ -3255,6 +3889,118 @@ function recordIsAlta(record){
   const birthDateTime = recordBirthDateTime(record);
   return birthDateTime && (Date.now() - birthDateTime.getTime()) > 48 * 60 * 60 * 1000;
 }
+function updateBulkSelectionUI(){
+  const tools = document.getElementById('historyBulkTools');
+  const count = document.getElementById('historySelectionCount');
+  const selectAll = document.getElementById('selectAllHistory');
+  const boxes = [...document.querySelectorAll('.history-record-checkbox')];
+  const records = loadHistory();
+  for(const id of [...selectedHistoryIds]){
+    if(!records.some(record => String(record.id) === id)) selectedHistoryIds.delete(id);
+  }
+  boxes.forEach(box => { box.checked = selectedHistoryIds.has(box.dataset.recordId); });
+  const selectedCount = selectedHistoryIds.size;
+  if(tools) tools.hidden = selectedCount === 0;
+  if(count) count.textContent = selectedCount + (selectedCount === 1 ? ' selecionado' : ' selecionados');
+  if(selectAll){
+    selectAll.checked = records.length > 0 && selectedCount === records.length;
+    selectAll.indeterminate = selectedCount > 0 && selectedCount < records.length;
+  }
+}
+function bulkHistoryError(error){
+  const message = document.getElementById('historyBulkMessage');
+  if(message) message.textContent = 'Não foi possível concluir a ação: ' + (error && error.message ? error.message : String(error));
+}
+async function applyBulkHistoryAction(action){
+  if(!['uti','alta','delete'].includes(action)) throw new Error('Ação em lote desconhecida.');
+  const ids = [...selectedHistoryIds];
+  const message = document.getElementById('historyBulkMessage');
+  const progressWrap = document.getElementById('historyBulkProgress');
+  const progressBar = document.getElementById('historyBulkProgressBar');
+  const cancelButton = document.getElementById('btnCancelBulkHistory');
+  const buttons = [...document.querySelectorAll('[data-bulk-action]')];
+  if(activeBulkHistoryRun){ if(message) message.textContent = 'Uma ação em lote já está em andamento.'; return; }
+  if(!ids.length){ if(message) message.textContent = 'Selecione pelo menos um RN.'; return; }
+  const recordsById = new Map(loadHistory().map(record => [String(record.id), record]));
+  const records = ids.map(id => recordsById.get(String(id))).filter(Boolean);
+  if(action === 'delete'){
+    if(!confirm('Excluir permanentemente '+records.length+' RN(s) selecionado(s) do histórico local e, quando sincronizados, também do banco? Esta ação não pode ser desfeita.')) return;
+    const protectedRecord = records.find(record => String(record.id) === String(currentRecordId) ||
+      readPendingQueue(record.id).some(item => ['queued','running','failed'].includes(item.state)));
+    if(protectedRecord){
+      if(message) message.textContent = 'Ação cancelada: não é possível excluir o RN aberto ou com sincronização pendente.';
+      return;
+    }
+  }
+  buttons.forEach(button => { button.disabled = true; });
+  const run = {cancelled:false};
+  activeBulkHistoryRun = run;
+  if(progressWrap) progressWrap.hidden = false;
+  if(progressBar) progressBar.value = 0;
+  if(cancelButton) cancelButton.disabled = false;
+  if(message) message.textContent = 'Processando 0 de '+records.length+' RN(s)…';
+  let completed = 0;
+  let pendingSync = 0;
+  let processed = 0;
+  const failures = [];
+  try {
+    for(const record of records){
+      if(run.cancelled) break;
+      // Yield between records so a large history does not monopolize the preview thread.
+      await new Promise(resolve => setTimeout(resolve, 0));
+      if(run.cancelled) break;
+      try {
+        if(action === 'delete'){
+          if(record.database && (!supabaseClient || !currentUser)) throw new Error('Faça login para excluir este registro do banco.');
+          if(record.database){
+            const {error} = await supabaseClient.from(DATABASE_TABLE).delete().eq('id', record.databaseId || record.id).eq('user_id', currentUser.id);
+            if(error) throw error;
+          }
+          deleteRecordFromLocal(record.id);
+        } else {
+          record.alta = action === 'alta';
+          record.utiNeo = action === 'uti';
+          record.updatedAt = new Date().toISOString();
+          record.answers = {...(record.answers || {}), __alta:record.alta, __utiNeo:record.utiNeo};
+          saveRecordToLocal(record);
+          if(String(record.id) === String(currentRecordId)){
+            currentRecordAlta = record.alta;
+            currentRecordUtiNeo = record.utiNeo;
+          }
+          if(record.database && supabaseClient && currentUser){
+            const context = createOpContext(record.id);
+            enqueueOperation(context, snapshotFromStoredRecord(record), 'history-bulk-status');
+            const result = await processQueueForRecord(record.id);
+            if(!result.ok) pendingSync++;
+          }
+        }
+        selectedHistoryIds.delete(String(record.id));
+        completed++;
+      } catch(error){
+        failures.push(recordDisplayName(record)+': '+(error.message || String(error)));
+      }
+      processed++;
+      if(progressBar) progressBar.value = Math.round(processed / records.length * 100);
+      if(message) message.textContent = 'Processando '+processed+' de '+records.length+' RN(s)…';
+    }
+    renderHistory();
+    if(message){
+      const cancelledText = run.cancelled ? ' Cancelado; os registros restantes não foram processados.' : '';
+      const outcome = failures.length
+        ? completed+' concluído(s); '+failures.length+' falha(s): '+failures.join(' | ')
+        : completed+' RN(s): ação concluída.'+(pendingSync ? ' '+pendingSync+' aguardando sincronização com o banco.' : '');
+      message.textContent = outcome + cancelledText;
+    }
+  } catch(error){
+    bulkHistoryError(error);
+  } finally {
+    activeBulkHistoryRun = null;
+    if(progressWrap) progressWrap.hidden = true;
+    if(cancelButton) cancelButton.disabled = false;
+    buttons.forEach(button => { button.disabled = false; });
+    updateBulkSelectionUI();
+  }
+}
 function formatBirthDate(value){
   if(!value) return 'Data de nascimento não informada';
   const [year, month, day] = value.split('-').map(Number);
@@ -3273,6 +4019,18 @@ function renderHistory(){
     if (!birthDateTimeB) return -1;
     return birthDateTimeB.getTime() - birthDateTimeA.getTime();
   });
+  const entryRecordChoice = document.getElementById('entryRecordChoice');
+  if(entryRecordChoice){
+    const selectedChoice = entryRecordChoice.value;
+    entryRecordChoice.replaceChildren(new Option('Selecione um RN salvo', ''));
+    records.forEach(record => {
+      const birthLabel = formatBirthDate(recordBirthDate(record));
+      entryRecordChoice.add(new Option(recordDisplayName(record)+' · '+birthLabel, String(record.id)));
+    });
+    entryRecordChoice.value = records.some(record => String(record.id) === selectedChoice) ? selectedChoice : '';
+    const enterButton = document.getElementById('btnEnterRecord');
+    if(enterButton) enterButton.disabled = !entryRecordChoice.value;
+  }
   const historyCount = document.getElementById('historyCount');
   if (historyCount) {
     const activeRecords = records.filter(record => {
@@ -3345,6 +4103,19 @@ function renderHistory(){
       const nameLine = document.createElement('div'); nameLine.className = 'history-name-line';
       const name = document.createElement('strong'); name.textContent = recordDisplayName(record);
       nameLine.appendChild(name);
+      const selectLabel = document.createElement('label'); selectLabel.className = 'history-select';
+      const selectBox = document.createElement('input'); selectBox.type = 'checkbox'; selectBox.className = 'history-record-checkbox';
+      selectBox.dataset.recordId = String(record.id);
+      selectBox.checked = selectedHistoryIds.has(String(record.id));
+      selectBox.setAttribute('aria-label', 'Selecionar '+recordDisplayName(record));
+      selectBox.addEventListener('change', () => {
+        if(selectBox.checked) selectedHistoryIds.add(String(record.id));
+        else selectedHistoryIds.delete(String(record.id));
+        updateBulkSelectionUI();
+      });
+      selectLabel.appendChild(selectBox);
+      selectLabel.appendChild(document.createTextNode('Selecionar'));
+      nameLine.appendChild(selectLabel);
       const isAlta = record.alta === true || (record.answers && record.answers.__alta === true);
       const birthDateTime = recordBirthDateTime(record);
       if(!isAlta && birthDateTime){
@@ -3377,12 +4148,9 @@ function renderHistory(){
           currentRecordUtiNeo = updatedRecord.utiNeo === true;
         }
         if (updatedRecord.database && supabaseClient && currentUser) {
-          const { error } = await supabaseClient
-            .from(DATABASE_TABLE)
-            .update({ answers: {...updatedRecord.answers, __alta: updatedRecord.alta}, updated_at: updatedRecord.updatedAt })
-            .eq('id', updatedRecord.id)
-            .eq('user_id', currentUser.id);
-          if (error) setSaveDatabaseMessage('Não foi possível atualizar a alta: ' + error.message, true);
+          const context = createOpContext(updatedRecord.id);
+          enqueueOperation(context, snapshotFromStoredRecord(updatedRecord), 'history-status');
+          await processQueueForRecord(updatedRecord.id);
         }
         renderHistory();
       });
@@ -3401,17 +4169,17 @@ function renderHistory(){
         saveRecordToLocal(updatedRecord);
         if (updatedRecord.id === currentRecordId) currentRecordUtiNeo = updatedRecord.utiNeo;
         if (updatedRecord.database && supabaseClient && currentUser) {
-          const { error } = await supabaseClient
-            .from(DATABASE_TABLE)
-            .update({ answers: updatedRecord.answers, updated_at: updatedRecord.updatedAt })
-            .eq('id', updatedRecord.id)
-            .eq('user_id', currentUser.id);
-          if (error) setSaveDatabaseMessage('Não foi possível atualizar a UTI Neo: ' + error.message, true);
+          const context = createOpContext(updatedRecord.id);
+          enqueueOperation(context, snapshotFromStoredRecord(updatedRecord), 'history-status');
+          await processQueueForRecord(updatedRecord.id);
         }
         renderHistory();
       });
       const remove = document.createElement('button'); remove.className='btn-secondary'; remove.type='button'; remove.textContent='Excluir';
       remove.addEventListener('click', async () => {
+        const pending = readPendingQueue(record.id).some(entry => ['queued','running','failed'].includes(entry.state));
+        if(pending){ alert('Este RN possui alterações locais pendentes. Sincronize ou recupere a pendência antes de excluir.'); return; }
+        if(String(currentRecordId) === String(record.id)){ alert('Não é possível excluir o RN que está aberto. Abra outro RN primeiro.'); return; }
         if(!confirm('Excluir este registro do histórico?')) return;
         deleteRecordFromLocal(record.id);
         if(currentRecordId === record.id) currentRecordId = null;
@@ -3426,27 +4194,22 @@ function renderHistory(){
     list.appendChild(group);
   });
   updateHistoryAgeBadges();
+  updateBulkSelectionUI();
 }
-function saveCurrentRecord(){
-  const now = new Date().toISOString();
-  const record = {
-    id: currentRecordId || (Date.now()+'-'+Math.random().toString(36).slice(2)),
-    updatedAt: now,
-    answers: {...answers, __alta: currentRecordAlta, __utiNeo: currentRecordUtiNeo},
-    gaDum,
-    gaUs,
-    gaSource,
-    alta: currentRecordAlta,
-    utiNeo: currentRecordUtiNeo,
-    database: Boolean(currentDatabaseRecordId)
-  };
-  saveRecordToLocal(record);
-  currentRecordId = record.id;
-  renderHistory();
-}
-function loadRecord(id){
-  const record = loadHistory().find(r => r.id === id);
+async function loadRecord(id){
+  const record = loadHistory().find(r => String(r.id) === String(id));
   if(!record) return;
+  const activate = () => {
+  builderHost.classList.remove('history-mode');
+  builderHost.classList.remove('entry-locked');
+  builderHost.classList.add('evaluator-required');
+  document.body.classList.add('workflow-locked');
+  document.getElementById('entryGate').hidden = true;
+  document.getElementById('historyContent').hidden = true;
+  document.getElementById('btnHistoryNav').classList.remove('active');
+  document.getElementById('btnHistoryNav').setAttribute('aria-pressed', 'false');
+  clearTimeout(autoSaveTimer); clearTimeout(databaseAutoSaveTimer);
+  activeSessionToken = createStableId(); recordRevision = 0;
   Object.keys(answers).forEach(key => delete answers[key]);
   Object.assign(answers, record.answers || {});
   // O aluno deve se identificar novamente a cada reedição.
@@ -3455,12 +4218,20 @@ function loadRecord(id){
   currentRecordAlta = record.alta === true || Boolean(String(answers[DISCHARGE_INSTRUCTIONS_KEY] || '').trim());
   currentRecordUtiNeo = record.utiNeo === true || (record.answers && record.answers.__utiNeo === true);
   if (currentRecordAlta) currentRecordUtiNeo = false;
-  currentRecordId = record.id;
-  currentDatabaseRecordId = record.database ? record.id : null;
+  currentRecordId = String(record.id);
+  currentDatabaseRecordId = record.database ? (record.databaseId || record.id) : null;
   if(calcBirthDateInput) calcBirthDateInput.value = answers[BIRTH_DATE_KEY] || '';
   if(evaluatorNameInput) evaluatorNameInput.value = answers[EVALUATOR_NAME_KEY] || '';
-  if(dumDateInput) recomputeGaDum();
-  if(usDateInput) recomputeGaUs();
+  const gaInputs = record.gaInputs || (record.answers && record.answers.__gaInputs) || {};
+  if(dumDateInput) dumDateInput.value = gaInputs.dumDate || '';
+  if(usDateInput) usDateInput.value = gaInputs.usDate || '';
+  if(usWeeksSel) usWeeksSel.value = gaInputs.usWeeks || '';
+  if(usDaysSel) usDaysSel.value = gaInputs.usDays || '';
+  if(gaInputs.dumDate && dumDateInput) recomputeGaDum();
+  else if(dumResultEl) dumResultEl.textContent = gaDum ? 'IG registrada: '+gaDum.weeks+' semanas e '+gaDum.days+' dia(s)' : 'Preencha a DUM e a data de nascimento para calcular.';
+  if(gaInputs.usDate && usDateInput) recomputeGaUs();
+  else if(usResultEl) usResultEl.textContent = gaUs ? 'IG registrada: '+gaUs.weeks+' semanas e '+gaUs.days+' dia(s)' : 'Preencha os dados do ultrassom e a data de nascimento para calcular.';
+  if(gaRegistrationEl) updateGaRegistration();
   currentPart = 0; document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.part === '0'));
   returnToEdit();
   renderBuilder();
@@ -3475,17 +4246,37 @@ function loadRecord(id){
     const formStart = document.querySelector('.tabs') || document.getElementById('sectionsHost');
     formStart?.scrollIntoView({behavior:'smooth', block:'start'});
   });
+  };
+  await switchRecordSafely(activate);
 }
 function startNewRecord(){
-  Object.keys(answers).forEach(key => delete answers[key]);
-  gaDum = null; gaUs = null; gaSource = null; currentRecordAlta = false; currentRecordUtiNeo = false; currentRecordId = null; currentDatabaseRecordId = null;
-  if(calcBirthDateInput) calcBirthDateInput.value = '';
-  if(evaluatorNameInput) evaluatorNameInput.value = '';
-  if(dumDateInput) dumDateInput.value = '';
-  if(usDateInput) usDateInput.value = '';
-  if(usWeeksSel) usWeeksSel.value = '';
-  if(usDaysSel) usDaysSel.value = '';
-  renderBuilder();
+  const activate = () => {
+    builderHost.classList.remove('history-mode');
+    builderHost.classList.remove('entry-locked');
+    builderHost.classList.add('evaluator-required');
+    document.body.classList.add('workflow-locked');
+    document.getElementById('entryGate').hidden = true;
+    document.getElementById('historyContent').hidden = true;
+    document.getElementById('btnHistoryNav').classList.remove('active');
+    document.getElementById('btnHistoryNav').setAttribute('aria-pressed', 'false');
+    currentPart = 0;
+    document.querySelectorAll('.tab-btn[data-part]').forEach(tab => tab.classList.toggle('active', tab.dataset.part === '0'));
+    clearTimeout(autoSaveTimer); clearTimeout(databaseAutoSaveTimer);
+    Object.keys(answers).forEach(key => delete answers[key]);
+    gaDum = null; gaUs = null; gaSource = null; currentRecordAlta = false; currentRecordUtiNeo = false;
+    currentDatabaseRecordId = null; currentRecordId = createStableId(); activeSessionToken = createStableId(); recordRevision = 0;
+    if(calcBirthDateInput) calcBirthDateInput.value = '';
+    if(evaluatorNameInput) evaluatorNameInput.value = '';
+    if(dumDateInput) dumDateInput.value = '';
+    if(usDateInput) usDateInput.value = '';
+    if(usWeeksSel) usWeeksSel.value = '';
+    if(usDaysSel) usDaysSel.value = '';
+    if(dumResultEl) dumResultEl.textContent='Preencha a DUM e a data de nascimento para calcular.';
+    if(usResultEl) usResultEl.textContent='Preencha os dados do ultrassom e a data de nascimento para calcular.';
+    updateGaRegistration();
+    renderBuilder();
+  };
+  return switchRecordSafely(activate);
 }
 let currentPart = 0;
 function findFieldKeyInPart(partIdx, sectionTitle, fieldLabel){
@@ -3534,9 +4325,9 @@ function isToxoplasmosisField(field, sectionTitle){
     (field.l === 'Toxoplasmose - IgG' || field.l === 'Toxoplasmose - IgM');
 }
 
-function fieldVisible(field){
+function fieldVisible(field, answerSource = answers){
 if(!field.sex) return true;
-const sexo = answers[SEX_KEY];
+const sexo = answerSource[SEX_KEY];
 if(!sexo || sexo === 'Ambíguo') return true;
 return (field.sex==='M' && sexo==='Masculino') || (field.sex==='F' && sexo==='Feminino');
 }
@@ -3731,28 +4522,32 @@ function updateGaRegistration(){
   registeredUsGaInput.value = gaUs ? `${gaUs.weeks} semanas e ${gaUs.days} dia(s)` : '';
 }
 
-function recomputeGaDum(){
+function recomputeGaDum(context = createOpContext(currentRecordId)){
+if(!contextMatchesActive(context)) return;
 const dum = dumDateInput.value; const birth = answers[BIRTH_DATE_KEY];
-if(!dum || !birth){ dumResultEl.textContent='Preencha a DUM e a data de nascimento para calcular.'; gaDum=null; updateGaRegistration(); return; }
+if(!dum || !birth){ dumResultEl.textContent='Preencha a DUM e a data de nascimento para calcular.'; gaDum=null; clearSelectedGaSource('dum', context); recordRevision++; scheduleAutoSave(); updateGaRegistration(); return; }
 const diff = daysBetween(dum, birth);
-if(diff===null || diff<0){ dumResultEl.textContent='Datas inválidas — confira a DUM e a data de nascimento.'; gaDum=null; updateGaRegistration(); return; }
+if(diff===null || diff<0){ dumResultEl.textContent='Datas inválidas — confira a DUM e a data de nascimento.'; gaDum=null; clearSelectedGaSource('dum', context); recordRevision++; scheduleAutoSave(); updateGaRegistration(); return; }
 const weeks=Math.floor(diff/7), days=diff%7;
 gaDum={weeks,days};
-if(gaSource === 'dum') syncSelectedGaToField();
+if(gaSource === 'dum') syncSelectedGaToField(context);
+recordRevision++;
 scheduleAutoSave();
 dumResultEl.textContent = 'Idade gestacional na data do parto: '+weeks+' semanas e '+days+' dia(s)';
 updateGaRegistration();
 if(currentPart===1) renderBuilder();
 }
-function recomputeGaUs(){
+function recomputeGaUs(context = createOpContext(currentRecordId)){
+if(!contextMatchesActive(context)) return;
 const us = usDateInput.value; const w = usWeeksSel.value; const d = usDaysSel.value; const birth = answers[BIRTH_DATE_KEY];
-if(!us || w==='' || d==='' || !birth){ usResultEl.textContent='Preencha os dados do ultrassom e a data de nascimento para calcular.'; gaUs=null; updateGaRegistration(); return; }
+if(!us || w==='' || d==='' || !birth){ usResultEl.textContent='Preencha os dados do ultrassom e a data de nascimento para calcular.'; gaUs=null; clearSelectedGaSource('us', context); recordRevision++; scheduleAutoSave(); updateGaRegistration(); return; }
 const elapsed = daysBetween(us, birth);
-if(elapsed===null || elapsed<0){ usResultEl.textContent='Datas inválidas — confira as datas.'; gaUs=null; updateGaRegistration(); return; }
+if(elapsed===null || elapsed<0){ usResultEl.textContent='Datas inválidas — confira as datas.'; gaUs=null; clearSelectedGaSource('us', context); recordRevision++; scheduleAutoSave(); updateGaRegistration(); return; }
 const totalDays = Number(w)*7+Number(d)+elapsed;
 const weeks=Math.floor(totalDays/7), days=totalDays%7;
 gaUs={weeks,days};
-if(gaSource === 'us') syncSelectedGaToField();
+if(gaSource === 'us') syncSelectedGaToField(context);
+recordRevision++;
 scheduleAutoSave();
 usResultEl.textContent = 'Idade gestacional na data do parto: '+weeks+' semanas e '+days+' dia(s)';
 updateGaRegistration();
@@ -3794,8 +4589,11 @@ input.type = fieldDef.t==='number'?'number':(fieldDef.t==='date'?'date':(fieldDe
 }
 input.value = answers[key] || '';
 input.dataset.answerKey = key;
+const inputContext = createOpContext(currentRecordId);
 const sync = () => {
+  if(!contextMatchesActive(inputContext)) return;
   answers[key] = input.value;
+  recordRevision++;
   if (key === DISCHARGE_INSTRUCTIONS_KEY) {
     currentRecordAlta = input.value.trim() !== '';
     if (currentRecordAlta) currentRecordUtiNeo = false;
@@ -3810,6 +4608,8 @@ return input;
 let gaCalcEl;
 const gaRegistrationEl = document.getElementById('gaRegistration');
 function renderBuilder(){
+const continueAfterEvaluator = document.getElementById('btnContinueAfterEvaluator');
+if(continueAfterEvaluator) continueAfterEvaluator.disabled = !document.getElementById('evaluatorName')?.value.trim();
 const host = document.getElementById('sectionsHost');
 if(gaCalcEl && gaCalcEl.parentNode) gaCalcEl.parentNode.removeChild(gaCalcEl);
 if(gaRegistrationEl && gaRegistrationEl.parentNode) gaRegistrationEl.parentNode.removeChild(gaRegistrationEl);
@@ -3821,8 +4621,10 @@ const head = document.createElement('div'); head.className='card-head';
 const h2 = document.createElement('h2'); h2.textContent = sec.title; head.appendChild(h2);
 if(sec.quickNormal || sec.fields.some(f => f.normal || (f.follow && f.l.includes('HIV')))){
 const btn = document.createElement('button'); btn.className='btn-mini'; btn.textContent='Marcar tudo normal'; btn.type='button';
+const sectionContext = createOpContext(currentRecordId);
 btn.addEventListener('click', (event) => {
   event.preventDefault();
+  if(!contextMatchesActive(sectionContext)) return;
   const scrollY = window.scrollY;
   sec.fields.forEach((f,fIdx) => {
     const key = currentPart+'_'+sIdx+'_'+fIdx;
@@ -3832,8 +4634,9 @@ btn.addEventListener('click', (event) => {
       f.items.forEach((item, iIdx) => {
         if(item.normal) answers[key+'_'+iIdx] = item.normal;
       });
-    }
+          }
   });
+  recordRevision++; scheduleAutoSave();
   renderBuilder();
   window.scrollTo({top:scrollY, left:window.scrollX, behavior:'auto'});
 });
@@ -3843,6 +4646,7 @@ card.appendChild(head);
 if(sec.note){ const note = document.createElement('div'); note.className='note-box'; note.textContent=sec.note; card.appendChild(note); }
 sec.fields.forEach((field, fIdx) => {
 if(!fieldVisible(field)) return;
+const fieldContext = createOpContext(currentRecordId);
 const baseKey = currentPart+'_'+sIdx+'_'+fIdx;
 const row = document.createElement('div');
 const isFirstEvaluation = field.l === '1ª avaliação no alojamento conjunto' || sec.controlOnly;
@@ -3862,6 +4666,7 @@ if(item.auto === 'hoursFromBirth'){
   calcButton.type = 'button';
   calcButton.textContent = 'Calcular horas de vida';
   calcButton.addEventListener('click', () => {
+    if(!contextMatchesActive(fieldContext)) return;
     const birthDate = answers[BIRTH_DATE_KEY];
     const birthTime = answers[BIRTH_TIME_KEY];
     if(!birthDate){
@@ -3869,10 +4674,16 @@ if(item.auto === 'hoursFromBirth'){
       return;
     }
     const birthDateTime = new Date(birthDate + 'T' + (birthTime || '00:00') + ':00');
+    if(Number.isNaN(birthDateTime.getTime())){
+      alert('Data ou horário de nascimento inválido; confira os dados do RN.');
+      return;
+    }
     const hours = Math.max(0, Math.round((new Date() - birthDateTime) / 3600000));
     subInput.value = hours;
     answers[baseKey+'_'+iIdx] = String(hours);
+    recordRevision++;
     updateProblemsList();
+    scheduleAutoSave();
   });
   subWrap.appendChild(calcButton);
 }
@@ -3882,6 +4693,7 @@ if(item.auto === 'weightLossFirstEvaluation'){
   calcButton.type = 'button';
   calcButton.textContent = 'Calcular perda (%)';
   calcButton.addEventListener('click', () => {
+    if(!contextMatchesActive(fieldContext)) return;
     const birthWeight = Number(answers[BIRTH_WEIGHT_KEY]);
     const evaluationWeight = Number(answers[baseKey+'_1']);
     if(!birthWeight || !evaluationWeight){
@@ -3891,6 +4703,7 @@ if(item.auto === 'weightLossFirstEvaluation'){
     const lossPct = ((birthWeight - evaluationWeight) / birthWeight * 100).toFixed(1);
     subInput.value = lossPct;
     answers[baseKey+'_'+iIdx] = lossPct;
+    recordRevision++;
     updateProblemsList();
   });
   subWrap.appendChild(calcButton);
@@ -3926,8 +4739,10 @@ if(field.l === 'Comorbidades') {
   normalButton.type = 'button';
   normalButton.textContent = 'Marcar como normal';
   normalButton.addEventListener('click', () => {
+    if(!contextMatchesActive(fieldContext)) return;
     input.value = 'Sem comorbidades';
     answers[baseKey] = input.value;
+    recordRevision++;
     updateProblemsList();
   });
   inputsWrap.appendChild(normalButton);
@@ -3935,12 +4750,18 @@ if(field.l === 'Comorbidades') {
 if(field.auto === 'hoursFromBirth'){
 const btn = document.createElement('button'); btn.className='btn-mini'; btn.type='button'; btn.textContent='Calcular agora';
 btn.addEventListener('click', () => {
+if(!contextMatchesActive(fieldContext)) return;
 const bd = answers[BIRTH_DATE_KEY], bt = answers[BIRTH_TIME_KEY];
 if(!bd){ alert('Preencha primeiro a Data de nascimento na aba "RN — 1ª hora de vida" (ou na calculadora de IG).'); return; }
 const birthDT = new Date(bd + 'T' + (bt || '00:00') + ':00');
+if(Number.isNaN(birthDT.getTime())){ alert('Data ou horário de nascimento inválido; confira os dados do RN.'); return; }
 const now = new Date();
 const hours = Math.max(0, Math.round((now - birthDT) / 3600000));
-input.value = hours; answers[baseKey] = String(hours);
+input.value = hours;
+answers[baseKey] = String(hours);
+recordRevision++;
+updateProblemsList();
+scheduleAutoSave();
 });
 inputsWrap.appendChild(btn);
 }
@@ -3950,6 +4771,7 @@ btn.className = 'btn-mini';
 btn.type = 'button';
 btn.textContent = 'Calcular perda (%)';
 btn.addEventListener('click', () => {
+  if(!contextMatchesActive(fieldContext)) return;
   const birthWeight = Number(answers[BIRTH_WEIGHT_KEY]);
   const evaluationWeightKey = findFieldKeyInPart(2, '1ª avaliação no alojamento conjunto', 'Peso da 1ª avaliação (g)');
   const evaluationWeight = Number(answers[evaluationWeightKey]);
@@ -3960,6 +4782,7 @@ btn.addEventListener('click', () => {
   const lossPct = ((birthWeight - evaluationWeight) / birthWeight * 100).toFixed(1);
   input.value = lossPct;
   answers[baseKey] = lossPct;
+  recordRevision++;
   updateProblemsList();
 });
 inputsWrap.appendChild(btn);
@@ -3967,10 +4790,12 @@ inputsWrap.appendChild(btn);
 if(field.auto === 'weightLoss'){
 const btn = document.createElement('button'); btn.className='btn-mini'; btn.type='button'; btn.textContent='Calcular automaticamente';
 btn.addEventListener('click', () => {
+if(!contextMatchesActive(fieldContext)) return;
 const bw = Number(answers[BIRTH_WEIGHT_KEY]); const cw = Number(answers[CURRENT_WEIGHT_KEY]);
 if(!bw || !cw){ alert('Preencha o Peso (g) ao nascer (aba RN) e o Peso atual (g) (nesta aba) primeiro.'); return; }
 const lossG = bw - cw; const lossPct = (lossG / bw * 100).toFixed(1);
 answers[WEIGHT_LOSS_G_KEY] = String(lossG); answers[WEIGHT_LOSS_PCT_KEY] = String(lossPct);
+recordRevision++; scheduleAutoSave();
 renderBuilder();
 });
 inputsWrap.appendChild(btn);
@@ -4003,10 +4828,12 @@ if(field.l === 'IG' && sec.title === 'Dados de nascimento e exame físico da 1ª
     sourceBtn.disabled = !({dum:gaDum,us:gaUs}[source]);
     sourceBtn.setAttribute('aria-pressed', String(gaSource === source));
     sourceBtn.addEventListener('click', () => {
+      if(!contextMatchesActive(fieldContext)) return;
       const selectedGa = {dum:gaDum,us:gaUs}[source];
       if(!selectedGa) return;
       gaSource = source;
-      syncSelectedGaToField();
+      syncSelectedGaToField(fieldContext);
+      recordRevision++;
       scheduleAutoSave();
       renderBuilder();
     });
@@ -4087,19 +4914,25 @@ if(!info){ wBox.style.display='none'; wBox.className='bilirubin-result'; return;
 wBox.style.display='block'; wBox.className='bilirubin-result '+info.cls; wBox.textContent = info.text;
 };
 const applyAuto = () => {
+if(!contextMatchesActive(fieldContext)) return;
 const info = computeInfo();
-if(!info || !info.suggestedClass || !pctgKey || answers[pctgKey] === info.suggestedClass) return;
-answers[pctgKey] = info.suggestedClass;
+if(!info || !info.suggestedClass || !pctgKey) return;
+let changed = false;
+if(answers[pctgKey] !== info.suggestedClass){ answers[pctgKey] = info.suggestedClass; changed = true; }
 if((info.suggestedClass==='PIG' || info.suggestedClass==='GIG') && hgtKey && !answers[hgtKey]){
-answers[hgtKey] = 'Sim';
+answers[hgtKey] = 'Sim'; changed = true;
 }
-renderBuilder();
+if(changed){ recordRevision++; scheduleAutoSave(); renderBuilder(); }
 };
 input.addEventListener('input', showInfo);
-input.addEventListener('change', () => { showInfo(); applyAuto(); });
+input.addEventListener('change', showInfo);
 showInfo();
-applyAuto();
+const applyClassButton = document.createElement('button');
+applyClassButton.className='btn-mini'; applyClassButton.type='button';
+applyClassButton.textContent='Aplicar classificação sugerida e indicação de HGT';
+applyClassButton.addEventListener('click', applyAuto);
 inputsWrap.appendChild(wBox);
+inputsWrap.appendChild(applyClassButton);
 }
 if(field.l === 'PC (cm)' && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
 const pcBox = document.createElement('div'); pcBox.className='bilirubin-result'; pcBox.style.display='none';
@@ -4213,76 +5046,80 @@ if(currentPart===0 && sIdx===0 && gaCalcEl){
   if(gaRegistrationEl) host.appendChild(gaRegistrationEl);
 }
 });
-const navigation = document.createElement('div');
-navigation.className = 'tab-navigation';
-navigation.innerHTML = '<p>Continue para a próxima etapa:</p>';
-DATA.forEach((partDef, idx) => {
-  const next = document.createElement('button');
-  next.className = idx === currentPart ? 'btn-primary' : 'btn-secondary';
-  next.type = 'button';
-  next.textContent = idx === 0 ? 'Dados da mãe' : idx === 1 ? '1ª hora de vida' : idx === 2 ? 'Controle — 1ª avaliação' : 'Alta hospitalar';
-  next.addEventListener('click', () => {
-    currentPart = idx;
-    document.querySelectorAll('.tab-btn').forEach(tab => tab.classList.toggle('active', Number(tab.dataset.part) === idx));
-    renderBuilder();
-    window.scrollTo({top:0, behavior:'smooth'});
-  });
-  navigation.appendChild(next);
-});
-host.appendChild(navigation);
 updateProblemsList();
 }
-document.querySelectorAll('.tab-btn').forEach(btn => {
+document.querySelectorAll('.tab-btn[data-part]').forEach(btn => {
 btn.addEventListener('click', () => {
-document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-btn.classList.add('active');
-currentPart = Number(btn.dataset.part);
-renderBuilder();
+  currentPart = Number(btn.dataset.part);
+  builderHost.classList.remove('history-mode');
+  document.getElementById('historyContent').hidden = true;
+  document.getElementById('btnToggleHistory').textContent = 'Abrir histórico';
+  document.getElementById('btnToggleHistory').setAttribute('aria-expanded', 'false');
+  const historyNav = document.getElementById('btnHistoryNav');
+  historyNav.classList.remove('active');
+  historyNav.setAttribute('aria-pressed', 'false');
+  document.querySelectorAll('.tab-btn[data-part]').forEach(tab => tab.classList.toggle('active', tab === btn));
+  renderBuilder();
+  updateDischargePrintButton();
 });
 });
-function fieldPrintValue(field, baseKey){
+
+document.getElementById('btnHistoryNav').addEventListener('click', () => {
+  const isOpening = !builderHost.classList.contains('history-mode');
+  builderHost.classList.toggle('history-mode', isOpening);
+  document.getElementById('historyContent').hidden = !isOpening;
+  document.getElementById('btnToggleHistory').textContent = isOpening ? 'Ocultar histórico' : 'Abrir histórico';
+  document.getElementById('btnToggleHistory').setAttribute('aria-expanded', String(isOpening));
+  document.getElementById('btnHistoryNav').classList.toggle('active', isOpening);
+  document.getElementById('btnHistoryNav').setAttribute('aria-pressed', String(isOpening));
+  updateDischargePrintButton();
+  if(isOpening) document.getElementById('historyCard').scrollIntoView({behavior:'smooth', block:'start'});
+});
+function fieldPrintValue(field, baseKey, snapshot = null){
+const sourceAnswers = snapshot ? snapshot.answers : answers;
 if(field.t === 'group'){
-const vals = field.items.map((it,iIdx) => answers[baseKey+'_'+iIdx] || '');
+const vals = field.items.map((it,iIdx) => sourceAnswers[baseKey+'_'+iIdx] || '');
 return field.fmt ? field.fmt(vals) : vals.filter(Boolean).join(' / ');
 }
-const main = answers[baseKey] || '';
+const main = sourceAnswers[baseKey] || '';
 if(field.follow && main && field.follow.when.includes(main)){
-const fv = answers[baseKey+'_follow'] || '';
+const fv = sourceAnswers[baseKey+'_follow'] || '';
 return fv ? main + ' — ' + fv : main;
 }
 return main;
 }
 const UNIPAMPA_LOGO_IMG = '<img src="data:image/png;base64,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" alt="UNIPAMPA" style="width:70px;height:auto;display:block;">';
-function printHeaderHTML(){
+function printHeaderHTML(snapshot = null){
+const sourceAnswers = snapshot ? snapshot.answers : answers;
 return '<div class="print-header">' +
 '<div class="ph-logo">'+UNIPAMPA_LOGO_IMG+'</div>' +
 '<div class="ph-text">' +
 '<p class="ph-title">Ficha de avaliação neonatal</p>' +
 '<p class="ph-sub">Alojamento Conjunto</p>' +
 '<p class="ph-hosp">Hospital Santa Casa de Uruguaiana — Serviço de Pediatria · UNIPAMPA, Curso de Medicina</p>' +
-'<p class="ph-hosp">Aluno: '+escapeHTML(answers[EVALUATOR_NAME_KEY] || 'Não informado')+'</p>' +
+'<p class="ph-hosp">Aluno: '+escapeHTML(sourceAnswers[EVALUATOR_NAME_KEY] || 'Não informado')+'</p>' +
 '</div>' +
 '<div class="ph-logo" style="width:44px;"></div>' +
 '</div>';
 }
-function tableRowsHTML(fields, pIdx, sIdx) {
+function tableRowsHTML(fields, pIdx, sIdx, snapshot = null) {
   let rows = '<tr class="grid-24">' + '<td></td>'.repeat(24) + '</tr>';
   fields.forEach((field, fIdx) => {
-    if (!fieldVisible(field)) return;
+    if (!fieldVisible(field, snapshot ? snapshot.answers : answers)) return;
     const baseKey = pIdx + '_' + sIdx + '_' + fIdx;
-    const value = fieldPrintValue(field, baseKey);
+    const value = fieldPrintValue(field, baseKey, snapshot);
     rows += '<tr><td colspan="6" class="lbl">' + field.l + '</td><td colspan="18" class="val">' + (value || '&nbsp;') + '</td></tr>';
   });
   return rows;
 }
 
-function tableRowsHTMLByIndices(fields, pIdx, sIdx, indices) {
+function tableRowsHTMLByIndices(fields, pIdx, sIdx, indices, snapshot = null) {
   let rows = '<tr class="grid-24">' + '<td></td>'.repeat(24) + '</tr>';
   indices.forEach(fIdx => {
     const field = fields[fIdx];
-    if (!field || !fieldVisible(field)) return;
+    if (!field || !fieldVisible(field, snapshot ? snapshot.answers : answers)) return;
     const baseKey = pIdx + '_' + sIdx + '_' + fIdx;
-    const value = fieldPrintValue(field, baseKey);
+    const value = fieldPrintValue(field, baseKey, snapshot);
     rows += '<tr><td colspan="6" class="lbl">' + field.l + '</td><td colspan="18" class="val">' + (value || '&nbsp;') + '</td></tr>';
   });
   return rows;
@@ -4293,15 +5130,18 @@ function escapeHTML(value){
   return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 }
 
-function buildPrintView() {
+function buildPrintView(snapshot) {
+  if(!snapshot || typeof snapshot !== 'object' || !snapshot.answers) {
+    throw new Error('A impressão exige um snapshot explícito do RN.');
+  }
   const host = document.getElementById('printView');
-  if (!host) return;
+  if (!host) throw new Error('A área de impressão não está disponível.');
   host.innerHTML = '';
 
   PRINT_GROUPS.forEach(group => {
     const sheet = document.createElement('section');
     sheet.className = 'sheet ' + (group.pageClass || '') + (group.parts[0] === 3 ? ' alta-sheet' : '') + ' no-split-sheet';
-    sheet.innerHTML = printHeaderHTML();
+    sheet.innerHTML = printHeaderHTML(snapshot);
 
     const groupTitle = document.createElement('div');
     groupTitle.className = 'p-band';
@@ -4319,10 +5159,10 @@ function buildPrintView() {
         section.className = 'p-section';
         let html = '<div class="p-band">' + escapeHTML(sec.title) + '</div>';
         if (sec.note) html += '<div class="p-note">' + escapeHTML(sec.note) + '</div>';
-        html += '<table class="p-table"><tbody>' + tableRowsHTML(sec.fields, pIdx, sIdx);
+        html += '<table class="p-table"><tbody>' + tableRowsHTML(sec.fields, pIdx, sIdx, snapshot);
         if (pIdx === 0 && sec.title === 'Dados da mãe') {
-          html += '<tr><td colspan="6" class="lbl">IG por DUM</td><td colspan="18" class="val">' + (gaDum ? gaDum.weeks + 's ' + gaDum.days + 'd' : '&nbsp;') + '</td></tr>';
-          html += '<tr><td colspan="6" class="lbl">IG por US</td><td colspan="18" class="val">' + (gaUs ? gaUs.weeks + 's ' + gaUs.days + 'd' : '&nbsp;') + '</td></tr>';
+          html += '<tr><td colspan="6" class="lbl">IG por DUM</td><td colspan="18" class="val">' + (snapshot.gaDum ? snapshot.gaDum.weeks + 's ' + snapshot.gaDum.days + 'd' : '&nbsp;') + '</td></tr>';
+          html += '<tr><td colspan="6" class="lbl">IG por US</td><td colspan="18" class="val">' + (snapshot.gaUs ? snapshot.gaUs.weeks + 's ' + snapshot.gaUs.days + 'd' : '&nbsp;') + '</td></tr>';
         }
         html += '</tbody></table>';
         section.innerHTML = html;
@@ -4332,7 +5172,8 @@ function buildPrintView() {
 
     host.appendChild(sheet);
   });
-  setPrintDocumentTitle();
+  const motherName = (snapshot.answers['0_0_0'] || '').trim();
+  document.title = 'RN de (' + (motherName || 'sem nome') + ')';
 }
 
 function setPrintDocumentTitle(){
@@ -4341,9 +5182,18 @@ function setPrintDocumentTitle(){
 }
 
 function showPrintPreview(){
-  buildPrintView();
+  let snapshot;
+  try {
+    snapshot = preparePrintSnapshot(currentRecordId);
+    buildPrintView(snapshot);
+  } catch(error) {
+    alert(error.message);
+    return;
+  }
   document.getElementById('builder').style.display = 'none';
+  document.querySelector('.tabs').classList.add('print-navigation-hidden');
   document.getElementById('printView').style.display = 'block';
+  updateDischargePrintButton();
   document.getElementById('printHintText').style.display = 'block';
   document.getElementById('btnGenerate').style.display = 'none';
   document.getElementById('btnPrint').style.display = 'inline-block';
@@ -4358,20 +5208,47 @@ const btnSavePdf = document.getElementById('btnSavePdf');
 const builderHost = document.getElementById('builder');
 const printView = document.getElementById('printView');
 const printHintText = document.getElementById('printHintText');
+const btnPrintDischargeQuick = document.getElementById('btnPrintDischargeQuick');
+function updateDischargePrintButton(){
+  if(!btnPrintDischargeQuick) return;
+  const onDischargeTab = currentPart === 3 && !document.body.classList.contains('workflow-locked') && !builderHost.classList.contains('history-mode') && printView.style.display !== 'block';
+  btnPrintDischargeQuick.classList.toggle('visible', onDischargeTab);
+}
+btnPrintDischargeQuick?.addEventListener('click', () => generatePrint());
 const headerSub = document.getElementById('headerSub');
 const loginView = document.getElementById('loginView');
 const loginForm = document.getElementById('loginForm');
 const loginMessage = document.getElementById('loginMessage');
 const btnSaveDatabase = document.getElementById('btnSaveDatabase');
+const btnRetryPending = document.getElementById('btnRetryPending');
 const saveDatabaseMessage = document.getElementById('saveDatabaseMessage');
 const evaluatorNameInput = document.getElementById('evaluatorName');
 
 function syncEvaluatorName(){
+  if(!currentRecordId) ensureCurrentRecordId();
   answers[EVALUATOR_NAME_KEY] = evaluatorNameInput.value.trim();
+  const continueButton = document.getElementById('btnContinueAfterEvaluator');
+  if(continueButton) continueButton.disabled = !answers[EVALUATOR_NAME_KEY];
+  recordRevision++;
   scheduleAutoSave();
 }
 
 evaluatorNameInput.addEventListener('input', syncEvaluatorName);
+document.getElementById('btnContinueAfterEvaluator').addEventListener('click', () => {
+  if(!evaluatorNameInput.value.trim()) return;
+  syncEvaluatorName();
+  builderHost.classList.remove('evaluator-required');
+  document.body.classList.remove('workflow-locked');
+  document.getElementById('entryGate').hidden = true;
+  currentPart = 0;
+  document.querySelectorAll('.tab-btn[data-part]').forEach(tab => tab.classList.toggle('active', tab.dataset.part === '0'));
+  renderBuilder();
+  requestAnimationFrame(() => {
+    const firstMotherField = document.querySelector('#sectionsHost .card .field-row input, #sectionsHost .card .field-row select');
+    firstMotherField?.focus({preventScroll:true});
+    document.getElementById('sectionsHost')?.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+});
 
 function setLoginMessage(message, error = false){
   loginMessage.textContent = message;
@@ -4424,108 +5301,104 @@ function setupAuth(){
 }
 function returnToEdit(){
   document.getElementById('builder').style.display = 'block';
+  document.querySelector('.tabs').classList.remove('print-navigation-hidden');
   document.getElementById('printView').style.display = 'none';
   document.getElementById('printHintText').style.display = 'none';
   document.getElementById('btnGenerate').style.display = 'inline-block';
   document.getElementById('btnPrint').style.display = 'none';
   document.getElementById('btnBackToEdit').style.display = 'none';
   document.getElementById('headerSub').textContent = '';
+  updateDischargePrintButton();
 }
 
 gaCalcEl = document.getElementById('gaCalc');
 // ==================== GERAÇÃO DO LAYOUT DE IMPRESSÃO ====================
 
-function generatePrint(groupIndexes = PRINT_GROUPS.map((_, index) => index)) {
-  saveCurrentRecord();
+function deepFreeze(value){
+  if(value && typeof value === 'object' && !Object.isFrozen(value)){
+    Object.freeze(value);
+    Object.values(value).forEach(deepFreeze);
+  }
+  return value;
+}
+function preparePrintSnapshot(recordId){
+  if(!recordId || String(recordId) !== String(currentRecordId)) throw new Error('O RN solicitado não está ativo.');
+  const captured = captureCurrentRecordSnapshot(String(recordId));
+  if(!captured) throw new Error('Não foi possível capturar o RN para impressão.');
+  return deepFreeze({...cloneData(captured), evaluatorName:String(captured.answers[EVALUATOR_NAME_KEY] || 'Não informado'), printCreatedAt:new Date().toISOString()});
+}
+function generatePrint(groupIndexes = PRINT_GROUPS.map((_, index) => index), recordId = currentRecordId) {
+  if(document.body.classList.contains('workflow-locked') || !String(answers[EVALUATOR_NAME_KEY] || '').trim()){
+    alert('Selecione um RN e informe o nome do aluno antes de gerar a ficha.');
+    return;
+  }
+  let snapshot;
+  try { snapshot = preparePrintSnapshot(recordId); }
+  catch(error){ alert(error.message); return; }
+  const printContext = createOpContext(snapshot.recordId);
+  saveCurrentRecord(snapshot.recordId, snapshot, printContext);
   let html = '';
-  
-  groupIndexes.map(index => PRINT_GROUPS[index]).forEach(group => {
-    html += `<div class="sheet ${group.pageClass || ''}${group.playful ? ' playful-sheet' : ''} ${group.parts[0] === 3 ? 'alta-sheet' : ''} no-split-sheet">`;
-    
-    // Cabeçalho da Impressão
-    html += `
-      <div class="print-header">
-        <div class="ph-logo">${UNIPAMPA_LOGO_IMG}</div>
-        <div class="ph-text">
-          <h2 class="ph-title">${group.label}</h2>
-          <p class="ph-sub">Hospital Santa Casa de Uruguaiana</p>
-          <p class="ph-hosp">Aluno: ${escapeHTML(answers[EVALUATOR_NAME_KEY] || 'Não informado')}</p>
-        </div>
-      </div>`;
-      
+  groupIndexes.map(index => PRINT_GROUPS[index]).filter(Boolean).forEach(group => {
+    html += `<div class="sheet ${escapeHTML(group.pageClass || '')}${group.playful ? ' playful-sheet' : ''} ${group.parts[0] === 3 ? 'alta-sheet' : ''} no-split-sheet">`;
+    html += `<div class="print-header"><div class="ph-logo">${UNIPAMPA_LOGO_IMG}</div><div class="ph-text"><h2 class="ph-title">${escapeHTML(group.label)}</h2><p class="ph-sub">Hospital Santa Casa de Uruguaiana</p><p class="ph-hosp">Aluno: ${escapeHTML(snapshot.evaluatorName)}</p></div></div>`;
     group.parts.forEach(partIdx => {
       const part = DATA[partIdx];
-      const sections = group.sectionRange
-        ? part.sections.slice(group.sectionRange[0], group.sectionRange[1])
-        : part.sections;
-      sections.forEach((sec) => {
+      const sections = group.sectionRange ? part.sections.slice(group.sectionRange[0], group.sectionRange[1]) : part.sections;
+      sections.forEach(sec => {
         const sIdx = part.sections.indexOf(sec);
-        html += `<div class="p-section">`;
-        html += `<div class="p-band">${sec.title}</div>`;
-        
-        // Na impressão, os controles e informações específicas da bilirrubina não são necessários.
-        const printOnlyFields = sec.fields.filter(f => {
-          const label = f.l.toLowerCase();
-          // Mantém a ficha clínica completa no preenchimento, mas deixa a alta clara para a mãe.
-          if (partIdx !== 3 || sec.title !== 'Dados de alta do RN') return true;
-          return ![
-            'bilirrubina transcutânea (btc)',
-            'bilirrubina total sérica (bt)',
-            'outros fatores de risco para neurotoxicidade',
-            'avaliação aap 2022 (conforme calculadora oficial)'
-          ].includes(label);
+        html += `<div class="p-section"><div class="p-band">${escapeHTML(sec.title)}</div>`;
+        const fields = sec.fields.filter(field => {
+          const label = field.l.toLowerCase();
+          if(partIdx === 3 && sec.title === 'Dados de alta do RN' && [
+            'bilirrubina transcutânea (btc)','bilirrubina total sérica (bt)',
+            'outros fatores de risco para neurotoxicidade','avaliação aap 2022 (conforme calculadora oficial)'
+          ].includes(label)) return false;
+          return fieldVisible(field, snapshot.answers);
         });
-        const fields = printOnlyFields.filter(f => fieldVisible(f));
-        if (fields.length > 0) {
-          // Sorologias continuam em 3 colunas.
-          // Na alta, apenas Dados de alta, Amamentação e Encerramento ficam em 2 colunas.
+        if(fields.length){
           const isSorologia = sec.title.toLowerCase().includes('sorologia');
-          const isAltaCompacta = partIdx === 3 && ![
-            'Dados de alta do RN', 'Amamentação', 'Encerramento'
-          ].includes(sec.title);
+          const isAltaCompacta = partIdx === 3 && !['Dados de alta do RN','Amamentação','Encerramento'].includes(sec.title);
           const columnCount = isSorologia || isAltaCompacta ? 3 : 2;
           const columnClass = columnCount === 3 ? 'p-col-3' : 'p-col-2';
           const rowsPerColumn = Math.ceil(fields.length / columnCount);
-
-          html += `<div class="p-row">`;
-          for (let i = 0; i < columnCount; i++) {
+          html += '<div class="p-row">';
+          for(let column=0; column<columnCount; column++){
             html += `<div class="${columnClass}"><table class="p-table"><tbody>`;
-            const chunk = fields.slice(i * rowsPerColumn, (i + 1) * rowsPerColumn);
-            chunk.forEach(f => {
-              const fIdx = sec.fields.indexOf(f);
-              const val = fieldPrintValue(f, partIdx + '_' + sIdx + '_' + fIdx);
-              const width = columnCount === 3 ? '' : ' style="width: 50%;"';
-              html += `<tr><td class="lbl"${width}>${f.l}</td><td class="val"${width}>${val || '-'}</td></tr>`;
+            const chunk = fields.slice(column * rowsPerColumn, (column + 1) * rowsPerColumn);
+            chunk.forEach(field => {
+              const fieldIndex = sec.fields.indexOf(field);
+              const value = fieldPrintValue(field, partIdx+'_'+sIdx+'_'+fieldIndex, snapshot);
+              const width = columnCount === 3 ? '' : ' style="width:50%;"';
+              html += `<tr><td class="lbl"${width}>${escapeHTML(field.l)}</td><td class="val"${width}>${escapeHTML(value || '-')}</td></tr>`;
             });
-
-            // Mantém as colunas visualmente alinhadas.
-            for (let j = chunk.length; j < rowsPerColumn; j++) {
-              html += `<tr><td class="lbl">&nbsp;</td><td class="val"></td></tr>`;
-            }
-            html += `</tbody></table></div>`;
+            for(let row=chunk.length; row<rowsPerColumn; row++) html += '<tr><td class="lbl">&nbsp;</td><td class="val"></td></tr>';
+            html += '</tbody></table></div>';
           }
-          html += `</div>`;
+          html += '</div>';
         }
-        
         const hideAltaTechnicalNote = partIdx === 3 && sec.title === 'Dados de alta do RN';
-        if (sec.note && !hideAltaTechnicalNote) {
-          html += `<div class="p-note">${sec.note}</div>`;
-        }
-        html += `</div>`; // Fim p-section
+        if(sec.note && !hideAltaTechnicalNote) html += `<div class="p-note">${escapeHTML(sec.note)}</div>`;
+        html += '</div>';
       });
     });
-    
-    html += `</div>`; // Fim sheet
+    html += '</div>';
   });
-  
   printView.innerHTML = html;
-  setPrintDocumentTitle();
-
-  // Mantém a ficha na tela e usa o conteúdo gerado somente durante a impressão.
+  document.title = 'RN de (' + String(snapshot.answers['0_0_0'] || 'sem nome').trim() + ')';
   window.print();
 }
 
-btnSaveDatabase.addEventListener('click', saveCurrentRecordToDatabase);
+btnSaveDatabase.addEventListener('click', () => {
+  if(document.body.classList.contains('workflow-locked')){
+    setSaveDatabaseMessage('Selecione um RN e informe o nome do aluno antes de salvar.', true);
+    return;
+  }
+  saveCurrentRecordToDatabase();
+});
+btnRetryPending.addEventListener('click', () => {
+  if(!currentUser){ setSaveDatabaseMessage('Faça login para sincronizar; os snapshots continuam preservados localmente.', true); return; }
+  retryPendingSaves();
+});
 btnGenerate.addEventListener('click', () => generatePrint());
 
 // Garante o salvamento ao sair ou ocultar a página.
@@ -4535,6 +5408,7 @@ window.addEventListener('pagehide', () => {
 
 btnBackToEdit.addEventListener('click', () => {
   builderHost.style.display = 'block';
+  document.querySelector('.tabs').classList.remove('print-navigation-hidden');
   printView.style.display = 'none';
   btnBackToEdit.style.display = 'none';
   btnPrint.style.display = 'none';
@@ -4544,17 +5418,79 @@ btnBackToEdit.addEventListener('click', () => {
   headerSub.textContent = '';
 });
 
-btnPrint.addEventListener('click', () => { setPrintDocumentTitle(); window.print(); });
-btnSavePdf.addEventListener('click', () => { setPrintDocumentTitle(); window.print(); });
+btnPrint.addEventListener('click', () => { window.print(); });
+btnSavePdf.addEventListener('click', () => { window.print(); });
 
 // Inicialização das funções base que você já tinha no código
 setupGaCalc();
+ensureCurrentRecordId();
+activeSessionToken = activeSessionToken || createStableId();
 setupAuth();
 document.getElementById('btnToggleHistory').addEventListener('click', toggleHistory);
-document.getElementById('btnNewRecord').addEventListener('click', () => {
-  if(Object.keys(answers).length && !confirm('Criar um novo RN? O registro atual continuará salvo no histórico.')) return;
-  startNewRecord();
+async function enterRecordFromGate(choice, triggerButton){
+  if(!choice) return;
+  if(triggerButton) triggerButton.disabled = true;
+  document.getElementById('entryGate').hidden = true;
+  builderHost.classList.remove('entry-locked', 'history-mode');
+  builderHost.classList.add('evaluator-required');
+  document.body.classList.add('workflow-locked');
+  // The initial page has no active data to flush as a separate record.
+  currentRecordId = null;
+  activeSessionToken = null;
+  try {
+    if(choice === 'new') await startNewRecord();
+    else await loadRecord(choice);
+    evaluatorNameInput.value = '';
+    evaluatorNameInput.focus();
+  } catch(error) {
+    document.getElementById('entryGate').hidden = false;
+    builderHost.classList.remove('evaluator-required');
+    builderHost.classList.add('entry-locked');
+    document.querySelector('.entry-choice-actions').hidden = false;
+    document.getElementById('entryHistoryPicker').hidden = true;
+    if(triggerButton) triggerButton.disabled = false;
+    alert('Não foi possível abrir o registro selecionado: '+error.message);
+  }
+}
+document.getElementById('btnStartNewFromGate').addEventListener('click', event => {
+  enterRecordFromGate('new', event.currentTarget);
 });
+document.getElementById('btnChooseHistoryFromGate').addEventListener('click', () => {
+  builderHost.classList.remove('entry-locked');
+  builderHost.classList.add('history-mode');
+  document.getElementById('entryGate').hidden = true;
+  document.getElementById('historyContent').hidden = false;
+  document.getElementById('btnToggleHistory').textContent = 'Ocultar histórico';
+  document.getElementById('btnToggleHistory').setAttribute('aria-expanded', 'true');
+  const historyNav = document.getElementById('btnHistoryNav');
+  historyNav.classList.add('active');
+  historyNav.setAttribute('aria-pressed', 'true');
+  document.getElementById('historyCard').scrollIntoView({behavior:'smooth', block:'start'});
+});
+document.getElementById('entryRecordChoice').addEventListener('change', event => {
+  document.getElementById('btnEnterRecord').disabled = !event.target.value;
+});
+document.getElementById('btnEnterRecord').addEventListener('click', event => {
+  enterRecordFromGate(document.getElementById('entryRecordChoice').value, event.currentTarget);
+});
+document.getElementById('btnNewFromHistory').addEventListener('click', () => startNewRecord());
+document.getElementById('selectAllHistory').addEventListener('change', event => {
+  const records = loadHistory();
+  if(event.target.checked) records.forEach(record => selectedHistoryIds.add(String(record.id)));
+  else selectedHistoryIds.clear();
+  updateBulkSelectionUI();
+});
+document.querySelectorAll('[data-bulk-action]').forEach(button => {
+  button.addEventListener('click', () => {
+    applyBulkHistoryAction(button.dataset.bulkAction).catch(bulkHistoryError);
+  });
+});
+document.getElementById('btnCancelBulkHistory').addEventListener('click', () => {
+  if(activeBulkHistoryRun) activeBulkHistoryRun.cancelled = true;
+  const message = document.getElementById('historyBulkMessage');
+  if(message && activeBulkHistoryRun) message.textContent = 'Cancelamento solicitado; a operação atual terminará antes de parar.';
+});
+recoverPendingLocalSnapshots();
 renderHistory();
 setInterval(updateHistoryAgeBadges, 60000);
 renderBuilder();
