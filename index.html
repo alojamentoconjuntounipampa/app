@@ -3462,7 +3462,7 @@ function persistSnapshotLocally(context, snapshot){
     ...(existing || {}),
     id: context.recordId,
     updatedAt: snapshot.capturedAt || new Date().toISOString(),
-    answers: {...snapshot.answers, __gaInputs:snapshot.gaInputs || {}, __gaSource:snapshot.gaSource || '', __alta:snapshot.alta === true, __utiNeo:snapshot.utiNeo === true},
+    answers: {...snapshot.answers, __gaInputs:snapshot.gaInputs || {}, __gaSource:snapshot.gaSource || '', __gaDum:snapshot.gaDum || null, __gaUs:snapshot.gaUs || null, __alta:snapshot.alta === true, __utiNeo:snapshot.utiNeo === true},
     gaDum:snapshot.gaDum,
     gaUs:snapshot.gaUs,
     gaInputs:snapshot.gaInputs || {},
@@ -3530,7 +3530,7 @@ async function processQueueForRecord(recordId){
       }
       const payload = {
         user_id: item.userId,
-        answers: {...snap.answers, __gaInputs:snap.gaInputs || {}, __gaSource:snap.gaSource || '', __alta:snap.alta === true, __utiNeo:snap.utiNeo === true},
+        answers: {...snap.answers, __gaInputs:snap.gaInputs || {}, __gaSource:snap.gaSource || '', __gaDum:snap.gaDum || null, __gaUs:snap.gaUs || null, __alta:snap.alta === true, __utiNeo:snap.utiNeo === true},
         ga_dum: snap.gaDum,
         ga_us: snap.gaUs,
         updated_at: new Date().toISOString()
@@ -3757,8 +3757,8 @@ async function loadCurrentUserRecords(){
     databaseId: row.id,
     updatedAt: row.updated_at,
     answers: row.answers || {},
-    gaDum: row.ga_dum || null,
-    gaUs: row.ga_us || null,
+    gaDum: row.ga_dum || (row.answers && row.answers.__gaDum) || null,
+    gaUs: row.ga_us || (row.answers && row.answers.__gaUs) || null,
     gaInputs: row.answers && row.answers.__gaInputs ? row.answers.__gaInputs : {},
     gaSource: row.answers && row.answers.__gaSource ? row.answers.__gaSource : null,
     alta: row.answers && row.answers.__alta === true,
@@ -3854,7 +3854,8 @@ function recordEvaluatorName(record){
 function snapshotFromStoredRecord(record){
   return Object.freeze({
     recordId:String(record.id), answers:cloneData(record.answers || {}),
-    gaDum:record.gaDum || null, gaUs:record.gaUs || null,
+    gaDum:record.gaDum || (record.answers && record.answers.__gaDum) || null,
+    gaUs:record.gaUs || (record.answers && record.answers.__gaUs) || null,
     gaInputs:record.gaInputs || (record.answers && record.answers.__gaInputs) || {},
     gaSource:record.gaSource || (record.answers && record.answers.__gaSource) || null,
     alta:record.alta === true, utiNeo:record.utiNeo === true,
@@ -4214,7 +4215,9 @@ async function loadRecord(id){
   Object.assign(answers, record.answers || {});
   // O aluno deve se identificar novamente a cada reedição.
   delete answers[EVALUATOR_NAME_KEY];
-  gaDum = record.gaDum || null; gaUs = record.gaUs || null; gaSource = record.gaSource || (record.answers && record.answers.__gaSource) || null;
+  gaDum = record.gaDum || (record.answers && record.answers.__gaDum) || null;
+  gaUs = record.gaUs || (record.answers && record.answers.__gaUs) || null;
+  gaSource = record.gaSource || (record.answers && record.answers.__gaSource) || null;
   currentRecordAlta = record.alta === true || Boolean(String(answers[DISCHARGE_INSTRUCTIONS_KEY] || '').trim());
   currentRecordUtiNeo = record.utiNeo === true || (record.answers && record.answers.__utiNeo === true);
   if (currentRecordAlta) currentRecordUtiNeo = false;
