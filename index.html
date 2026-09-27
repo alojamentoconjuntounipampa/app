@@ -113,6 +113,8 @@ section.card > .card-head h2{ font-family:-apple-system,"Segoe UI",Helvetica,Ari
 .follow-input{display:none; max-width:260px;}
 .follow-input.show{display:block;}
 .bilirubin-result{ flex-basis:100%; font-size:.74rem; line-height:1.4; white-space:pre-line; border-radius:var(--radius); padding:7px 10px; margin-top:4px; border:1px solid transparent; }
+.weight-percentile-box{font-size:.84rem;font-weight:600;line-height:1.5;padding:10px 12px;border-left:4px solid currentColor;}
+.weight-percentile-value{display:inline-block;margin:0 2px;padding:2px 8px;border-radius:999px;background:#fff;border:1px solid currentColor;font-size:.95rem;font-weight:800;white-space:nowrap;box-shadow:0 2px 6px rgba(27,58,75,.12);}
 .bilirubin-result.info{ background:#E7F1F7; color:#1B4A66; border-color:#BFDCEC; }
 .bilirubin-result.success{ background:var(--accent-soft); color:#0B5850; border-color:#BEDCD1; }
 .bilirubin-result.warning{ background:var(--warn-bg); color:var(--warn); border-color:#E7CFB4; }
@@ -4791,6 +4793,7 @@ if(gaCalcEl && gaCalcEl.parentNode) gaCalcEl.parentNode.removeChild(gaCalcEl);
 if(gaRegistrationEl && gaRegistrationEl.parentNode) gaRegistrationEl.parentNode.removeChild(gaRegistrationEl);
 host.innerHTML = '';
 const part = DATA[currentPart];
+let weightPercentileBox = null;
 if(currentPart === 1) applyWeightClassificationFromCurrentData();
 part.sections.forEach((sec, sIdx) => {
 const card = document.createElement('section'); card.className = 'card';
@@ -4910,6 +4913,7 @@ inputsWrap.appendChild(subWrap);
 } else {
 const input = makeInput(field, baseKey);
 inputsWrap.appendChild(input);
+if(field.l === 'Peso x IG (percentil)' && weightPercentileBox) inputsWrap.appendChild(weightPercentileBox);
 if(field.l === 'Comorbidades') {
   const normalButton = document.createElement('button');
   normalButton.className = 'btn-mini';
@@ -5055,6 +5059,7 @@ inputsWrap.appendChild(capurroLink);
 }
 if(field.l === 'Peso (g)' && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
 const wBox = document.createElement('div'); wBox.className='bilirubin-result'; wBox.style.display='none';
+weightPercentileBox = wBox;
 const computeInfo = () => {
 const sexo = answers[SEX_KEY];
 const ga = getGaForCalc();
@@ -5063,7 +5068,19 @@ return ga ? ig21WeightPercentileInfo(sexo, ga.weeks, ga.days, input.value) : nul
 const showInfo = () => {
 const info = computeInfo();
 if(!info){ wBox.style.display='none'; wBox.className='bilirubin-result'; return; }
-wBox.style.display='block'; wBox.className='bilirubin-result '+info.cls; wBox.textContent = info.text;
+wBox.style.display='block';
+wBox.className='bilirubin-result '+info.cls+' weight-percentile-box';
+const percentileMatch = info.text.match(/^(.*?)(P[\d,]+)(.*)$/);
+wBox.replaceChildren();
+if(percentileMatch){
+  wBox.append(document.createTextNode(percentileMatch[1]));
+  const percentile = document.createElement('strong');
+  percentile.className = 'weight-percentile-value';
+  percentile.textContent = percentileMatch[2];
+  wBox.append(percentile, document.createTextNode(percentileMatch[3]));
+} else {
+  wBox.textContent = info.text;
+}
 };
 const updateClassification = () => {
   if(!contextMatchesActive(fieldContext)) return;
