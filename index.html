@@ -4571,10 +4571,10 @@ recomputeGaDum(); recomputeGaUs();
 scheduleAutoSave();
 if(currentPart===1) renderBuilder();
 });
-dumDateInput.addEventListener('change', recomputeGaDum);
-usDateInput.addEventListener('change', recomputeGaUs);
-usWeeksSel.addEventListener('change', recomputeGaUs);
-usDaysSel.addEventListener('change', recomputeGaUs);
+dumDateInput.addEventListener('change', () => recomputeGaDum());
+usDateInput.addEventListener('change', () => recomputeGaUs());
+usWeeksSel.addEventListener('change', () => recomputeGaUs());
+usDaysSel.addEventListener('change', () => recomputeGaUs());
 updateGaRegistration();
 }
 function makeInput(fieldDef, key){
