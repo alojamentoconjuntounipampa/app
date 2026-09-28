@@ -2754,7 +2754,7 @@ body.login-mode .tabs { display: none !important; }
     <input id="gaUsManualDays" type="number" min="0" max="6" step="1" inputmode="numeric" aria-label="Dias de idade gestacional por US">
     <button class="btn-secondary" id="btnSelectGaUs" type="button" aria-pressed="false" disabled>Usar IG manual por US</button>
   </div>
-  <span id="gaSourceSelectionStatus" class="history-empty" aria-live="polite">A calculadora auxilia; somente a IG manual selecionada será usada nos cálculos da ficha.</span>
+  <span id="gaSourceSelectionStatus" class="history-empty" aria-live="polite">A IG preenchida neste campo é salva neste registro e usada nos cálculos. A IG auxiliar selecionada por DUM/US só será usada se este campo estiver vazio.</span>
 </div>
 <div id="sectionsHost"></div>
 <div id="problemsListCard" class="history-card" aria-live="polite">
@@ -3130,6 +3130,8 @@ return {cls, text:'INTERGROWTH-21st · PC ao nascer: '+faixa+' (IG usada: '+gaWe
 function getGaForCalc(){
   const igKey = findFieldKey('Dados de nascimento e exame físico da 1ª hora','IG');
   const value = String(igKey ? answers[igKey] || '' : '').trim();
+  // A resposta digitada no campo sempre prevalece; a calculadora só serve como fallback vazio.
+  if(!value) return getSelectedGa();
   const match = value.match(/^(\d{1,2})(?:\s*(?:s|sem(?:ana|anas)?))?(?:\s*(?:\+|,|e)?\s*(\d{1,2})\s*(?:d|dias?)?)?$/i);
   if(!match) return null;
   const weeks = Number(match[1]);
@@ -3157,29 +3159,47 @@ function ig21HcZInfo(sexo, gaWeeks, gaDays, pcCm){
   return {cls, text:'PC quantitativo · Z estimado: '+zText+' · '+classification+' (Microcefalia: Z < −2 · Normal: −2 ≤ Z ≤ +2 · Macrocefalia: Z > +2).'};
 }
 
+function normalizeManualGaState(value){
+  const sourceState = value && typeof value === 'object' ? value : {};
+  const normalizeEntry = entry => {
+    if(!entry || entry.weeks === '' || entry.weeks === null || entry.weeks === undefined ||
+       entry.days === '' || entry.days === null || entry.days === undefined ||
+       !Number.isInteger(Number(entry.weeks)) || !Number.isInteger(Number(entry.days))) return null;
+    const weeks = Number(entry.weeks), days = Number(entry.days);
+    return weeks >= 0 && weeks <= 50 && days >= 0 && days <= 6 ? {weeks, days} : null;
+  };
+  const normalized = {
+    dum: normalizeEntry(sourceState.dum),
+    us: normalizeEntry(sourceState.us),
+    source: ['dum','us'].includes(sourceState.source) ? sourceState.source : null
+  };
+  // Compatibilidade com registros antigos que salvavam somente weeks/days/source.
+  if(normalized.source && !normalized[normalized.source]){
+    normalized[normalized.source] = normalizeEntry(sourceState);
+  }
+  const selected = normalized.source && normalized[normalized.source];
+  if(selected){
+    normalized.weeks = selected.weeks;
+    normalized.days = selected.days;
+  } else {
+    normalized.source = null;
+  }
+  return normalized;
+}
 function getSelectedGa(){
   if(gaSource !== 'manual' || !gaManual || !['dum','us'].includes(gaManual.source)) return null;
-  const selected = gaManual[gaManual.source];
-  return selected && Number.isInteger(selected.weeks) && Number.isInteger(selected.days)
-    ? {weeks:selected.weeks, days:selected.days}
-    : null;
+  const selected = normalizeManualGaState(gaManual)[gaManual.source];
+  return selected ? {weeks:selected.weeks, days:selected.days} : null;
 }
 function clearSelectedGaSource(source, context){
   if(!contextMatchesActive(context) || gaSource !== source) return;
-  const igKey = findFieldKey('Dados de nascimento e exame físico da 1ª hora','IG');
-  if(igKey) answers[igKey] = '';
+  // Limpar dados da calculadora não deve apagar a IG digitada no campo do RN.
   gaSource = null;
 }
 
-function syncSelectedGaToField(context = createOpContext(currentRecordId)){
-  if(!contextMatchesActive(context)) return false;
-  const igKey = findFieldKey('Dados de nascimento e exame físico da 1ª hora','IG');
-  const ga = getSelectedGa();
-  if(!igKey || !ga) return false;
-  answers[igKey] = ga.weeks + 's ' + ga.days + 'd';
-  recordRevision++;
-  applyWeightClassificationFromCurrentData();
-  return true;
+function syncSelectedGaToField(){
+  // A IG digitada é independente das fontes auxiliares de DUM/US.
+  return false;
 }
 
 // 1b) Percentil de peso ao nascer — INTERGROWTH-21st (mesma fonte da tabela de PC acima).
@@ -3484,18 +3504,24 @@ function contextMatchesActive(context){
 }
 function cloneData(value){ return JSON.parse(JSON.stringify(value)); }
 function captureCurrentRecordSnapshot(recordId = currentRecordId){
-  if(!recordId || recordId !== currentRecordId) return null;
+  if(!recordId || String(recordId) !== String(currentRecordId)) return null;
+  const manualGa = normalizeManualGaState(gaManual);
+  const snapshotAnswers = cloneData(answers);
+  const selectedGa = gaSource === 'manual' && manualGa.source ? manualGa[manualGa.source] : null;
+  // A IG digitada é uma resposta normal do RN; nunca substitua seu valor no snapshot.
+  snapshotAnswers.__gaManual = manualGa;
+  snapshotAnswers.__gaSource = selectedGa ? 'manual' : '';
   return Object.freeze({
     recordId: String(recordId),
-    answers: cloneData(answers),
+    answers: snapshotAnswers,
     gaDum: gaDum ? cloneData(gaDum) : null,
     gaUs: gaUs ? cloneData(gaUs) : null,
-    gaManual: gaManual ? cloneData(gaManual) : null,
+    gaManual: manualGa,
     gaInputs: {
       dumDate: dumDateInput?.value || '', usDate: usDateInput?.value || '',
       usWeeks: usWeeksSel?.value || '', usDays: usDaysSel?.value || ''
     },
-    gaSource,
+    gaSource: selectedGa ? 'manual' : '',
     alta: currentRecordAlta,
     utiNeo: currentRecordUtiNeo,
     databaseId: currentDatabaseRecordId || null,
@@ -3735,6 +3761,8 @@ function switchRecordSafely(activateNext){
         setSaveDatabaseMessage('Modo de reversão: cópia local preservada; sincronização remota pausada.', true);
       }
     }
+    // Edições feitas durante a espera acima também precisam ir para a cópia local do RN antigo.
+    if(oldId && oldId === currentRecordId){ try { persistRecoverableSnapshot(oldId); } catch(_) {} }
     activateNext();
   };
   switchPromise = switchPromise.then(performSwitch, performSwitch);
@@ -3948,7 +3976,7 @@ function snapshotFromStoredRecord(record){
     recordId:String(record.id), answers:cloneData(record.answers || {}),
     gaDum:record.gaDum || (record.answers && record.answers.__gaDum) || null,
     gaUs:record.gaUs || (record.answers && record.answers.__gaUs) || null,
-    gaManual:record.gaManual || (record.answers && record.answers.__gaManual) || null,
+    gaManual:normalizeManualGaState(record.gaManual && Object.keys(record.gaManual).length ? record.gaManual : (record.answers && record.answers.__gaManual) || record.gaManual),
     gaInputs:record.gaInputs || (record.answers && record.answers.__gaInputs) || {},
     gaSource:record.gaSource || (record.answers && record.answers.__gaSource) || null,
     alta:record.alta === true, utiNeo:record.utiNeo === true,
@@ -4229,6 +4257,7 @@ function renderHistory(){
       altaButton.type = 'button';
       altaButton.textContent = record.alta === true ? 'Retirar de Altas' : 'Mover para Altas';
       altaButton.addEventListener('click', async () => {
+        if(String(record.id) === String(currentRecordId)) saveCurrentRecord();
         const records = loadHistory();
         const updatedRecord = records.find(r => r.id === record.id);
         if (!updatedRecord) return;
@@ -4253,6 +4282,7 @@ function renderHistory(){
       utiButton.type = 'button';
       utiButton.textContent = record.utiNeo === true ? 'Retirar da UTI Neo' : 'Mover para UTI Neo';
       utiButton.addEventListener('click', async () => {
+        if(String(record.id) === String(currentRecordId)) saveCurrentRecord();
         const records = loadHistory();
         const updatedRecord = records.find(r => r.id === record.id);
         if (!updatedRecord) return;
@@ -4310,29 +4340,22 @@ async function loadRecord(id){
   delete answers[EVALUATOR_NAME_KEY];
   gaDum = record.gaDum || (record.answers && record.answers.__gaDum) || null;
   gaUs = record.gaUs || (record.answers && record.answers.__gaUs) || null;
-  gaManual = record.gaManual || (record.answers && record.answers.__gaManual) || {};
-  if(gaManual && Number.isInteger(gaManual.weeks) && Number.isInteger(gaManual.days) && ['dum','us'].includes(gaManual.source) && !gaManual[gaManual.source]){
-    gaManual[gaManual.source] = {weeks:gaManual.weeks, days:gaManual.days};
-  }
-  gaSource = gaManual && gaManual.source && gaManual[gaManual.source] ? 'manual' : null;
-  const dumManual = gaManual.dum || null;
-  const usManual = gaManual.us || null;
-  const dumWeeksInput = document.getElementById('gaDumManualWeeks');
-  const dumDaysInput = document.getElementById('gaDumManualDays');
-  const usWeeksInput = document.getElementById('gaUsManualWeeks');
-  const usDaysInput = document.getElementById('gaUsManualDays');
-  if(dumWeeksInput) dumWeeksInput.value = dumManual ? dumManual.weeks : '';
-  if(dumDaysInput) dumDaysInput.value = dumManual ? dumManual.days : '';
-  if(usWeeksInput) usWeeksInput.value = usManual ? usManual.weeks : '';
-  if(usDaysInput) usDaysInput.value = usManual ? usManual.days : '';
+  // Clone and validate per-record state; never retain a mutable object from another record.
+  const storedManualGa = record.gaManual && Object.keys(record.gaManual).length
+    ? record.gaManual
+    : (record.answers && record.answers.__gaManual) || record.gaManual || {};
+  gaManual = normalizeManualGaState(storedManualGa);
+  gaSource = gaManual.source ? 'manual' : null;
   currentRecordAlta = record.alta === true || Boolean(String(answers[DISCHARGE_INSTRUCTIONS_KEY] || '').trim());
   currentRecordUtiNeo = record.utiNeo === true || (record.answers && record.answers.__utiNeo === true);
   if (currentRecordAlta) currentRecordUtiNeo = false;
   currentRecordId = String(record.id);
   currentDatabaseRecordId = record.database ? (record.databaseId || record.id) : null;
+  // IG manual (DUM/US) pertence a este RN: repõe os campos a partir do estado do próprio registro.
+  populateGaManualInputsFromState();
   const savedIgKey = findFieldKey('Dados de nascimento e exame físico da 1ª hora','IG');
-  const savedManualGa = getSelectedGa();
-  if(savedIgKey) answers[savedIgKey] = savedManualGa ? savedManualGa.weeks+'s '+savedManualGa.days+'d' : '';
+  // IG pertence às respostas deste RN, como peso e demais campos, sem restauração pela calculadora.
+  if(savedIgKey) answers[savedIgKey] = String(record.answers && record.answers[savedIgKey] || '');
   updateGaRegistration();
   if(calcBirthDateInput) calcBirthDateInput.value = answers[BIRTH_DATE_KEY] || '';
   if(evaluatorNameInput) evaluatorNameInput.value = answers[EVALUATOR_NAME_KEY] || '';
@@ -4385,10 +4408,7 @@ function startNewRecord(){
     if(usDateInput) usDateInput.value = '';
     if(usWeeksSel) usWeeksSel.value = '';
     if(usDaysSel) usDaysSel.value = '';
-    ['gaDumManualWeeks','gaDumManualDays','gaUsManualWeeks','gaUsManualDays'].forEach(id => {
-      const input = document.getElementById(id);
-      if(input) input.value = '';
-    });
+    populateGaManualInputsFromState();
     if(dumResultEl) dumResultEl.textContent='Preencha a DUM e a data de nascimento para calcular.';
     if(usResultEl) usResultEl.textContent='Preencha os dados do ultrassom e a data de nascimento para calcular.';
     updateGaRegistration();
@@ -4624,6 +4644,22 @@ let calcBirthDateInput, dumDateInput, dumResultEl, usDateInput, usWeeksSel, usDa
 const btnSelectGaDum = document.getElementById('btnSelectGaDum');
 const btnSelectGaUs = document.getElementById('btnSelectGaUs');
 const gaSourceSelectionStatus = document.getElementById('gaSourceSelectionStatus');
+// Referências fixas: #gaRegistration sai do DOM fora da aba 1, e getElementById devolvia null,
+// deixando nos campos manuais de DUM/US os valores do RN anterior.
+const gaManualInputRefs = {
+  dum:{weeks:document.getElementById('gaDumManualWeeks'), days:document.getElementById('gaDumManualDays')},
+  us:{weeks:document.getElementById('gaUsManualWeeks'), days:document.getElementById('gaUsManualDays')}
+};
+function populateGaManualInputsFromState(){
+  const state = normalizeManualGaState(gaManual);
+  ['dum','us'].forEach(source => {
+    const entry = state[source], refs = gaManualInputRefs[source];
+    if(refs.weeks) refs.weeks.value = entry ? entry.weeks : '';
+    if(refs.days) refs.days.value = entry ? entry.days : '';
+  });
+  const panel = document.getElementById('gaRegistration') || gaRegistrationEl;
+  if(panel) panel.dataset.ownerRecordId = currentRecordId ? String(currentRecordId) : '';
+}
 
 function updateGaRegistration(){
   if(!btnSelectGaDum || !btnSelectGaUs) return;
@@ -4643,16 +4679,20 @@ function updateGaRegistration(){
   if(gaSourceSelectionStatus){
     const selected = getSelectedGa();
     gaSourceSelectionStatus.textContent = selected
-      ? `IG manual selecionada para o RN: ${gaManual.source.toUpperCase()} — ${selected.weeks} semanas e ${selected.days} dia(s).`
-      : 'A calculadora auxilia; somente a IG manual selecionada será usada nos cálculos da ficha.';
+      ? `IG auxiliar selecionada: ${gaManual.source.toUpperCase()} — ${selected.weeks} semanas e ${selected.days} dia(s). A IG digitada no campo do RN prevalece.`
+      : 'A IG preenchida neste campo é salva neste registro e usada nos cálculos. A IG auxiliar selecionada por DUM/US só será usada se este campo estiver vazio.';
   }
 }
 
 function updateManualGaFromInputs(source){
-  const prefix = source === 'dum' ? 'gaDum' : 'gaUs';
-  const weeksInput = document.getElementById(prefix+'ManualWeeks');
-  const daysInput = document.getElementById(prefix+'ManualDays');
+  const weeksInput = gaManualInputRefs[source].weeks;
+  const daysInput = gaManualInputRefs[source].days;
   if(!weeksInput || !daysInput) return;
+  // Nunca grava neste RN valores que ainda pertencem a outro registro.
+  if(!currentRecordId || weeksInput.closest('#gaRegistration')?.dataset.ownerRecordId !== String(currentRecordId)){
+    populateGaManualInputsFromState();
+    return;
+  }
   gaManual = gaManual || {};
   const weeksText = weeksInput.value;
   const daysText = daysInput.value;
@@ -4663,12 +4703,9 @@ function updateManualGaFromInputs(source){
   if(gaSource === 'manual' && gaManual.source === source){
     if(!gaManual[source]){
       gaSource = null;
-      const igKey = findFieldKey('Dados de nascimento e exame físico da 1ª hora','IG');
-      if(igKey) answers[igKey] = '';
     } else {
       gaManual.weeks = gaManual[source].weeks;
       gaManual.days = gaManual[source].days;
-      if(currentRecordId) syncSelectedGaToField(createOpContext(currentRecordId));
     }
   }
   recordRevision++;
@@ -4685,7 +4722,7 @@ function selectGaSource(source){
   gaManual.days = selectedGa.days;
   gaManual.source = source;
   gaSource = 'manual';
-  syncSelectedGaToField(context);
+  // A seleção da calculadora não altera o campo IG nem sobrescreve resposta digitada.
   recordRevision++;
   scheduleAutoSave();
   updateGaRegistration();
@@ -5206,6 +5243,7 @@ if(currentPart === 0 && sIdx === 0){
   if(gaCalcEl) host.appendChild(gaCalcEl);
   if(gaRegistrationEl){
     host.appendChild(gaRegistrationEl);
+    if(gaRegistrationEl.dataset.ownerRecordId !== String(currentRecordId || '')) populateGaManualInputsFromState();
     updateGaRegistration();
   }
 }
