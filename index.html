@@ -200,8 +200,10 @@ main{padding:14px 10px 70px;}
 .evaluator-card{margin-bottom:16px;}
 .evaluator-card .field-row{border-top:none;}
 .evaluator-card input{max-width:420px;}
-.evaluator-card .field-inputs{flex-wrap:nowrap;}
+.evaluator-card .field-inputs{flex-wrap:wrap;}
 .evaluator-card .field-inputs input{flex:1 1 auto;min-width:0;}
+.evaluator-card #evaluatorNameHistory{flex:1 1 100%;width:100%;max-width:420px;padding:8px 10px;border:1px solid #d5e4de;border-radius:6px;background:#fff;color:var(--ink);font:inherit;}
+@media screen and (max-width:640px){.evaluator-card #evaluatorNameHistory{max-width:none;}}
 .evaluator-card #btnContinueAfterEvaluator{flex:0 0 42px;width:42px;min-width:42px;padding:8px;font-size:1.1rem;line-height:1;}
 .entry-gate{max-width:620px;margin:24px auto;padding:20px;}
 .entry-gate p{color:var(--ink-soft);font-size:.85rem;line-height:1.5;margin:0 0 14px;}
@@ -2676,8 +2678,10 @@ body.login-mode .tabs { display: none !important; }
 <div class="field-row">
 <label class="field-label" for="evaluatorName">Nome do Aluno(a)</label>
 <div class="field-inputs">
-<input type="text" id="evaluatorName" list="evaluatorNameHistory" placeholder="Digite ou selecione o nome do Aluno(a)" autocomplete="name" required>
-<datalist id="evaluatorNameHistory"></datalist>
+<input type="text" id="evaluatorName" placeholder="Digite o nome do Aluno(a)" autocomplete="name" required>
+<select id="evaluatorNameHistory" class="evaluator-history-select" aria-label="Selecionar nome de aluno usado anteriormente">
+<option value="">Selecionar nome usado anteriormente</option>
+</select>
 <button class="btn-primary" id="btnContinueAfterEvaluator" type="button" aria-label="Confirmar aluno e ir para os dados da mãe" title="Confirmar e ir para os dados da mãe" disabled><span aria-hidden="true">✓</span></button>
 </div>
 </div>
@@ -5456,7 +5460,9 @@ function renderEvaluatorNameHistory(){
     const stored = JSON.parse(localStorage.getItem(EVALUATOR_NAMES_STORAGE_KEY) || '[]');
     if(Array.isArray(stored)) names = stored.filter(name => typeof name === 'string' && name.trim());
   } catch(_) {}
-  evaluatorNameHistory.replaceChildren(...names.map(name => new Option(name, name)));
+  const placeholder = new Option('Selecionar nome usado anteriormente', '');
+  evaluatorNameHistory.replaceChildren(placeholder, ...names.map(name => new Option(name, name)));
+  evaluatorNameHistory.value = '';
 }
 
 function rememberEvaluatorName(value){
@@ -5486,6 +5492,11 @@ function syncEvaluatorName(){
 }
 
 evaluatorNameInput.addEventListener('input', syncEvaluatorName);
+evaluatorNameHistory.addEventListener('change', () => {
+  if(!evaluatorNameHistory.value) return;
+  evaluatorNameInput.value = evaluatorNameHistory.value;
+  syncEvaluatorName();
+});
 evaluatorNameInput.addEventListener('keydown', event => {
   if(event.key !== 'Enter') return;
   event.preventDefault();
