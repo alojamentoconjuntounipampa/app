@@ -3042,7 +3042,7 @@ Sn("Moro",["Presente e simétrico","Assimétrico","Ausente"],"Presente e simétr
 Sn("Esgrimista",["Presente","Ausente"],"Presente"),
 Sn("Preensão palmar",["Presente","Ausente"],"Presente"),
 Sn("Preensão plantar",["Presente","Ausente"],"Presente"),
-Sn("Cutâneo-plantar",["Em flexão","Em extensão (Babinski)"],"Em flexão"),
+Sn("Cutâneo-plantar",["Normal (em extensão)","Alterado (em flexão)","Ausente"],"Normal (em extensão)"),
 Sn("Marcha reflexa",["Presente","Ausente"],"Presente"),
 Sn("Apoio plantar",["Presente","Ausente"],"Presente"),
 Sn("Galant",["Presente","Ausente"],"Presente"),
@@ -3197,9 +3197,20 @@ function clearSelectedGaSource(source, context){
   gaSource = null;
 }
 
-function syncSelectedGaToField(){
-  // A IG digitada é independente das fontes auxiliares de DUM/US.
-  return false;
+function syncSelectedGaToField(context = createOpContext(currentRecordId)){
+  if(!contextMatchesActive(context) || gaSource !== 'manual' || !gaManual || !['dum','us'].includes(gaManual.source)) return false;
+  const selected = normalizeManualGaState(gaManual)[gaManual.source];
+  if(!selected) return false;
+  const igKey = findFieldKey('Dados de nascimento e exame físico da 1ª hora','IG');
+  if(!igKey) return false;
+  const value = selected.weeks+'s '+selected.days+'d';
+  if(String(answers[igKey] || '') === value) return false;
+  answers[igKey] = value;
+  const input = document.querySelector('[data-answer-key="'+CSS.escape(igKey)+'"]');
+  if(input) input.value = value;
+  recordRevision++;
+  scheduleAutoSave();
+  return true;
 }
 
 // 1b) Percentil de peso ao nascer — INTERGROWTH-21st (mesma fonte da tabela de PC acima).
@@ -4706,6 +4717,7 @@ function updateManualGaFromInputs(source){
     } else {
       gaManual.weeks = gaManual[source].weeks;
       gaManual.days = gaManual[source].days;
+      syncSelectedGaToField();
     }
   }
   recordRevision++;
@@ -4722,7 +4734,8 @@ function selectGaSource(source){
   gaManual.days = selectedGa.days;
   gaManual.source = source;
   gaSource = 'manual';
-  // A seleção da calculadora não altera o campo IG nem sobrescreve resposta digitada.
+  // A fonte manual selecionada é espelhada no campo IG da 1ª hora.
+  syncSelectedGaToField(context);
   recordRevision++;
   scheduleAutoSave();
   updateGaRegistration();
