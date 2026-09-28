@@ -2676,7 +2676,8 @@ body.login-mode .tabs { display: none !important; }
 <div class="field-row">
 <label class="field-label" for="evaluatorName">Nome do Aluno(a)</label>
 <div class="field-inputs">
-<input type="text" id="evaluatorName" placeholder="Digite o nome do Aluno(a)" autocomplete="name" required>
+<input type="text" id="evaluatorName" list="evaluatorNameHistory" placeholder="Digite ou selecione o nome do Aluno(a)" autocomplete="name" required>
+<datalist id="evaluatorNameHistory"></datalist>
 <button class="btn-primary" id="btnContinueAfterEvaluator" type="button" aria-label="Confirmar aluno e ir para os dados da mãe" title="Confirmar e ir para os dados da mãe" disabled><span aria-hidden="true">✓</span></button>
 </div>
 </div>
@@ -5445,6 +5446,35 @@ const btnSaveDatabase = document.getElementById('btnSaveDatabase');
 const btnRetryPending = document.getElementById('btnRetryPending');
 const saveDatabaseMessage = document.getElementById('saveDatabaseMessage');
 const evaluatorNameInput = document.getElementById('evaluatorName');
+const evaluatorNameHistory = document.getElementById('evaluatorNameHistory');
+const EVALUATOR_NAMES_STORAGE_KEY = 'fichaNeonatalNomesAlunos';
+
+function renderEvaluatorNameHistory(){
+  if(!evaluatorNameHistory) return;
+  let names = [];
+  try {
+    const stored = JSON.parse(localStorage.getItem(EVALUATOR_NAMES_STORAGE_KEY) || '[]');
+    if(Array.isArray(stored)) names = stored.filter(name => typeof name === 'string' && name.trim());
+  } catch(_) {}
+  evaluatorNameHistory.replaceChildren(...names.map(name => new Option(name, name)));
+}
+
+function rememberEvaluatorName(value){
+  const name = String(value || '').trim();
+  if(!name) return;
+  let names = [];
+  try {
+    const stored = JSON.parse(localStorage.getItem(EVALUATOR_NAMES_STORAGE_KEY) || '[]');
+    if(Array.isArray(stored)) names = stored.filter(item => typeof item === 'string' && item.trim());
+  } catch(_) {}
+  names = [name, ...names.filter(item => item.trim().toLocaleLowerCase('pt-BR') !== name.toLocaleLowerCase('pt-BR'))].slice(0, 30);
+  try {
+    localStorage.setItem(EVALUATOR_NAMES_STORAGE_KEY, JSON.stringify(names));
+  } catch(_) {}
+  renderEvaluatorNameHistory();
+}
+
+renderEvaluatorNameHistory();
 
 function syncEvaluatorName(){
   if(!currentRecordId) ensureCurrentRecordId();
@@ -5477,6 +5507,7 @@ builderHost.addEventListener('keydown', event => {
 });
 document.getElementById('btnContinueAfterEvaluator').addEventListener('click', () => {
   if(!evaluatorNameInput.value.trim()) return;
+  rememberEvaluatorName(evaluatorNameInput.value);
   syncEvaluatorName();
   builderHost.classList.remove('evaluator-required');
   document.body.classList.remove('workflow-locked');
