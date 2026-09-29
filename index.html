@@ -2892,6 +2892,19 @@ S("Apresentação do RN",["Cefálica","Pélvica","Córmica"]),
 S("Aspecto do líquido amniótico",["Claro","Meconial fluido","Meconial espesso","Sanguinolento","Fétido"]),
 S("Nº de circulares de cordão",["0","1","2","3 ou mais"])
 ]},
+{title:"Avaliação de elegibilidade para Nirsevimabe na maternidade (SUS)", fields:[
+S("Cardiopatia congênita com repercussão conhecida ao nascimento",SN),
+Object.assign(S("Displasia broncopulmonar (doença pulmonar crônica)",SN), {hiddenFromBirth:true}),
+Object.assign(S("Imunocomprometimento grave",SN), {hiddenFromBirth:true}),
+S("Síndrome de Down",SN),
+Object.assign(S("Fibrose cística",SN), {hiddenFromBirth:true}),
+Object.assign(S("Doença neuromuscular",SN), {hiddenFromBirth:true}),
+S("Anomalia congênita de vias aéreas conhecida ao nascimento",SN),
+S("Necessidade de Nirsevimabe na maternidade",[
+  "Elegível",
+  "Não elegível"
+])
+], note:"Elegibilidade na maternidade: IG ≤36s6d ou critério congênito identificado ao nascimento. Os demais critérios deverão ser confirmados conforme avaliação subsequente, seguindo o protocolo vigente do SUS."},
 {title:"Rastreio de hipoglicemia e infecção", fields:[S("Necessita Dextro (HGT)?",SN),S("Necessita coleta de exames precoce?",SN)], note:"Dextro: RN GIG, macrossômico, filho de mãe DM, PIG, prematuro ou baixo peso → 1ª h + 3/3h. Cortes: <24h = 40 · 24–48h = 50 · >48h = 60. Se hipoglicemia sintomática, push Glicose 10% 2ml/kg EV e comunicar UTI Neo.\nColeta precoce: triagem infecciosa após 6h de vida se bolsa rota >18h, sinais de corioamnionite, ou SGB positivo/desconhecido sem profilaxia adequada (Hemograma + PCR). Incompatibilidade sanguínea: tipagem de cordão + hemograma, BT/frações, reticulócitos e Coombs direto."},
 {title:"Exame neurológico", quickNormal:true, fields:[
 Sn("Tônus",["Normotônico","Hipotônico","Hipertônico"],"Normotônico"),
@@ -3142,6 +3155,55 @@ function getGaForCalc(){
   const weeks = Number(match[1]);
   const days = Number(match[2] || 0);
   return weeks <= 50 && days <= 6 ? {weeks, days} : null;
+}
+
+const NIRSEVIMAB_SECTION = 'Avaliação de elegibilidade para Nirsevimabe na maternidade (SUS)';
+const NIRSEVIMAB_COMORBIDITIES = [
+  'Cardiopatia congênita com repercussão conhecida ao nascimento',
+  'Síndrome de Down',
+  'Anomalia congênita de vias aéreas conhecida ao nascimento'
+];
+function updateNirsevimabEligibility(){
+  const result = document.getElementById('nirsevimabEligibilityResult');
+  if(!result) return;
+  const ga = getGaForCalc();
+  const preterm = ga ? ga.weeks * 7 + ga.days <= 36 * 7 + 6 : null;
+  const values = NIRSEVIMAB_COMORBIDITIES.map(label => {
+    const key = findFieldKeyInPart(1, NIRSEVIMAB_SECTION, label);
+    return key ? answers[key] || '' : '';
+  });
+  const hasComorbidity = values.includes('Sim');
+  const comorbiditiesComplete = values.every(value => value === 'Sim' || value === 'Não');
+  let decision = '', message;
+  if(preterm === true){
+    decision = 'Elegível';
+    message = 'Elegível: IG ≤36s6d.';
+    result.className = 'bilirubin-result warning';
+  } else if(hasComorbidity){
+    decision = 'Elegível';
+    message = 'Elegível: condição congênita elegível identificada ao nascimento.';
+    result.className = 'bilirubin-result warning';
+  } else if(preterm === false && comorbiditiesComplete){
+    decision = 'Não elegível';
+    message = 'Não elegível pelos critérios avaliados ao nascimento.';
+    result.className = 'bilirubin-result success';
+  } else {
+    message = 'Informe a IG e os critérios congênitos para concluir a avaliação.';
+    result.className = 'bilirubin-result info';
+  }
+  const decisionKey = findFieldKeyInPart(1, NIRSEVIMAB_SECTION, 'Necessidade de Nirsevimabe na maternidade');
+  if(decisionKey){
+    const changed = answers[decisionKey] !== decision;
+    answers[decisionKey] = decision;
+    const decisionInput = document.querySelector('[data-answer-key="'+CSS.escape(decisionKey)+'"]');
+    if(decisionInput) decisionInput.value = decision;
+    if(changed){
+      recordRevision++;
+      scheduleAutoSave();
+    }
+  }
+  result.style.display = 'block';
+  result.textContent = message;
 }
 
 function ig21HcZInfo(sexo, gaWeeks, gaDays, pcCm){
@@ -4480,6 +4542,7 @@ function isToxoplasmosisField(field, sectionTitle){
 }
 
 function fieldVisible(field, answerSource = answers){
+if(field.hiddenFromBirth) return false;
 if(!field.sex) return true;
 const sexo = answerSource[SEX_KEY];
 if(!sexo || sexo === 'Ambíguo') return true;
@@ -5052,6 +5115,7 @@ inputsWrap.appendChild(fieldNote);
 if(field.l === 'IG' && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
   input.value = answers[baseKey] || '';
   input.placeholder = 'Ex.: 39s 2d ou 39+2';
+  input.addEventListener('input', updateNirsevimabEligibility);
   input.addEventListener('change', () => {
     applyWeightClassificationFromCurrentData();
     renderBuilder();
@@ -5212,6 +5276,21 @@ inputsWrap.appendChild(followInput);
 row.appendChild(inputsWrap);
 card.appendChild(row);
 });
+if(sec.title === NIRSEVIMAB_SECTION){
+  const eligibilityResult = document.createElement('div');
+  eligibilityResult.id = 'nirsevimabEligibilityResult';
+  eligibilityResult.className = 'bilirubin-result info';
+  eligibilityResult.setAttribute('role', 'status');
+  eligibilityResult.style.cssText = 'display:block;margin:0 14px 12px;';
+  card.appendChild(eligibilityResult);
+  const decisionKey = findFieldKeyInPart(1, NIRSEVIMAB_SECTION, 'Necessidade de Nirsevimabe na maternidade');
+  card.querySelectorAll('[data-answer-key]').forEach(input => {
+    input.addEventListener('input', updateNirsevimabEligibility);
+    input.addEventListener('change', updateNirsevimabEligibility);
+    if(input.dataset.answerKey === decisionKey) input.disabled = true;
+  });
+  updateNirsevimabEligibility();
+}
 if(sec.title === 'Sorologias maternas — 1º trimestre'){
   const toxoplasmosisInfo = document.createElement('div');
   toxoplasmosisInfo.className = 'bilirubin-result info';
