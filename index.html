@@ -3174,21 +3174,21 @@ function updateNirsevimabEligibility(){
   });
   const hasComorbidity = values.includes('Sim');
   const comorbiditiesComplete = values.every(value => value === 'Sim' || value === 'Não');
-  let decision = '', message;
+  let decision = '', detail;
   if(preterm === true){
     decision = 'Elegível';
-    message = 'Elegível: IG ≤36s6d.';
+    detail = 'IG ≤36s6d.';
     result.className = 'bilirubin-result warning';
   } else if(hasComorbidity){
     decision = 'Elegível';
-    message = 'Elegível: condição congênita elegível identificada ao nascimento.';
+    detail = 'Condição congênita elegível identificada ao nascimento.';
     result.className = 'bilirubin-result warning';
   } else if(preterm === false && comorbiditiesComplete){
     decision = 'Não elegível';
-    message = 'Não elegível pelos critérios avaliados ao nascimento.';
+    detail = 'Não há critério elegível identificado ao nascimento.';
     result.className = 'bilirubin-result success';
   } else {
-    message = 'Informe a IG e os critérios congênitos para concluir a avaliação.';
+    detail = 'Preencha a IG e os critérios congênitos para concluir.';
     result.className = 'bilirubin-result info';
   }
   const decisionKey = findFieldKeyInPart(1, NIRSEVIMAB_SECTION, 'Necessidade de Nirsevimabe na maternidade');
@@ -3203,7 +3203,7 @@ function updateNirsevimabEligibility(){
     }
   }
   result.style.display = 'block';
-  result.textContent = message;
+  result.textContent = (decision ? 'Resultado: '+decision+'. ' : 'Resultado: aguardando dados. ') + detail + ' Os demais critérios devem ser confirmados em avaliação subsequente.';
 }
 
 function ig21HcZInfo(sexo, gaWeeks, gaDays, pcCm){
