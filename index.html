@@ -2980,6 +2980,45 @@ body.login-mode .sync-status-controls { display: none !important; }
   }
   header.app-header{ background: #12665e !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
+
+/* ====== Ajustes: botões do histórico dentro da tela + indicador de sincronização centralizado na faixa ====== */
+@media screen {
+  /* Cada RN: nome/datas em cima, botões embaixo, quebrando de linha em vez de cortar */
+  body .history-item{ flex-direction: column; align-items: stretch; gap: 10px; }
+  body .history-actions{
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+    gap: 6px; width: 100%;
+  }
+  body .history-actions button{
+    min-width: 0; width: 100%; min-height: 40px;
+    white-space: normal !important; overflow-wrap: anywhere;
+    padding: 8px 10px; font-size: .78rem; line-height: 1.15; text-align: center;
+    border-radius: 14px !important;
+  }
+  body .history-name-line{ flex-wrap: wrap; }
+  body .history-name-line strong{ flex: 1 1 150px; }
+
+  /* Indicador de sincronização: fixo, centralizado na altura da faixa do título (posição calculada por JS) */
+  body .sync-status-controls{
+    position: fixed;
+    top: max(calc(8px + env(safe-area-inset-top)), var(--sync-center, 18px));
+    right: max(26px, calc(env(safe-area-inset-right) + 26px));
+    left: auto; bottom: auto;
+  }
+  /* Reserva espaço dos dois lados para o título continuar centralizado e sem ficar sob o indicador */
+  @media (min-width: 641px){ body header.app-header{ padding-left: 140px; padding-right: 140px; } }
+  @media (min-width: 900px){ body header.app-header{ padding-left: 170px; padding-right: 170px; } }
+}
+@media screen and (max-width: 640px) {
+  body header.app-header{ padding-left: 56px; padding-right: 56px; }
+  body .sync-status-controls{ right: 24px; }
+  body .sync-status-controls .sync-status-fab{ max-width: 150px; }
+  /* Sincronizado/sem pendências: só a bolinha verde; avisos e erros continuam com texto */
+  body .sync-status-controls .sync-status-fab[data-state="synced"],
+  body .sync-status-controls .sync-status-fab[data-state="idle"]{
+    font-size: 0; gap: 0; padding: 0; width: 40px; min-width: 40px; justify-content: center;
+  }
+}
 </style>
 </head>
 <body class="workflow-locked">
@@ -5056,6 +5095,8 @@ async function loadCurrentUserRecords(){
     writeSyncBase(localId, record.answers);
   });
   renderHistory();
+  renderEvaluatorNameHistory();
+  syncEvaluatorNamesWithServer(true);
   updatePendingStatus();
   if(SAFE_CONTEXT_MODE) retryPendingSaves();
 }
@@ -6632,32 +6673,82 @@ const evaluatorNameInput = document.getElementById('evaluatorName');
 const evaluatorNameHistory = document.getElementById('evaluatorNameHistory');
 const EVALUATOR_NAMES_STORAGE_KEY = 'fichaNeonatalNomesAlunos';
 
-function renderEvaluatorNameHistory(){
-  if(!evaluatorNameHistory) return;
-  let names = [];
+// ---- Nomes de alunos: lembrados neste aparelho, nos RNs já salvos e no servidor (todos os aparelhos) ----
+const EVALUATOR_NAMES_TABLE = 'nomes_alunos';
+let evaluatorNamesSyncing = false;
+let evaluatorNamesLastSync = 0;
+function evaluatorKey(name){ return String(name).trim().toLocaleLowerCase('pt-BR'); }
+function mergeEvaluatorNames(...lists){
+  const seen = new Set(), out = [];
+  lists.flat().forEach(item => {
+    const name = String(item || '').trim();
+    if(!name) return;
+    const key = evaluatorKey(name);
+    if(seen.has(key)) return;
+    seen.add(key); out.push(name);
+  });
+  return out;
+}
+function readLocalEvaluatorNames(){
   try {
     const stored = JSON.parse(localStorage.getItem(EVALUATOR_NAMES_STORAGE_KEY) || '[]');
-    if(Array.isArray(stored)) names = stored.filter(name => typeof name === 'string' && name.trim());
-  } catch(_) {}
+    return Array.isArray(stored) ? stored.filter(name => typeof name === 'string' && name.trim()).map(name => name.trim()) : [];
+  } catch(_) { return []; }
+}
+// Os RNs sincronizados já carregam o nome do aluno que os editou: isso funciona mesmo sem a tabela do servidor.
+function evaluatorNamesFromRecords(){
+  try { return loadHistory().map(record => record.answers && record.answers[EVALUATOR_NAME_KEY]).filter(Boolean); }
+  catch(_) { return []; }
+}
+function renderEvaluatorNameHistory(){
+  if(!evaluatorNameHistory) return;
+  const names = mergeEvaluatorNames(readLocalEvaluatorNames(), evaluatorNamesFromRecords())
+    .sort((a, b) => a.localeCompare(b, 'pt-BR', {sensitivity:'base'}));
   const placeholder = new Option('Selecionar nome usado anteriormente', '');
   evaluatorNameHistory.replaceChildren(placeholder, ...names.map(name => new Option(name, name)));
   evaluatorNameHistory.value = '';
+}
+async function pushEvaluatorNamesToServer(names){
+  if(!supabaseClient || !currentUser || !names.length) return;
+  try {
+    await supabaseClient.from(EVALUATOR_NAMES_TABLE)
+      .upsert(names.map(nome => ({user_id:currentUser.id, nome})), {onConflict:'user_id,nome_norm', ignoreDuplicates:true});
+  } catch(_) { /* tabela ainda não criada ou sem rede: os nomes continuam salvos neste aparelho */ }
+}
+async function syncEvaluatorNamesWithServer(force = false){
+  if(evaluatorNamesSyncing || !supabaseClient || !currentUser) return;
+  if(!force && Date.now() - evaluatorNamesLastSync < 20000) return;
+  evaluatorNamesSyncing = true;
+  try {
+    const {data, error} = await supabaseClient.from(EVALUATOR_NAMES_TABLE)
+      .select('nome').eq('user_id', currentUser.id).limit(500);
+    evaluatorNamesLastSync = Date.now();
+    if(error) return; // sem a tabela, seguem valendo os nomes dos RNs e deste aparelho
+    const remote = (data || []).map(row => row.nome);
+    const merged = mergeEvaluatorNames(readLocalEvaluatorNames(), remote, evaluatorNamesFromRecords());
+    try { localStorage.setItem(EVALUATOR_NAMES_STORAGE_KEY, JSON.stringify(merged.slice(0, 300))); } catch(_) {}
+    const remoteKeys = new Set(remote.map(evaluatorKey));
+    const missing = merged.filter(name => !remoteKeys.has(evaluatorKey(name)));
+    if(missing.length) await pushEvaluatorNamesToServer(missing);
+    renderEvaluatorNameHistory();
+  } catch(_) {
+    /* sem rede: tenta no próximo ciclo */
+  } finally {
+    evaluatorNamesSyncing = false;
+  }
 }
 
 function rememberEvaluatorName(value){
   const name = String(value || '').trim();
   if(!name) return;
-  let names = [];
-  try {
-    const stored = JSON.parse(localStorage.getItem(EVALUATOR_NAMES_STORAGE_KEY) || '[]');
-    if(Array.isArray(stored)) names = stored.filter(item => typeof item === 'string' && item.trim());
-  } catch(_) {}
-  names = [name, ...names.filter(item => item.trim().toLocaleLowerCase('pt-BR') !== name.toLocaleLowerCase('pt-BR'))].slice(0, 30);
-  try {
-    localStorage.setItem(EVALUATOR_NAMES_STORAGE_KEY, JSON.stringify(names));
-  } catch(_) {}
+  const names = mergeEvaluatorNames([name], readLocalEvaluatorNames()).slice(0, 300);
+  try { localStorage.setItem(EVALUATOR_NAMES_STORAGE_KEY, JSON.stringify(names)); } catch(_) {}
   renderEvaluatorNameHistory();
+  pushEvaluatorNamesToServer([name]);
 }
+// Ao abrir a lista para escolher, busca os nomes mais recentes de todos os aparelhos.
+evaluatorNameHistory.addEventListener('focus', () => { syncEvaluatorNamesWithServer(); });
+evaluatorNameHistory.addEventListener('pointerdown', () => { syncEvaluatorNamesWithServer(); });
 
 renderEvaluatorNameHistory();
 
@@ -7060,6 +7151,33 @@ recoverPendingLocalSnapshots();
 purgeBlankLocalRecords();
 renderHistory();
 setInterval(updateHistoryAgeBadges, 60000);
+
+// Centraliza o indicador de sincronização na altura da faixa do título (e o prende no topo quando a faixa sai da tela).
+let syncPositionQueued = false;
+function positionSyncControls(){
+  const controls = document.querySelector('.sync-status-controls');
+  const header = document.querySelector('header.app-header');
+  if(!controls || !header) return;
+  const rect = header.getBoundingClientRect();
+  const height = controls.offsetHeight || 42;
+  controls.style.setProperty('--sync-center', (rect.top + rect.height / 2 - height / 2) + 'px');
+}
+function queueSyncPosition(){
+  if(syncPositionQueued) return;
+  syncPositionQueued = true;
+  requestAnimationFrame(() => { syncPositionQueued = false; positionSyncControls(); });
+}
+window.addEventListener('scroll', queueSyncPosition, {passive:true});
+window.addEventListener('resize', queueSyncPosition);
+window.addEventListener('orientationchange', queueSyncPosition);
+if(window.ResizeObserver){
+  const syncResizeObserver = new ResizeObserver(queueSyncPosition);
+  const headerEl = document.querySelector('header.app-header');
+  const controlsEl = document.querySelector('.sync-status-controls');
+  if(headerEl) syncResizeObserver.observe(headerEl);
+  if(controlsEl) syncResizeObserver.observe(controlsEl);
+}
+positionSyncControls();
 renderBuilder();
 checkForAppUpdate();
 
