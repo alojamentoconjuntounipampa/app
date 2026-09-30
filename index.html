@@ -5,7 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#e3f3ee">
 <title>Ficha de Avaliação Neonatal — Alojamento Conjunto</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- Biblioteca do banco: tenta o arquivo supabase.js ao lado do index.html (funciona mesmo se a rede bloquear CDNs),
+     depois jsDelivr e unpkg. -->
+<script src="supabase.js"></script>
+<script>window.supabase || document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');</script>
+<script>window.supabase || document.write('<script src="https://unpkg.com/@supabase/supabase-js@2"><\/script>');</script>
 <style>
 /* Sorologias: evita corte de texto e alinha valores */
 .p-col-3 .p-table td.lbl { width: 75% !important; font-size: 0.60rem !important; white-space: normal !important; word-break: break-word !important; }
@@ -4726,7 +4730,7 @@ function updatePendingStatus(){
   } else if(queued){
     setFloatingSyncStatus('pending', 'Sincronização pendente · '+queued, 'Os dados estão salvos localmente e aguardam envio ao Supabase.');
   } else if(supabaseConfigured && !supabaseClient){
-    setFloatingSyncStatus('error', 'Somente neste aparelho', 'Não foi possível carregar o serviço de banco de dados; os dados estão salvos apenas neste aparelho.');
+    setFloatingSyncStatus('error', 'Somente neste aparelho', 'A biblioteca do banco de dados não carregou (provável bloqueio de rede). Os dados estão salvos apenas neste aparelho e serão enviados quando a conexão for liberada.');
   } else {
     setFloatingSyncStatus(currentUser && supabaseClient ? 'synced' : 'idle', currentUser && supabaseClient ? 'Sincronizado' : 'Sem pendências');
   }
@@ -5097,8 +5101,30 @@ async function loadCurrentUserRecords(){
   renderHistory();
   renderEvaluatorNameHistory();
   syncEvaluatorNamesWithServer(true);
+  syncLocalOnlyRecords();
   updatePendingStatus();
   if(SAFE_CONTEXT_MODE) retryPendingSaves();
+}
+
+// RNs criados neste aparelho sem conexão (nunca enviados ao banco) são enviados depois do login.
+let localOnlySyncRunning = false;
+async function syncLocalOnlyRecords(){
+  if(localOnlySyncRunning || !SAFE_CONTEXT_MODE || !supabaseClient || !currentUser) return;
+  localOnlySyncRunning = true;
+  try {
+    const candidates = loadHistory().filter(record =>
+      !record.database && !record.databaseId && hasRealContent(record.answers) &&
+      String(record.id) !== String(currentRecordId) &&
+      !readPendingQueue(record.id).some(item => ['queued','running','failed'].includes(item.state)));
+    for(const record of candidates.slice(0, 50)){
+      try {
+        enqueueOperation(createOpContext(record.id), snapshotFromStoredRecord(record), 'local-upload');
+        await processQueueForRecord(record.id);
+      } catch(_) { /* mantém no aparelho; tenta de novo no próximo login */ }
+    }
+  } finally {
+    localOnlySyncRunning = false;
+  }
 }
 
 function toggleHistory(){
