@@ -3751,6 +3751,9 @@ function mergeAnswersForSync(localAns, baseAns, remoteAns){
     const dirty = baseAns ? !sameVal(localAns[k], baseAns[k]) : !isEmptyDeep(localAns[k]);
     if(dirty) merged[k] = localAns[k];
   });
+  if(remoteAns.__fieldMap && localAns.__fieldMap && typeof remoteAns.__fieldMap === 'object' && typeof localAns.__fieldMap === 'object'){
+    merged.__fieldMap = {...remoteAns.__fieldMap, ...localAns.__fieldMap};
+  }
   return merged;
 }
 // Traz para "target" apenas o que veio do servidor e que o usuário não mexeu desde o envio.
@@ -3829,6 +3832,79 @@ async function pullRemoteForCurrent(){
     pullInFlight = false;
   }
 }
+// ---- Chaves posicionais: proteção contra mudança de layout da ficha ----
+// As respostas usam a posição do campo (ex.: 1_6_2). Se a ficha ganhar/perder/reordenar campos,
+// RNs salvos antes passariam a mostrar valores em linhas erradas. Cada registro guarda um mapa
+// posição -> rótulo do campo e, ao reabrir, as respostas são recolocadas no campo certo.
+let _schemaIdx = null;
+function getSchemaIndex(){
+  if(_schemaIdx) return _schemaIdx;
+  const byLabel = {}, byKey = {};
+  DATA.forEach((part, p) => part.sections.forEach((sec, s) => sec.fields.forEach((f, i) => {
+    const key = p+'_'+s+'_'+i, id = p+'|'+sec.title+'|'+f.l;
+    byKey[key] = id;
+    byLabel[id] = (id in byLabel) ? null : key; // rótulo repetido na mesma seção = ambíguo
+  })));
+  return _schemaIdx = {byLabel, byKey};
+}
+function splitAnswerKey(k){
+  const m = /^(\d+_\d+_\d+)(_.*)?$/.exec(k);
+  return m ? [m[1], m[2] || ''] : null;
+}
+function buildFieldMap(ans){
+  const {byKey} = getSchemaIndex();
+  const map = {};
+  Object.keys(ans || {}).forEach(k => {
+    const b = splitAnswerKey(k);
+    if(b && byKey[b[0]] && !isEmptyDeep(ans[k])) map[b[0]] = byKey[b[0]];
+  });
+  return map;
+}
+function remapAnswersToCurrentSchema(ans){
+  const map = ans.__fieldMap;
+  if(!map || typeof map !== 'object') return false;
+  const {byLabel, byKey} = getSchemaIndex();
+  const moves = [];
+  Object.keys(ans).forEach(k => {
+    const b = splitAnswerKey(k);
+    if(!b || isEmptyDeep(ans[k])) return;
+    const oldId = map[b[0]];
+    if(!oldId || byKey[b[0]] === oldId) return;
+    const target = byLabel[oldId];
+    if(!target) return; // campo removido, renomeado ou ambíguo: não mexe
+    moves.push([k, target + b[1]]);
+  });
+  if(!moves.length) return false;
+  const values = {};
+  moves.forEach(([from]) => { values[from] = ans[from]; });
+  moves.forEach(([from]) => { ans[from] = ''; }); // '' (não delete) para que o servidor também limpe a posição antiga
+  moves.forEach(([from, to]) => { ans[to] = values[from]; });
+  return true;
+}
+// Registros antigos (sem mapa): move valor que não cabe no campo (ex.: texto num campo numérico)
+// para o único campo vazio da mesma aba que tem exatamente essa opção.
+function healMisplacedAnswers(ans){
+  let changed = false;
+  DATA.forEach((part, p) => {
+    const slots = [];
+    part.sections.forEach((sec, s) => sec.fields.forEach((f, i) => {
+      if(f.t === 'select') slots.push({key:p+'_'+s+'_'+i, opts:f.o});
+    }));
+    part.sections.forEach((sec, s) => sec.fields.forEach((f, i) => {
+      const key = p+'_'+s+'_'+i, v = ans[key];
+      if(typeof v !== 'string' || v.trim() === '') return;
+      let misplaced = false;
+      if(f.t === 'select') misplaced = !f.o.includes(v);
+      else if(f.t === 'number') misplaced = !Number.isFinite(Number(v));
+      else if(f.t === 'text') misplaced = v.length >= 12; // só textos longos que sejam exatamente uma opção
+      if(!misplaced) return;
+      const homes = slots.filter(sl => sl.key !== key && sl.opts.includes(v));
+      if(homes.length !== 1 || !isEmptyDeep(ans[homes[0].key])) return;
+      ans[homes[0].key] = v; ans[key] = ''; changed = true;
+    }));
+  });
+  return changed;
+}
 // ==================== FIM DA PROTEÇÃO CONTRA PERDA DE DADOS ====================
 
 function createStableId(){
@@ -3867,6 +3943,7 @@ function captureCurrentRecordSnapshot(recordId = currentRecordId){
   const selectedGa = gaSource === 'manual' && manualGa.source ? manualGa[manualGa.source] : null;
   // A IG digitada é uma resposta normal do RN; nunca substitua seu valor no snapshot.
   snapshotAnswers.__gaManual = manualGa;
+  snapshotAnswers.__fieldMap = buildFieldMap(snapshotAnswers);
   snapshotAnswers.__gaSource = selectedGa ? 'manual' : '';
   return Object.freeze({
     recordId: String(recordId),
@@ -4763,6 +4840,11 @@ async function loadRecord(id){
   activeSessionToken = createStableId(); recordRevision = 0;
   Object.keys(answers).forEach(key => delete answers[key]);
   Object.assign(answers, record.answers || {});
+  // Recoloca respostas salvas em layout antigo no campo certo (evita valor em linha errada).
+  const remapped = remapAnswersToCurrentSchema(answers);
+  const healed = remapped ? false : healMisplacedAnswers(answers);
+  delete answers.__fieldMap;
+  if(remapped || healed) recordRevision++;
   // O aluno deve se identificar novamente a cada reedição.
   delete answers[EVALUATOR_NAME_KEY];
   gaDum = record.gaDum || (record.answers && record.answers.__gaDum) || null;
