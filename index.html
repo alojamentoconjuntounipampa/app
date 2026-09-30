@@ -2660,7 +2660,7 @@ body.login-mode .tabs { display: none !important; }
 .sync-status-fab[data-state="saving"]::before,
 .sync-status-fab[data-state="syncing"]::before { background: #d08a00; box-shadow: 0 0 0 3px rgba(208,138,0,.16); }
 .sync-status-fab[data-state="pending"]::before { background: #d08a00; box-shadow: 0 0 0 3px rgba(208,138,0,.16); }
-.sync-status-fab[data-state="error"] { background: #fff3f2; color: #9c2e2e; border-color: #efc0c0; }
+.sync-status-fab[data-state="error"] { background: rgba(255,243,242,.76); color: #9c2e2e; border-color: rgba(239,192,192,.82); }
 .sync-status-fab[data-state="error"]::before { background: #c62828; box-shadow: 0 0 0 3px rgba(198,40,40,.14); }
 .sync-status-fab[data-state="synced"]::before { background: #15947f; box-shadow: 0 0 0 3px rgba(21,148,127,.15); }
 body.login-mode .sync-status-fab { display: none !important; }
@@ -2670,13 +2670,15 @@ body.login-mode .sync-status-fab { display: none !important; }
 }
 .sync-status-controls {
   position: fixed;
-  left: max(18px, env(safe-area-inset-left));
-  bottom: calc(94px + env(safe-area-inset-bottom));
+  top: calc(18px + env(safe-area-inset-top));
+  right: max(18px, env(safe-area-inset-right));
+  left: auto;
+  bottom: auto;
   z-index: 60;
   display: flex;
   align-items: center;
   gap: 7px;
-  max-width: min(390px, calc(100vw - 155px));
+  max-width: min(390px, calc(100vw - 24px));
 }
 .sync-status-controls .sync-status-fab {
   position: static;
@@ -2686,6 +2688,9 @@ body.login-mode .sync-status-fab { display: none !important; }
   flex: 1 1 auto;
   min-width: 0;
   max-width: none;
+  background: rgba(248,252,251,.66);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 .sync-retry-fab {
   display: inline-grid;
@@ -2697,9 +2702,11 @@ body.login-mode .sync-status-fab { display: none !important; }
   padding: 0;
   border: 1px solid rgba(255,255,255,.75);
   border-radius: 50%;
-  background: rgba(248,252,251,.96);
+  background: rgba(248,252,251,.68);
   color: #0f6e63;
-  box-shadow: 0 10px 28px rgba(27,58,75,.22);
+  box-shadow: 0 10px 28px rgba(27,58,75,.16);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   font: 700 1.5rem/1 -apple-system,"Segoe UI",sans-serif;
 }
 .sync-retry-fab:hover { background: #e4efe9; }
@@ -2708,14 +2715,36 @@ body.login-mode .sync-status-fab { display: none !important; }
 body.login-mode .sync-status-controls { display: none !important; }
 @media screen and (max-width:640px) {
   .sync-status-controls {
-    left: 12px;
-    bottom: calc(76px + env(safe-area-inset-bottom));
-    max-width: calc(100vw - 142px);
+    top: calc(12px + env(safe-area-inset-top));
+    right: 12px;
+    left: auto;
+    bottom: auto;
+    max-width: calc(100vw - 24px);
     gap: 5px;
   }
   .sync-retry-fab { flex-basis: 38px; width: 38px; height: 38px; min-height: 38px; }
 }
 @media print { .sync-status-fab, .sync-status-controls { display: none !important; } }
+
+/* Cabeçalho centralizado com tipografia mais elegante e responsiva. */
+@media screen {
+  header.app-header {
+    justify-content: center;
+    text-align: center;
+  }
+
+  header.app-header > div:first-child {
+    width: 100%;
+  }
+
+  header.app-header h1 {
+    font-family: "Avenir Next", "Segoe UI", sans-serif;
+    font-size: clamp(1.05rem, 2.3vw, 1.45rem);
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: .025em;
+  }
+}
 </style>
 </head>
 <body class="workflow-locked">
