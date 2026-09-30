@@ -2625,9 +2625,97 @@ body.login-mode .tabs { display: none !important; }
   -webkit-backdrop-filter: blur(12px);
 }
 .discharge-print-fab.visible { display: inline-flex; }
+.sync-status-fab {
+  position: fixed;
+  left: max(18px, env(safe-area-inset-left));
+  bottom: calc(94px + env(safe-area-inset-bottom));
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(320px, calc(100vw - 150px));
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255,255,255,.72);
+  border-radius: 999px;
+  background: rgba(248,252,251,.94);
+  color: #1b3a4b;
+  box-shadow: 0 10px 28px rgba(27,58,75,.22);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  font: 700 .76rem/1.2 -apple-system,"Segoe UI",sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sync-status-fab::before {
+  content: '';
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  border-radius: 50%;
+  background: #718096;
+  box-shadow: 0 0 0 3px rgba(113,128,150,.14);
+}
+.sync-status-fab[data-state="saving"]::before,
+.sync-status-fab[data-state="syncing"]::before { background: #d08a00; box-shadow: 0 0 0 3px rgba(208,138,0,.16); }
+.sync-status-fab[data-state="pending"]::before { background: #d08a00; box-shadow: 0 0 0 3px rgba(208,138,0,.16); }
+.sync-status-fab[data-state="error"] { background: #fff3f2; color: #9c2e2e; border-color: #efc0c0; }
+.sync-status-fab[data-state="error"]::before { background: #c62828; box-shadow: 0 0 0 3px rgba(198,40,40,.14); }
+.sync-status-fab[data-state="synced"]::before { background: #15947f; box-shadow: 0 0 0 3px rgba(21,148,127,.15); }
+body.login-mode .sync-status-fab { display: none !important; }
 @media screen and (max-width:640px) {
   .discharge-print-fab { right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); padding: 10px 13px; font-size: .78rem; }
+  .sync-status-fab { left: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); max-width: calc(100vw - 140px); min-height: 40px; padding: 8px 11px; font-size: .68rem; }
 }
+.sync-status-controls {
+  position: fixed;
+  left: max(18px, env(safe-area-inset-left));
+  bottom: calc(94px + env(safe-area-inset-bottom));
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  max-width: min(390px, calc(100vw - 155px));
+}
+.sync-status-controls .sync-status-fab {
+  position: static;
+  left: auto;
+  bottom: auto;
+  z-index: auto;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: none;
+}
+.sync-retry-fab {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  min-height: 42px;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,.75);
+  border-radius: 50%;
+  background: rgba(248,252,251,.96);
+  color: #0f6e63;
+  box-shadow: 0 10px 28px rgba(27,58,75,.22);
+  font: 700 1.5rem/1 -apple-system,"Segoe UI",sans-serif;
+}
+.sync-retry-fab:hover { background: #e4efe9; }
+.sync-retry-fab:disabled { cursor: wait; opacity: .6; transform: none; }
+.sync-retry-fab[hidden] { display: none !important; }
+body.login-mode .sync-status-controls { display: none !important; }
+@media screen and (max-width:640px) {
+  .sync-status-controls {
+    left: 12px;
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    max-width: calc(100vw - 142px);
+    gap: 5px;
+  }
+  .sync-retry-fab { flex-basis: 38px; width: 38px; height: 38px; min-height: 38px; }
+}
+@media print { .sync-status-fab, .sync-status-controls { display: none !important; } }
 </style>
 </head>
 <body class="workflow-locked">
@@ -2656,6 +2744,10 @@ body.login-mode .tabs { display: none !important; }
 <button class="tab-btn history-nav-btn" id="btnHistoryNav" type="button" aria-label="Histórico" aria-pressed="false"><span class="nav-icon" aria-hidden="true">▤</span><span class="tab-label">Histórico</span></button>
 </nav>
 <button class="btn-primary discharge-print-fab" id="btnPrintDischargeQuick" type="button" aria-label="Imprimir ficha" title="Imprimir ficha">🖨️ <span>Imprimir</span></button>
+<div class="sync-status-controls">
+  <div class="sync-status-fab" id="syncStatusFab" data-state="idle" role="status" aria-live="polite" aria-atomic="true" title="Status da sincronização">Sem pendências</div>
+  <button class="sync-retry-fab" id="btnRetryPendingFab" type="button" aria-label="Tentar sincronizar pendências" title="Tentar sincronizar pendências" hidden>↻</button>
+</div>
 <div id="builder" class="entry-locked">
 <section class="history-card entry-gate" id="entryGate" aria-labelledby="entryGateTitle">
 <h2 id="entryGateTitle">Iniciar avaliação neonatal</h2>
@@ -2868,6 +2960,10 @@ S("Ecocardiograma fetal",["Normal","Alterado","Não realizado"]),
 S("Uso de corticoide (doses)",["Não","Sim - 1 dose","Sim - esquema completo (2 doses)"]),
 S("Bolsa rota (horas)",["Menor que 18 horas","Maior que 18 horas","Durante o parto"]),
 T("Medicações utilizadas na gestação")
+]},
+{title:"Vacinação materna", fields:[
+S("Vacinação dTpa",["Realizada","Não realizada"]),
+S("Vacinação contra VSR",["Realizada","Não realizada"])
 ]}
 ] },
 { label: "Ficha de avaliação neonatal — RN, 1ª hora de vida", tabLabel:"RN — 1ª hora de vida", sections: [
@@ -3624,9 +3720,18 @@ function writePendingQueue(recordId, queue){
   localStorage.setItem(queueStorageKey(recordId), JSON.stringify(queue));
   updatePendingStatus();
 }
+function setFloatingSyncStatus(state, label, detail = ''){
+  const indicator = document.getElementById('syncStatusFab');
+  if(!indicator) return;
+  indicator.dataset.state = state;
+  indicator.textContent = label;
+  indicator.title = detail || label;
+  indicator.setAttribute('aria-label', detail ? label + '. ' + detail : label);
+}
 function updatePendingStatus(){
   if(!saveDatabaseMessage) return;
-  let count = 0;
+  let count = 0, failed = 0, running = 0, queued = 0;
+  let lastError = '';
   const pendingNames = new Set();
   for(let i=0;i<localStorage.length;i++){
     const key = localStorage.key(i);
@@ -3635,6 +3740,11 @@ function updatePendingStatus(){
       const queue = JSON.parse(localStorage.getItem(key) || '[]');
       const pending = queue.filter(item => item.state !== 'done' && item.state !== 'superseded');
       count += pending.length;
+      failed += pending.filter(item => item.state === 'failed').length;
+      running += pending.filter(item => item.state === 'running').length;
+      queued += pending.filter(item => item.state === 'queued').length;
+      const failedItem = pending.slice().reverse().find(item => item.state === 'failed' && item.error);
+      if(failedItem) lastError = failedItem.error;
       if(pending.length){
         const latest = pending[pending.length - 1];
         const mother = latest.snapshot && latest.snapshot.answers && latest.snapshot.answers['0_0_0'];
@@ -3644,6 +3754,17 @@ function updatePendingStatus(){
   }
   const retryButton = document.getElementById('btnRetryPending');
   if(retryButton) retryButton.style.display = count ? 'inline-block' : 'none';
+  const retryFab = document.getElementById('btnRetryPendingFab');
+  if(retryFab) retryFab.hidden = count === 0;
+  if(running){
+    setFloatingSyncStatus('syncing', 'Sincronizando…', count+' operação(ões) em andamento ou pendentes.');
+  } else if(failed){
+    setFloatingSyncStatus('error', 'Falha na sincronização · '+failed, lastError || 'Há operações que precisam ser sincronizadas.');
+  } else if(queued){
+    setFloatingSyncStatus('pending', 'Sincronização pendente · '+queued, 'Os dados estão salvos localmente e aguardam envio ao Supabase.');
+  } else {
+    setFloatingSyncStatus(currentUser && supabaseClient ? 'synced' : 'idle', currentUser && supabaseClient ? 'Sincronizado' : 'Sem pendências');
+  }
   if(count) {
     const modeNote = SAFE_CONTEXT_MODE ? '' : ' A sincronização automática está desativada; use “Tentar sincronizar pendências” quando desejar.';
     setSaveDatabaseMessage(count + ' operação(ões) pendente(s): '+[...pendingNames].join(', ')+'.'+modeNote, true);
@@ -3784,7 +3905,7 @@ async function processQueueForRecord(recordId){
         const errorMessage = error && error.message ? error.message : String(error);
         setSaveDatabaseMessage(errorMessage.includes('reconciliação')
           ? errorMessage
-          : 'RN com alterações locais pendentes de sincronização.', true);
+          : 'Erro ao sincronizar com o Supabase: '+errorMessage+'. Os dados continuam salvos localmente e a sincronização está pendente.', true);
       }
       return {ok:false, error:error && error.message ? error.message : String(error)};
     }
@@ -3849,6 +3970,7 @@ function switchRecordSafely(activateNext){
 function scheduleAutoSave(){
   if(!Object.keys(answers).length) return;
   if(!currentRecordId) ensureCurrentRecordId();
+  setFloatingSyncStatus('saving', 'Salvando alterações…', 'As alterações serão guardadas localmente antes da sincronização.');
   clearTimeout(autoSaveTimer);
   const context = createOpContext(currentRecordId);
   const snapshot = captureCurrentRecordSnapshot(context.recordId);
@@ -3868,8 +3990,13 @@ function scheduleAutoSave(){
 
 function setSaveDatabaseMessage(message, error = false){
   if(!saveDatabaseMessage) return;
-  saveDatabaseMessage.textContent = message;
-  saveDatabaseMessage.style.color = error ? '#F3B3B3' : '#C9D6D2';
+  saveDatabaseMessage.textContent = error ? '⚠️ ' + message : message;
+  saveDatabaseMessage.style.color = error ? '#9C2E2E' : 'var(--ink-soft)';
+  saveDatabaseMessage.style.background = error ? '#FBE6E6' : 'transparent';
+  saveDatabaseMessage.style.border = error ? '1px solid #EFC0C0' : 'none';
+  saveDatabaseMessage.style.borderRadius = error ? '8px' : '0';
+  saveDatabaseMessage.style.padding = error ? '8px 10px' : '0';
+  saveDatabaseMessage.setAttribute('role', error ? 'alert' : 'status');
 }
 
 async function saveCurrentRecordToDatabase(context = null, snapshot = null){
@@ -4236,7 +4363,7 @@ function renderHistory(){
     const activeRecords = records.filter(record => {
       const isAlta = record.alta === true || (record.answers && record.answers.__alta === true);
       const isUtiNeo = record.utiNeo === true || (record.answers && record.answers.__utiNeo === true);
-      return !isAlta && !isUtiNeo;
+      return Boolean(recordBirthDate(record)) && !isAlta && !isUtiNeo;
     });
     historyCount.textContent = activeRecords.length + (activeRecords.length === 1 ? ' RN' : ' RNs');
   }
@@ -5760,6 +5887,13 @@ btnSaveDatabase.addEventListener('click', () => {
 btnRetryPending.addEventListener('click', () => {
   if(!currentUser){ setSaveDatabaseMessage('Faça login para sincronizar; os snapshots continuam preservados localmente.', true); return; }
   retryPendingSaves();
+});
+document.getElementById('btnRetryPendingFab').addEventListener('click', event => {
+  const button = event.currentTarget;
+  if(!currentUser){ setSaveDatabaseMessage('Faça login para sincronizar; os snapshots continuam preservados localmente.', true); return; }
+  button.disabled = true;
+  setFloatingSyncStatus('syncing', 'Sincronizando…', 'Tentando reenviar as pendências ao Supabase.');
+  retryPendingSaves().finally(() => { button.disabled = false; });
 });
 btnGenerate.addEventListener('click', () => generatePrint());
 
