@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#e3f3ee">
 <title>Ficha de Avaliação Neonatal — Alojamento Conjunto</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -2745,6 +2746,240 @@ body.login-mode .sync-status-controls { display: none !important; }
     letter-spacing: .025em;
   }
 }
+
+/* Versões, lixeira e backup */
+.history-tools{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px;}
+.vm-overlay{position:fixed;inset:0;z-index:10000;background:rgba(15,40,50,.55);display:flex;align-items:flex-end;justify-content:center;}
+.vm-panel{background:#fff;width:min(720px,100%);max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(15,40,50,.3);font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;color:#1b3a4b;}
+@media (min-width:700px){.vm-overlay{align-items:center;}.vm-panel{border-radius:16px;}}
+.vm-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+.vm-head h3{margin:0;font-size:1rem;}
+.vm-info{font-size:.78rem;color:#3f5a68;line-height:1.4;margin:8px 0;}
+.vm-list{display:grid;gap:8px;margin-top:8px;}
+.vm-item{border:1px solid #d5e4de;border-radius:10px;padding:10px 12px;background:#f8fcfb;}
+.vm-item-title{font-weight:700;font-size:.82rem;}
+.vm-item-meta{font-size:.72rem;color:#3f5a68;margin-top:2px;}
+.vm-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.vm-diff{margin-top:8px;padding:8px;background:#fff;border:1px dashed #b9d8cf;border-radius:8px;max-height:240px;overflow:auto;}
+.vm-diff-line{font-size:.74rem;line-height:1.35;padding:3px 0;border-bottom:1px solid #eef3f1;word-break:break-word;}
+@media print{.vm-overlay{display:none!important;}}
+@media (max-width:640px){.history-tools button{flex:1 1 30%;min-width:0;}}
+
+/* ====================== VISUAL "LIQUID GLASS" (somente tela; a impressão não muda) ====================== */
+@media screen {
+  :root{
+    --g-blur: blur(22px) saturate(180%);
+    --g-blur-strong: blur(32px) saturate(190%);
+    --g-fill: linear-gradient(145deg, rgba(255,255,255,.68), rgba(255,255,255,.44) 55%, rgba(255,255,255,.58));
+    --g-fill-strong: linear-gradient(145deg, rgba(255,255,255,.80), rgba(255,255,255,.60) 55%, rgba(255,255,255,.72));
+    --g-edge: inset 0 1px 1px rgba(255,255,255,.95), inset 0 -1px 1px rgba(255,255,255,.30), inset 0 0 0 1px rgba(255,255,255,.42);
+    --g-shadow: 0 14px 34px rgba(27,58,75,.12), 0 2px 6px rgba(27,58,75,.06);
+    --g-line: rgba(27,58,75,.08);
+    --g-ink: #163440;
+    --g-ink-soft: #3f5a68;
+  }
+
+  /* Fundo colorido e fixo: é ele que aparece "refratado" através do vidro ao rolar a página. */
+  body{
+    background: linear-gradient(160deg, #e3f3ee 0%, #e8eef8 50%, #f6ece4 100%) fixed !important;
+    color: var(--g-ink);
+  }
+  body::before{
+    content:'';
+    position:fixed; inset:-10%;
+    z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(38% 32% at 12% 14%, rgba(70,205,182,.50), transparent 70%),
+      radial-gradient(34% 30% at 90% 10%, rgba(150,132,255,.40), transparent 70%),
+      radial-gradient(40% 34% at 86% 84%, rgba(255,170,120,.40), transparent 70%),
+      radial-gradient(36% 32% at 10% 88%, rgba(100,170,255,.40), transparent 70%);
+  }
+
+  /* Barra superior: vidro tingido de verde, texto branco. */
+  header.app-header{
+    background: linear-gradient(135deg, rgba(14,101,93,.80), rgba(20,91,98,.68)) !important;
+    -webkit-backdrop-filter: var(--g-blur-strong); backdrop-filter: var(--g-blur-strong);
+    border: 1px solid rgba(255,255,255,.35);
+    box-shadow: var(--g-edge), 0 14px 34px rgba(15,80,72,.22) !important;
+    margin: 10px 12px 0; border-radius: 26px;
+  }
+  @media (min-width:641px){ header.app-header{ position: sticky; top: 10px; } }
+
+  /* Cartões */
+  body section.card, body .history-card, body .calc-card, body .tab-navigation, body .entry-gate{
+    background: var(--g-fill) !important;
+    -webkit-backdrop-filter: var(--g-blur); backdrop-filter: var(--g-blur);
+    border: 1px solid rgba(255,255,255,.60) !important;
+    border-radius: 22px !important;
+    box-shadow: var(--g-edge), var(--g-shadow) !important;
+  }
+  body section.card > .card-head{
+    background: rgba(255,255,255,.30) !important;
+    border-bottom: 1px solid var(--g-line) !important;
+  }
+  body section.card > .card-head h2, body .history-card h2{ color: #0b5a50 !important; }
+  body .calc-card > h2{
+    background: linear-gradient(135deg, rgba(14,101,93,.86), rgba(20,91,98,.78)) !important;
+    border-bottom: 1px solid rgba(255,255,255,.3);
+  }
+  body .field-row{ background: transparent; border-top: 1px solid var(--g-line) !important; }
+  body .field-label{ color: var(--g-ink) !important; }
+  body .field-row.abnormal{ background: rgba(255,232,232,.78) !important; border-left: 4px solid #c62828 !important; }
+  body .field-row.first-eval-group, body .first-eval-group{ background: rgba(228,242,255,.72) !important; }
+
+  /* Campos: mais opacos que o vidro, para leitura e digitação */
+  body .field-row input, body .field-row select, body .calc-field input, body .calc-field select,
+  body .ga-manual-entry input, body .ga-manual-entry select, body .entry-gate select,
+  body .evaluator-card input, body .evaluator-card #evaluatorNameHistory, body .history-record-picker-controls select{
+    background: rgba(255,255,255,.82) !important;
+    border: 1px solid rgba(15,110,99,.20) !important;
+    border-radius: 12px !important;
+    color: var(--g-ink) !important;
+    box-shadow: inset 0 1px 2px rgba(27,58,75,.08);
+  }
+  body .field-row input:focus, body .field-row select:focus, body .calc-field input:focus, body .calc-field select:focus,
+  body .ga-manual-entry input:focus, body .evaluator-card input:focus{
+    outline: none; border-color: #0f6e63 !important;
+    box-shadow: 0 0 0 3px rgba(21,148,127,.25), inset 0 1px 2px rgba(27,58,75,.06);
+  }
+  body .field-row .field-inputs .sub label, body .calc-field label{ color: var(--g-ink-soft) !important; }
+
+  /* Alterações continuam bem visíveis em vermelho */
+  body .field-row.abnormal .field-label{ color:#b71c1c !important; font-weight:700; }
+  body .field-row.abnormal input, body .field-row.abnormal select{
+    border-color:#d32f2f !important; box-shadow:0 0 0 2px rgba(211,47,47,.14) !important;
+  }
+
+  /* Calculadora de IG (summary) */
+  body .ga-calculator-toggle > summary{
+    background: var(--g-fill) !important;
+    -webkit-backdrop-filter: var(--g-blur); backdrop-filter: var(--g-blur);
+    border: 1px solid rgba(255,255,255,.65) !important; color: #0b5a50 !important;
+    border-radius: 20px !important; box-shadow: var(--g-edge), var(--g-shadow) !important;
+  }
+  body .ga-calculator-toggle[open] > summary{ border-radius: 20px 20px 0 0 !important; }
+  body .ga-calculator-toggle .calc-card{ border-radius: 0 0 22px 22px !important; }
+
+  /* Avisos (legibilidade mantida: texto escuro sobre fundo claro) */
+  body .note-box{ background: rgba(255,243,205,.80) !important; border: 1px solid rgba(231,207,180,.9) !important; color: #6b4200 !important; border-radius: 14px !important; }
+  body .bilirubin-result{ border-radius: 14px; }
+  body .bilirubin-result.info{ background: rgba(231,241,247,.85); }
+  body .bilirubin-result.success{ background: rgba(228,239,233,.88); }
+  body .bilirubin-result.warning{ background: rgba(251,240,230,.90); }
+  body .bilirubin-result.danger{ background: rgba(251,230,230,.90); }
+
+  /* Botões */
+  body button{ border-radius: 14px; }
+  body .btn-primary{
+    background: linear-gradient(180deg, #13867a, #0d6a5f) !important; color: #fff !important;
+    border: 1px solid rgba(255,255,255,.40) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 8px 18px rgba(15,110,99,.28) !important;
+  }
+  body .btn-primary:hover{ background: linear-gradient(180deg, #10786d, #0a5d53) !important; }
+  body .btn-secondary{
+    background: rgba(255,255,255,.66) !important; color: #0b5a50 !important;
+    border: 1px solid rgba(15,110,99,.25) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 4px 12px rgba(27,58,75,.08) !important;
+  }
+  body .btn-secondary:hover{ background: rgba(255,255,255,.88) !important; color: #0b5a50 !important; }
+  body .btn-mini{
+    background: rgba(228,239,233,.78) !important; color: #0b5a50 !important;
+    border: 1px solid rgba(15,110,99,.22) !important; border-radius: 999px !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.85) !important;
+  }
+  body .btn-mini:hover{ background: rgba(211,233,224,.95) !important; }
+  body .btn-ghost{ background: rgba(255,255,255,.14); color: #fff; border: 1px solid rgba(255,255,255,.5); }
+
+  /* Barra de ações do formulário */
+  body .form-actions{
+    background: var(--g-fill-strong) !important;
+    -webkit-backdrop-filter: var(--g-blur); backdrop-filter: var(--g-blur);
+    border: 1px solid rgba(255,255,255,.65) !important; border-radius: 22px !important;
+    box-shadow: var(--g-edge), var(--g-shadow) !important;
+  }
+
+  /* Dock de navegação (cápsula de vidro) */
+  body .tabs{
+    background: linear-gradient(145deg, rgba(255,255,255,.72), rgba(255,255,255,.48)) !important;
+    -webkit-backdrop-filter: var(--g-blur-strong); backdrop-filter: var(--g-blur-strong);
+    border: 1px solid rgba(255,255,255,.75) !important; border-radius: 28px !important;
+    box-shadow: var(--g-edge), 0 16px 40px rgba(27,58,75,.22) !important;
+  }
+  body .tabs .tab-btn{ color: #2d4c5a !important; background: transparent !important; box-shadow: none; }
+  body .tabs .tab-btn:hover{ background: rgba(255,255,255,.55) !important; }
+  body .tabs .tab-btn.active{
+    background: linear-gradient(180deg, rgba(19,134,122,.96), rgba(13,106,95,.94)) !important; color: #fff !important;
+    border-color: rgba(255,255,255,.55) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 6px 14px rgba(15,110,99,.30) !important;
+  }
+
+  /* Histórico */
+  body .history-item{
+    background: rgba(255,255,255,.62) !important; border: 1px solid rgba(255,255,255,.75) !important;
+    border-radius: 16px !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 4px 12px rgba(27,58,75,.06);
+  }
+  body .history-info strong{ color: var(--g-ink) !important; }
+  body .history-info span{ color: var(--g-ink-soft) !important; }
+  body .history-group-title{ border-radius: 14px; }
+  body .history-bulk-tools{ background: rgba(240,248,245,.78); border: 1px solid rgba(213,228,222,.9); border-radius: 16px; }
+  body .history-record-picker{ border-radius: 18px; }
+
+  /* Botões flutuantes de status/impressão */
+  body .sync-status-fab, body .sync-status-controls .sync-status-fab{
+    background: rgba(250,253,252,.72) !important;
+    -webkit-backdrop-filter: var(--g-blur); backdrop-filter: var(--g-blur);
+    border: 1px solid rgba(255,255,255,.8); box-shadow: var(--g-edge), 0 10px 28px rgba(27,58,75,.18);
+    color: var(--g-ink);
+  }
+  body .sync-status-fab[data-state="error"]{ background: rgba(255,240,238,.88) !important; color: #8f2424; }
+  body .sync-retry-fab{
+    background: rgba(250,253,252,.75) !important;
+    -webkit-backdrop-filter: var(--g-blur); backdrop-filter: var(--g-blur);
+    border: 1px solid rgba(255,255,255,.8); box-shadow: var(--g-edge), 0 10px 28px rgba(27,58,75,.18); color: #0b5a50;
+  }
+  body .discharge-print-fab{ border-radius: 999px; }
+
+  /* Janelas (Versões / Lixeira) */
+  body .vm-overlay{ background: rgba(15,40,50,.32); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+  body .vm-panel{
+    background: var(--g-fill-strong);
+    -webkit-backdrop-filter: var(--g-blur-strong); backdrop-filter: var(--g-blur-strong);
+    border: 1px solid rgba(255,255,255,.75); box-shadow: var(--g-edge), 0 -10px 40px rgba(15,40,50,.25);
+  }
+  body .vm-item{ background: rgba(255,255,255,.66); border: 1px solid rgba(255,255,255,.8); border-radius: 14px; }
+  body .vm-diff{ background: rgba(255,255,255,.8); }
+
+  /* Login */
+  body.login-mode #loginView{
+    background: linear-gradient(145deg, rgba(255,255,255,.84), rgba(255,255,255,.66)) !important;
+    -webkit-backdrop-filter: var(--g-blur-strong); backdrop-filter: var(--g-blur-strong);
+    border: 1px solid rgba(255,255,255,.8) !important; box-shadow: var(--g-edge), 0 24px 70px rgba(5,35,43,.30) !important;
+    border-radius: 28px !important;
+  }
+  body.login-mode #loginForm input{ background: rgba(255,255,255,.88) !important; border-radius: 14px !important; }
+
+  /* Rodapé/créditos */
+  body footer.hint, body .no-print > strong{ color: var(--g-ink-soft); }
+}
+
+/* Sem suporte a desfoque, ou usuário pediu menos transparência/mais contraste: fundos sólidos. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  @media screen {
+    body section.card, body .history-card, body .calc-card, body .tab-navigation, body .entry-gate,
+    body .form-actions, body .tabs, body .vm-panel, body .ga-calculator-toggle > summary{ background: rgba(255,255,255,.96) !important; }
+    header.app-header{ background: #12665e !important; }
+  }
+}
+@media screen and (prefers-reduced-transparency: reduce), screen and (prefers-contrast: more) {
+  body::before{ display: none; }
+  body section.card, body .history-card, body .calc-card, body .tab-navigation, body .entry-gate,
+  body .form-actions, body .tabs, body .vm-panel, body .ga-calculator-toggle > summary, body .history-item,
+  body .sync-status-fab, body .sync-retry-fab{
+    background: #ffffff !important;
+    -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+  }
+  header.app-header{ background: #12665e !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
 </style>
 </head>
 <body class="workflow-locked">
@@ -2817,6 +3052,12 @@ body.login-mode .sync-status-controls { display: none !important; }
 <div id="historyContent" hidden>
 <div class="history-new-action">
   <button class="btn-primary" id="btnNewFromHistory" type="button">Iniciar RN novo</button>
+</div>
+<div class="history-tools">
+  <button class="btn-secondary" id="btnExportBackup" type="button">Exportar backup</button>
+  <button class="btn-secondary" id="btnImportBackup" type="button">Importar backup</button>
+  <button class="btn-secondary" id="btnOpenTrash" type="button">Lixeira</button>
+  <input type="file" id="importBackupFile" accept="application/json,.json" hidden>
 </div>
 <div id="historyBulkTools" class="history-bulk-tools" hidden>
   <label class="history-select"><input type="checkbox" id="selectAllHistory"> Selecionar todos</label>
@@ -2893,6 +3134,7 @@ body.login-mode .sync-status-controls { display: none !important; }
 <button class="btn-ghost" id="btnBackToEdit" style="display:none;">← Voltar a preencher</button>
 <button class="btn-primary" id="btnGenerate">Imprimir / Salvar</button>
 <button class="btn-secondary" id="btnSaveDatabase" type="button" style="display:none;">Salvar no banco</button>
+<button class="btn-secondary" id="btnVersions" type="button">Versões</button>
 <button class="btn-secondary" id="btnRetryPending" type="button" style="display:none;">Tentar sincronizar pendências</button>
 <button class="btn-secondary" id="btnPrint" style="display:none;">Imprimir</button>
 <button class="btn-secondary" id="btnSavePdf" style="display:none;">Salvar PDF</button>
@@ -3048,9 +3290,9 @@ T("Más formações")
 ]},
 {title:"Pele", quickNormal:true, fields:[Sn("Coloração",["Rosada","Pálida","Cianótica","Ictérica","Acrocianose"],"Rosada"),Sn("Hematomas",AUSPRES,"Ausente"),T("Outros achados")]},
 {title:"Tórax e sinais vitais", quickNormal:true, fields:[
-Sf("Ausculta cardíaca",["Normal (sem sopros)","Sopro presente","Outro"],{when:['Outro'],sub:{l:'Descrever',t:'text'}}),
+Object.assign(Sf("Ausculta cardíaca",["Normal (sem sopros)","Sopro presente","Outro"],{when:['Outro'],sub:{l:'Descrever',t:'text'}}), {normal:"Normal (sem sopros)"}),
 N("FC"),
-Sf("Ausculta pulmonar",["MV presente bilateral","Estertores","Roncos","Diminuído","Outro"],{when:['Outro'],sub:{l:'Descrever',t:'text'}}),
+Object.assign(Sf("Ausculta pulmonar",["MV presente bilateral","Estertores","Roncos","Diminuído","Outro"],{when:['Outro'],sub:{l:'Descrever',t:'text'}}), {normal:"MV presente bilateral"}),
 N("FR"),
 Sn("Esforço respiratório",["Ausente","Presente (leve)","Presente (moderado/grave)"],"Ausente"),
 Sn("Pulso braquial",["Presente e simétrico","Diminuído","Ausente"],"Presente e simétrico"),
@@ -3907,6 +4149,409 @@ function healMisplacedAnswers(ans){
 }
 // ==================== FIM DA PROTEÇÃO CONTRA PERDA DE DADOS ====================
 
+// ==================== VERSÕES, LIXEIRA E BACKUP ====================
+// Cada RN guarda versões no IndexedDB do navegador (sobrevive a atualizações do app). Dá para ver as
+// mudanças, restaurar, recuperar RNs excluídos e exportar/importar um backup em arquivo.
+const VERSIONS_DB_NAME = 'fichaNeonatalVersoes';
+const VERSIONS_STORE = 'versoes';
+const VERSION_MIN_INTERVAL_MS = 5 * 60 * 1000;
+const VERSION_KEEP_AUTO = 40;
+const VERSION_KEEP_PINNED = 60;
+const SERVER_HISTORY_TABLE = 'registros_neonatais_historico';
+const VERSION_REASON_LABELS = {
+  'autosave':'Automática', 'switch-flush':'Ao trocar de RN', 'local-save':'Ao sair/ocultar/imprimir',
+  'manual-save':'Salvo manualmente', 'manual-version':'Criada por você', 'pre-restore':'Antes de restaurar/importar',
+  'import':'Importada de backup', 'deleted':'Antes de excluir', 'server':'Servidor'
+};
+const VERSION_PINNED_REASONS = new Set(['switch-flush','local-save','manual-save','manual-version','pre-restore','import','deleted']);
+const VERSION_NO_DEDUPE = new Set(['manual-version','deleted']);
+const lastVersionAt = new Map();
+const lastVersionSig = new Map();
+let versionsDbPromise = null;
+
+function openVersionsDb(){
+  if(versionsDbPromise) return versionsDbPromise;
+  versionsDbPromise = new Promise((resolve, reject) => {
+    if(typeof indexedDB === 'undefined'){ reject(new Error('IndexedDB indisponível neste navegador.')); return; }
+    const req = indexedDB.open(VERSIONS_DB_NAME, 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if(!db.objectStoreNames.contains(VERSIONS_STORE)){
+        const store = db.createObjectStore(VERSIONS_STORE, {keyPath:'id', autoIncrement:true});
+        store.createIndex('recordId', 'recordId', {unique:false});
+        store.createIndex('deleted', 'deleted', {unique:false});
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error || new Error('Falha ao abrir o armazenamento de versões.'));
+  });
+  versionsDbPromise.catch(() => { versionsDbPromise = null; });
+  return versionsDbPromise;
+}
+async function addVersionRecord(entry){
+  const db = await openVersionsDb();
+  await new Promise((resolve, reject) => {
+    const tx = db.transaction(VERSIONS_STORE, 'readwrite');
+    tx.objectStore(VERSIONS_STORE).add(entry);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error || new Error('Transação abortada.'));
+  });
+}
+async function listVersions(recordId){
+  const db = await openVersionsDb();
+  return new Promise((resolve, reject) => {
+    const req = db.transaction(VERSIONS_STORE, 'readonly').objectStore(VERSIONS_STORE)
+      .index('recordId').getAll(IDBKeyRange.only(String(recordId)));
+    req.onsuccess = () => resolve((req.result || []).sort((a, b) => String(b.at).localeCompare(String(a.at))));
+    req.onerror = () => reject(req.error);
+  });
+}
+async function deleteVersionIds(ids){
+  if(!ids.length) return;
+  const db = await openVersionsDb();
+  await new Promise((resolve, reject) => {
+    const tx = db.transaction(VERSIONS_STORE, 'readwrite');
+    const store = tx.objectStore(VERSIONS_STORE);
+    ids.forEach(id => store.delete(id));
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error || new Error('Transação abortada.'));
+  });
+}
+async function pruneVersions(recordId){
+  const list = (await listVersions(recordId)).filter(v => !v.deleted);
+  const autos = list.filter(v => !v.pinned), pins = list.filter(v => v.pinned);
+  const extra = [...autos.slice(VERSION_KEEP_AUTO), ...pins.slice(VERSION_KEEP_PINNED)];
+  await deleteVersionIds(extra.map(v => v.id));
+}
+async function listDeletedVersions(){
+  const db = await openVersionsDb();
+  return new Promise((resolve, reject) => {
+    const req = db.transaction(VERSIONS_STORE, 'readonly').objectStore(VERSIONS_STORE)
+      .index('deleted').getAll(IDBKeyRange.only(1));
+    req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function removeDeletedMarkers(recordId){
+  const marks = (await listVersions(recordId)).filter(v => v.deleted);
+  await deleteVersionIds(marks.map(v => v.id));
+}
+function countFilledFields(ans){
+  return Object.entries(ans || {}).filter(([k, v]) => !k.startsWith('__') && !isEmptyDeep(v)).length;
+}
+function versionSignature(ans){
+  const c = {...(ans || {})};
+  delete c.__fieldMap; delete c.__evaluatorName;
+  const sorted = {};
+  Object.keys(c).sort().forEach(k => { sorted[k] = c[k]; });
+  return JSON.stringify(sorted);
+}
+// Guarda uma versão se houve mudança (e, nas automáticas, se passaram 5 min desde a última).
+async function recordVersionMaybe(recordId, ans, reason, label){
+  try {
+    if(!recordId || !hasRealContent(ans)) return false;
+    const id = String(recordId), sig = versionSignature(ans), now = Date.now();
+    const noDedupe = VERSION_NO_DEDUPE.has(reason);
+    const pinned = VERSION_PINNED_REASONS.has(reason);
+    if(!noDedupe && lastVersionSig.get(id) === sig) return false;
+    if(!pinned && now - (lastVersionAt.get(id) || 0) < VERSION_MIN_INTERVAL_MS) return false;
+    if(!noDedupe){
+      const existing = await listVersions(id);
+      if(existing[0] && versionSignature(existing[0].answers) === sig){
+        lastVersionSig.set(id, sig); lastVersionAt.set(id, now); return false;
+      }
+    }
+    await addVersionRecord({
+      recordId:id, at:new Date().toISOString(), reason:reason || 'autosave', label:label || '',
+      evaluator:String((ans && ans.__evaluatorName) || ''), fieldCount:countFilledFields(ans),
+      answers:JSON.parse(JSON.stringify(ans)), deleted:reason === 'deleted' ? 1 : 0, pinned:pinned ? 1 : 0
+    });
+    lastVersionSig.set(id, sig); lastVersionAt.set(id, now);
+    pruneVersions(id).catch(() => {});
+    return true;
+  } catch(_) { return false; }
+}
+function buildRestoredAnswers(currentAns, versionAns){
+  const v = JSON.parse(JSON.stringify(versionAns || {}));
+  if(!remapAnswersToCurrentSchema(v)) healMisplacedAnswers(v);
+  delete v.__fieldMap;
+  const next = {...v};
+  Object.keys(currentAns || {}).forEach(k => {
+    if(k === '__fieldMap' || k in next) return;
+    next[k] = k.startsWith('__') ? currentAns[k] : ''; // campo ausente na versão = vazio (limpa também no servidor)
+  });
+  // identificação do aluno e situação (alta/UTI) continuam as atuais
+  ['__evaluatorName','__alta','__utiNeo'].forEach(k => {
+    if(currentAns && k in currentAns) next[k] = currentAns[k]; else delete next[k];
+  });
+  return next;
+}
+function describeVersionDiff(currentAns, versionAns){
+  const cur = currentAns || {};
+  const ver = JSON.parse(JSON.stringify(versionAns || {}));
+  if(!remapAnswersToCurrentSchema(ver)) healMisplacedAnswers(ver);
+  const {byKey} = getSchemaIndex();
+  const lines = [];
+  new Set([...Object.keys(cur), ...Object.keys(ver)]).forEach(k => {
+    if(k.startsWith('__') || sameVal(cur[k], ver[k])) return;
+    const b = splitAnswerKey(k), id = b && byKey[b[0]];
+    const label = id ? id.split('|').slice(1).join(' · ') + (b[1] ? ' ' + b[1].replace(/^_/, '#') : '') : k;
+    lines.push({label, now:cur[k], then:ver[k]});
+  });
+  return lines;
+}
+function currentAnswersFor(recordId){
+  if(String(recordId) === String(currentRecordId)) return answers;
+  const rec = loadHistory().find(r => String(r.id) === String(recordId));
+  return rec ? rec.answers : {};
+}
+function applyVersionToCurrent(versionAns){
+  const next = buildRestoredAnswers(answers, versionAns);
+  Object.keys(answers).forEach(k => delete answers[k]);
+  Object.assign(answers, next);
+  gaDum = answers.__gaDum || null; gaUs = answers.__gaUs || null;
+  gaManual = normalizeManualGaState(answers.__gaManual || {});
+  gaSource = gaManual.source ? 'manual' : null;
+  const gi = answers.__gaInputs || {};
+  if(dumDateInput) dumDateInput.value = gi.dumDate || '';
+  if(usDateInput) usDateInput.value = gi.usDate || '';
+  if(usWeeksSel) usWeeksSel.value = gi.usWeeks || '';
+  if(usDaysSel) usDaysSel.value = gi.usDays || '';
+  if(calcBirthDateInput) calcBirthDateInput.value = answers[BIRTH_DATE_KEY] || '';
+  populateGaManualInputsFromState();
+  if(dumResultEl) dumResultEl.textContent = gaDum ? 'IG registrada: '+gaDum.weeks+' semanas e '+gaDum.days+' dia(s)' : 'Preencha a DUM e a data de nascimento para calcular.';
+  if(usResultEl) usResultEl.textContent = gaUs ? 'IG registrada: '+gaUs.weeks+' semanas e '+gaUs.days+' dia(s)' : 'Preencha os dados do ultrassom e a data de nascimento para calcular.';
+  updateGaRegistration();
+  recordRevision++;
+  renderBuilder();
+  scheduleAutoSave();
+}
+function applyVersionToStored(rec, versionAns){
+  const next = buildRestoredAnswers(rec.answers, versionAns);
+  rec.answers = next;
+  rec.gaDum = next.__gaDum || null; rec.gaUs = next.__gaUs || null; rec.gaManual = next.__gaManual || null;
+  rec.gaInputs = next.__gaInputs || {}; rec.gaSource = next.__gaSource || null;
+  rec.updatedAt = new Date().toISOString();
+  saveRecordToLocal(rec);
+  if(rec.database && supabaseClient && currentUser){
+    enqueueOperation(createOpContext(rec.id), snapshotFromStoredRecord(rec), 'restore');
+    processQueueForRecord(rec.id);
+  }
+  renderHistory();
+}
+async function restoreVersion(recordId, item){
+  if(!confirm('Restaurar a versão de '+formatRecordDate(item.at)+'?\n\nO estado atual será guardado como uma versão antes, então dá para voltar.')) return false;
+  if(String(recordId) === String(currentRecordId)){
+    const snap = captureCurrentRecordSnapshot(recordId);
+    if(snap) await recordVersionMaybe(recordId, snap.answers, 'pre-restore', 'Antes de restaurar');
+    applyVersionToCurrent(item.answers);
+  } else {
+    const rec = loadHistory().find(r => String(r.id) === String(recordId));
+    if(!rec){ alert('RN não encontrado neste aparelho.'); return false; }
+    await recordVersionMaybe(rec.id, rec.answers, 'pre-restore', 'Antes de restaurar');
+    applyVersionToStored(rec, item.answers);
+  }
+  setSaveDatabaseMessage('Versão restaurada.');
+  return true;
+}
+async function listServerVersions(recordId){
+  if(!supabaseClient || !currentUser) return {items:[], note:'Histórico do servidor indisponível (sem login/conexão).'};
+  const rec = loadHistory().find(r => String(r.id) === String(recordId));
+  const dbId = (rec && (rec.databaseId || (rec.database ? rec.id : null))) ||
+    (String(recordId) === String(currentRecordId) ? currentDatabaseRecordId : null) || String(recordId);
+  const {data, error} = await supabaseClient.from(SERVER_HISTORY_TABLE)
+    .select('id, salvo_em, operacao, answers').eq('registro_id', String(dbId))
+    .order('salvo_em', {ascending:false}).limit(40);
+  if(error){
+    const missing = /does not exist|schema cache|relation|not find/i.test(error.message || '');
+    return {items:[], note: missing ? 'Histórico do servidor ainda não configurado (rode o arquivo SQL no Supabase).' : 'Não foi possível ler o histórico do servidor: '+error.message};
+  }
+  return {items:(data || []).map(r => ({
+    source:'server', id:'s'+r.id, at:r.salvo_em, reason:r.operacao === 'delete' ? 'deleted' : 'server', label:'',
+    evaluator:String((r.answers && r.answers.__evaluatorName) || ''), fieldCount:countFilledFields(r.answers), answers:r.answers || {}
+  })), note:''};
+}
+
+// ---- Interface ----
+function vmEl(tag, cls, text){
+  const e = document.createElement(tag);
+  if(cls) e.className = cls;
+  if(text !== undefined) e.textContent = text;
+  return e;
+}
+function vmButton(label, cls, handler){
+  const b = vmEl('button', cls, label); b.type = 'button'; b.addEventListener('click', handler); return b;
+}
+function vmFormatValue(v){
+  const t = normalizeSyncVal(v);
+  if(t === '') return '(vazio)';
+  return typeof t === 'object' ? JSON.stringify(t) : String(t);
+}
+function closeVersionsModal(){ const m = document.getElementById('versionsModal'); if(m) m.remove(); }
+function vmShell(title){
+  closeVersionsModal();
+  const overlay = vmEl('div', 'vm-overlay no-print'); overlay.id = 'versionsModal';
+  overlay.addEventListener('click', e => { if(e.target === overlay) closeVersionsModal(); });
+  const panel = vmEl('div', 'vm-panel'); overlay.appendChild(panel);
+  const head = vmEl('div', 'vm-head');
+  head.append(vmEl('h3', '', title), vmButton('Fechar', 'btn-secondary', closeVersionsModal));
+  panel.appendChild(head);
+  document.body.appendChild(overlay);
+  return panel;
+}
+function fillVersionDiff(box, recordId, item){
+  const lines = describeVersionDiff(currentAnswersFor(recordId), item.answers);
+  box.replaceChildren();
+  if(!lines.length){ box.appendChild(vmEl('p', 'vm-info', 'Igual ao estado atual.')); return; }
+  box.appendChild(vmEl('p', 'vm-info', lines.length+' diferença(s) (atual → nesta versão):'));
+  lines.slice(0, 80).forEach(l => box.appendChild(vmEl('div', 'vm-diff-line', l.label+': '+vmFormatValue(l.now)+' → '+vmFormatValue(l.then))));
+  if(lines.length > 80) box.appendChild(vmEl('p', 'vm-info', '… e mais '+(lines.length - 80)+'.'));
+}
+async function openVersionsModal(recordId){
+  const panel = vmShell('Versões deste RN');
+  const info = vmEl('p', 'vm-info', 'Carregando versões…');
+  const list = vmEl('div', 'vm-list');
+  async function load(){
+    let local = [], server = {items:[], note:''}, localNote = '';
+    try { local = await listVersions(recordId); } catch(_) { localNote = 'Versões deste aparelho indisponíveis neste navegador.'; }
+    try { server = await listServerVersions(recordId); } catch(_) {}
+    const items = [...local.map(v => ({...v, source:'local'})), ...server.items]
+      .sort((a, b) => String(b.at).localeCompare(String(a.at)));
+    info.textContent = [localNote, server.note].filter(Boolean).join(' ') ||
+      (items.length ? 'Toque em "Ver mudanças" para comparar com o estado atual ou em "Restaurar" para voltar a uma versão.' : '');
+    list.replaceChildren();
+    if(!items.length){
+      list.appendChild(vmEl('p', 'vm-info', 'Nenhuma versão guardada ainda. Elas são criadas automaticamente enquanto você edita.'));
+      return;
+    }
+    items.forEach(item => {
+      const row = vmEl('div', 'vm-item');
+      row.appendChild(vmEl('div', 'vm-item-title', formatRecordDate(item.at)+' — '+(VERSION_REASON_LABELS[item.reason] || item.reason)+(item.label ? ': '+item.label : '')));
+      row.appendChild(vmEl('div', 'vm-item-meta', (item.source === 'server' ? 'Servidor' : 'Este aparelho')+' · '+item.fieldCount+' campos preenchidos'+(item.evaluator ? ' · Aluno: '+item.evaluator : '')));
+      const diffBox = vmEl('div', 'vm-diff'); diffBox.hidden = true;
+      const actions = vmEl('div', 'vm-actions');
+      actions.append(
+        vmButton('Ver mudanças', 'btn-mini', () => { if(!diffBox.hidden){ diffBox.hidden = true; return; } fillVersionDiff(diffBox, recordId, item); diffBox.hidden = false; }),
+        vmButton('Restaurar', 'btn-primary', async () => { if(await restoreVersion(recordId, item)) closeVersionsModal(); })
+      );
+      row.append(actions, diffBox);
+      list.appendChild(row);
+    });
+  }
+  panel.append(
+    vmButton('Criar versão agora (ponto de restauração)', 'btn-secondary', async () => {
+      const label = prompt('Nome para esta versão (opcional):', '');
+      if(label === null) return;
+      const snap = String(recordId) === String(currentRecordId) ? captureCurrentRecordSnapshot(recordId) : null;
+      const ok = await recordVersionMaybe(recordId, snap ? snap.answers : currentAnswersFor(recordId), 'manual-version', label.trim());
+      if(!ok) alert('Não foi possível criar a versão (sem dados ou armazenamento indisponível).');
+      load();
+    }),
+    info, list
+  );
+  load();
+}
+async function recoverDeletedRecord(ver){
+  const id = String(ver.recordId);
+  const ans = JSON.parse(JSON.stringify(ver.answers || {}));
+  const rec = {
+    id, updatedAt:new Date().toISOString(), answers:ans,
+    gaDum:ans.__gaDum || null, gaUs:ans.__gaUs || null, gaManual:ans.__gaManual || null,
+    gaInputs:ans.__gaInputs || {}, gaSource:ans.__gaSource || null,
+    alta:ans.__alta === true, utiNeo:ans.__utiNeo === true, database:false, databaseId:null
+  };
+  saveRecordToLocal(rec);
+  await removeDeletedMarkers(id);
+  if(supabaseClient && currentUser){
+    try { enqueueOperation(createOpContext(id), snapshotFromStoredRecord(rec), 'import'); processQueueForRecord(id); } catch(_) {}
+  }
+  renderHistory();
+}
+async function openTrashModal(){
+  const panel = vmShell('Lixeira (RNs excluídos)');
+  const info = vmEl('p', 'vm-info', 'Carregando…');
+  const list = vmEl('div', 'vm-list');
+  panel.append(info, list);
+  let deleted = [];
+  try { deleted = await listDeletedVersions(); }
+  catch(_) { info.textContent = 'A lixeira não está disponível neste navegador.'; return; }
+  const existingIds = new Set(loadHistory().map(r => String(r.id)));
+  const latest = new Map();
+  deleted.filter(v => !existingIds.has(String(v.recordId))).forEach(v => {
+    const cur = latest.get(v.recordId);
+    if(!cur || String(v.at) > String(cur.at)) latest.set(v.recordId, v);
+  });
+  const items = [...latest.values()].sort((a, b) => String(b.at).localeCompare(String(a.at)));
+  info.textContent = items.length ? 'RNs excluídos neste aparelho. "Recuperar" traz o RN de volta ao histórico.' : 'A lixeira está vazia.';
+  items.forEach(ver => {
+    const row = vmEl('div', 'vm-item');
+    row.appendChild(vmEl('div', 'vm-item-title', recordDisplayName({answers:ver.answers})));
+    row.appendChild(vmEl('div', 'vm-item-meta', 'Excluído em '+formatRecordDate(ver.at)+' · '+ver.fieldCount+' campos preenchidos'));
+    const actions = vmEl('div', 'vm-actions');
+    actions.appendChild(vmButton('Recuperar', 'btn-primary', async () => {
+      await recoverDeletedRecord(ver);
+      row.remove();
+      setSaveDatabaseMessage('RN recuperado para o histórico.');
+    }));
+    row.appendChild(actions);
+    list.appendChild(row);
+  });
+}
+function downloadTextFile(name, text, mime){
+  const blob = new Blob([text], {type:mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+function exportBackup(){
+  const records = loadHistory();
+  if(!records.length){ alert('Não há RNs neste aparelho para exportar.'); return; }
+  const payload = {app:'ficha-neonatal', formato:1, exportadoEm:new Date().toISOString(), registros:records};
+  const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+  downloadTextFile('backup-fichas-neonatais-'+stamp+'.json', JSON.stringify(payload), 'application/json');
+  setSaveDatabaseMessage(records.length+' RN(s) exportado(s) para o arquivo de backup.');
+}
+async function importBackupFile(file){
+  let data;
+  try { data = JSON.parse(await file.text()); } catch(_) { alert('Arquivo inválido: não é um backup da ficha.'); return; }
+  const recs = Array.isArray(data) ? data : (data && Array.isArray(data.registros) ? data.registros : null);
+  if(!recs){ alert('Arquivo inválido: não contém RNs.'); return; }
+  let added = 0, updated = 0, asVersion = 0;
+  const syncLater = [];
+  for(const r of recs){
+    if(!r || r.id === undefined || r.id === null || !r.answers || typeof r.answers !== 'object' || !hasRealContent(r.answers)) continue;
+    const id = String(r.id);
+    const existing = loadHistory().find(x => String(x.id) === id);
+    if(!existing){ saveRecordToLocal({...r, id}); syncLater.push(id); added++; continue; }
+    if(versionSignature(existing.answers) === versionSignature(r.answers)) continue;
+    const backupIsNewer = Date.parse(r.updatedAt || '') > Date.parse(existing.updatedAt || '');
+    if(id !== String(currentRecordId) && backupIsNewer){
+      await recordVersionMaybe(id, existing.answers, 'pre-restore', 'Antes de importar');
+      saveRecordToLocal({...r, id}); syncLater.push(id); updated++;
+    } else {
+      // Nunca sobrescreve: guarda o conteúdo do backup como versão para você restaurar se quiser.
+      await recordVersionMaybe(id, r.answers, 'import', 'Backup importado');
+      asVersion++;
+    }
+  }
+  if(supabaseClient && currentUser){
+    syncLater.forEach(id => {
+      const rec = loadHistory().find(x => String(x.id) === id);
+      if(!rec) return;
+      try { enqueueOperation(createOpContext(id), snapshotFromStoredRecord(rec), 'import'); processQueueForRecord(id); } catch(_) {}
+    });
+  }
+  renderHistory();
+  alert('Backup importado.\n• '+added+' RN(s) novo(s)\n• '+updated+' RN(s) atualizado(s) (a versão anterior ficou guardada)\n• '+asVersion+' RN(s) guardado(s) como versão, sem sobrescrever o atual');
+}
+// Pede ao navegador para não apagar as versões quando faltar espaço.
+try { if(navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch(_) {}
+// ==================== FIM VERSÕES, LIXEIRA E BACKUP ====================
+
 function createStableId(){
   if(window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
   const bytes = new Uint8Array(16);
@@ -3977,8 +4622,27 @@ function readPendingQueue(recordId){
   }
 }
 function writePendingQueue(recordId, queue){
-  localStorage.setItem(queueStorageKey(recordId), JSON.stringify(queue));
+  if(queue.length) localStorage.setItem(queueStorageKey(recordId), JSON.stringify(queue));
+  else localStorage.removeItem(queueStorageKey(recordId));
   updatePendingStatus();
+}
+// Remove itens concluídos/substituídos das filas (versões anteriores os acumulavam e enchiam o armazenamento).
+function compactPendingQueues(){
+  const keys = [];
+  for(let i=0;i<localStorage.length;i++){
+    const key = localStorage.key(i);
+    if(key && key.startsWith(PENDING_QUEUE_PREFIX)) keys.push(key);
+  }
+  keys.forEach(key => {
+    try {
+      const queue = JSON.parse(localStorage.getItem(key) || '[]');
+      if(!Array.isArray(queue)) return;
+      const active = queue.filter(item => ['queued','running','failed'].includes(item.state));
+      if(active.length === queue.length) return;
+      if(active.length) localStorage.setItem(key, JSON.stringify(active));
+      else localStorage.removeItem(key);
+    } catch(_) { /* fila corrompida: preservada para recuperação manual */ }
+  });
 }
 function setFloatingSyncStatus(state, label, detail = ''){
   const indicator = document.getElementById('syncStatusFab');
@@ -4022,6 +4686,8 @@ function updatePendingStatus(){
     setFloatingSyncStatus('error', 'Falha na sincronização · '+failed, lastError || 'Há operações que precisam ser sincronizadas.');
   } else if(queued){
     setFloatingSyncStatus('pending', 'Sincronização pendente · '+queued, 'Os dados estão salvos localmente e aguardam envio ao Supabase.');
+  } else if(supabaseConfigured && !supabaseClient){
+    setFloatingSyncStatus('error', 'Somente neste aparelho', 'Não foi possível carregar o serviço de banco de dados; os dados estão salvos apenas neste aparelho.');
   } else {
     setFloatingSyncStatus(currentUser && supabaseClient ? 'synced' : 'idle', currentUser && supabaseClient ? 'Sincronizado' : 'Sem pendências');
   }
@@ -4055,6 +4721,7 @@ function enqueueOperation(context, snapshot, type = 'record-save'){
   if(!context || !snapshot || context.recordId !== snapshot.recordId) throw new Error('Operação sem identidade válida do RN.');
   // Nunca cria registro (local ou remoto) para um RN vazio.
   if(!recordWorthSaving(context.recordId, snapshot.answers)) return null;
+  if(['autosave','switch-flush','local-save','manual-save'].includes(type)) recordVersionMaybe(context.recordId, snapshot.answers, type);
   let queue = readPendingQueue(context.recordId);
   queue.filter(item => item.state === 'queued' || item.state === 'failed').forEach(item => { item.state = 'superseded'; item.updatedAt = new Date().toISOString(); });
   const item = {
@@ -4063,11 +4730,7 @@ function enqueueOperation(context, snapshot, type = 'record-save'){
     attempts: 0, error: null, userId: currentUser ? currentUser.id : null
   };
   queue.push(item);
-  const supersededItems = queue.filter(entry => entry.state === 'superseded');
-  if(supersededItems.length > 2){
-    const keepIds = new Set(supersededItems.slice(-2));
-    queue = queue.filter(entry => entry.state !== 'superseded' || keepIds.has(entry));
-  }
+  queue = queue.filter(entry => entry.state !== 'superseded');
   writePendingQueue(context.recordId, queue);
   persistSnapshotLocally(context, snapshot);
   renderHistory();
@@ -4154,9 +4817,7 @@ async function processQueueForRecord(recordId){
         completedItem.remoteId = data.id;
         completedItem.updatedAt = new Date().toISOString();
         completedItem.error = null;
-        queue = latestQueue.filter(entry => entry.state !== 'superseded');
-        const done = queue.filter(entry => entry.state === 'done').slice(-5);
-        queue = [...queue.filter(entry => entry.state !== 'done'), ...done];
+        queue = latestQueue.filter(entry => entry.state !== 'superseded' && entry.state !== 'done');
         writePendingQueue(key, queue);
       } else {
         queue = latestQueue;
@@ -4548,7 +5209,7 @@ async function applyBulkHistoryAction(action){
   const recordsById = new Map(loadHistory().map(record => [String(record.id), record]));
   const records = ids.map(id => recordsById.get(String(id))).filter(Boolean);
   if(action === 'delete'){
-    if(!confirm('Excluir permanentemente '+records.length+' RN(s) selecionado(s) do histórico local e, quando sincronizados, também do banco? Esta ação não pode ser desfeita.')) return;
+    if(!confirm('Excluir permanentemente '+records.length+' RN(s) selecionado(s) do histórico local e, quando sincronizados, também do banco? Uma cópia de cada RN fica na Lixeira deste aparelho.')) return;
     const protectedRecord = records.find(record => String(record.id) === String(currentRecordId) ||
       readPendingQueue(record.id).some(item => ['queued','running','failed'].includes(item.state)));
     if(protectedRecord){
@@ -4576,11 +5237,12 @@ async function applyBulkHistoryAction(action){
       try {
         if(action === 'delete'){
           if(record.database && (!supabaseClient || !currentUser)) throw new Error('Faça login para excluir este registro do banco.');
+          if(!(await recordVersionMaybe(record.id, record.answers, 'deleted')) && hasRealContent(record.answers)) throw new Error('não foi possível guardar cópia na Lixeira; nada foi excluído');
           if(record.database){
             const {error} = await supabaseClient.from(DATABASE_TABLE).delete().eq('id', record.databaseId || record.id).eq('user_id', currentUser.id);
             if(error) throw error;
           }
-          deleteRecordFromLocal(record.id);
+          removeLocalRecordArtifacts(record.id);
         } else {
           record.alta = action === 'alta';
           record.utiNeo = action === 'uti';
@@ -4806,7 +5468,10 @@ function renderHistory(){
         const pending = readPendingQueue(record.id).some(entry => ['queued','running','failed'].includes(entry.state));
         if(pending){ alert('Este RN possui alterações locais pendentes. Sincronize ou recupere a pendência antes de excluir.'); return; }
         if(String(currentRecordId) === String(record.id)){ alert('Não é possível excluir o RN que está aberto. Abra outro RN primeiro.'); return; }
-        if(!confirm('Excluir este registro do histórico?')) return;
+        if(!confirm('Excluir este registro do histórico? Uma cópia fica na Lixeira deste aparelho.')) return;
+        // Guarda uma cópia na Lixeira antes de qualquer exclusão.
+        const backedUp = await recordVersionMaybe(record.id, record.answers, 'deleted');
+        if(!backedUp && hasRealContent(record.answers) && !confirm('Não foi possível guardar uma cópia na Lixeira deste aparelho. Excluir mesmo assim?')) return;
         // Exclui primeiro no banco: se falhar, o RN local é mantido e nada "ressuscita" depois.
         if(record.database){
           if(!supabaseClient || !currentUser){ alert('Faça login para excluir este registro do banco.'); return; }
@@ -4816,7 +5481,9 @@ function renderHistory(){
         removeLocalRecordArtifacts(record.id);
         renderHistory();
       });
-      actions.append(open, altaButton, utiButton, remove); item.append(info, actions); groupList.appendChild(item);
+      const versionsBtn = document.createElement('button'); versionsBtn.className='btn-mini'; versionsBtn.type='button'; versionsBtn.textContent='Versões';
+      versionsBtn.addEventListener('click', () => openVersionsModal(record.id));
+      actions.append(open, versionsBtn, altaButton, utiButton, remove); item.append(info, actions); groupList.appendChild(item);
     });
     group.appendChild(groupList);
     list.appendChild(group);
@@ -5005,7 +5672,7 @@ function fieldIsAbnormal(field, value, context = {}){
   // A regra vale para qualquer combinação de maiúsculas/minúsculas e acentos.
   const isFreeTextField = field.t === 'text' ||
     (field.t === 'group' && field.items.some(item => item.t === 'text'));
-  const normalizedNeutralText = normalizedValue.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');
+  const normalizedNeutralText = normalizedValue.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   if (isFreeTextField && ['nao', 'nada', 'nega'].includes(normalizedNeutralText)) return false;
 
   // Chagas deve ser rastreada ao menos uma vez na gestação; a ausência do exame
@@ -6231,6 +6898,7 @@ function showUpdateBanner(){
   if(document.getElementById('appUpdateBanner')) return;
   const bar = document.createElement('div');
   bar.id = 'appUpdateBanner';
+  bar.className = 'no-print';
   bar.setAttribute('role', 'alert');
   bar.style.cssText = 'position:fixed;left:8px;right:8px;top:calc(8px + env(safe-area-inset-top));z-index:9999;display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;background:#fff3cd;border:1px solid #e7cfb4;border-radius:10px;box-shadow:0 8px 24px rgba(27,58,75,.25);font:600 .8rem -apple-system,"Segoe UI",sans-serif;color:#7a4b00;';
   const text = document.createElement('span');
@@ -6356,6 +7024,21 @@ document.getElementById('btnEnterRecord').addEventListener('click', event => {
   enterRecordFromGate(document.getElementById('entryRecordChoice').value, event.currentTarget);
 });
 document.getElementById('btnNewFromHistory').addEventListener('click', () => startNewRecord());
+document.getElementById('btnVersions').addEventListener('click', async () => {
+  if(!currentRecordId || !hasRealContent(answers)){ setSaveDatabaseMessage('Preencha algum dado do RN para ter versões.', true); return; }
+  const snap = captureCurrentRecordSnapshot(currentRecordId);
+  if(snap) await recordVersionMaybe(currentRecordId, snap.answers, 'local-save');
+  openVersionsModal(currentRecordId);
+});
+document.getElementById('btnExportBackup').addEventListener('click', exportBackup);
+document.getElementById('btnImportBackup').addEventListener('click', () => document.getElementById('importBackupFile').click());
+document.getElementById('importBackupFile').addEventListener('change', async event => {
+  const file = event.target.files && event.target.files[0];
+  event.target.value = '';
+  if(file) await importBackupFile(file);
+});
+document.getElementById('btnOpenTrash').addEventListener('click', openTrashModal);
+document.addEventListener('keydown', event => { if(event.key === 'Escape') closeVersionsModal(); });
 document.getElementById('selectAllHistory').addEventListener('change', event => {
   const records = loadHistory();
   if(event.target.checked) records.forEach(record => selectedHistoryIds.add(String(record.id)));
@@ -6372,6 +7055,7 @@ document.getElementById('btnCancelBulkHistory').addEventListener('click', () => 
   const message = document.getElementById('historyBulkMessage');
   if(message && activeBulkHistoryRun) message.textContent = 'Cancelamento solicitado; a operação atual terminará antes de parar.';
 });
+compactPendingQueues();
 recoverPendingLocalSnapshots();
 purgeBlankLocalRecords();
 renderHistory();
