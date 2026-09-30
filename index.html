@@ -3475,7 +3475,33 @@ else if(pesoKg > p97) extra = ' · acima de P97';
 return {cls, text:'INTERGROWTH-21st · Peso ao nascer: '+faixa+' ('+percentileText+')'+extra+' (IG usada: '+gaWeeks+'s'+(gaDays||0)+'d · P50 de referência: '+p50.toFixed(2)+' kg)', suggestedClass};
 }
 
+// Atualiza caixas derivadas da 1ª hora (percentis, Nirsevimabe) sem recriar a tela e sem perder o foco.
+function refreshFirstHourDerived(){
+  if(currentPart !== 1) return;
+  applyWeightClassificationFromCurrentData();
+  const pcKey = findFieldKey('Dados de nascimento e exame físico da 1ª hora','PC (cm)');
+  [BIRTH_WEIGHT_KEY, pcKey].forEach(k => {
+    if(!k) return;
+    const el = document.querySelector('[data-answer-key="'+CSS.escape(k)+'"]');
+    if(el) el.dispatchEvent(new Event('input', {bubbles:true}));
+  });
+  updateNirsevimabEligibility();
+}
+// Re-render adiado: espera o foco assentar no próximo campo e o devolve depois de reconstruir.
+function rerenderKeepingFocus(){
+  setTimeout(() => {
+    const active = document.activeElement;
+    const key = active && active.dataset ? active.dataset.answerKey : null;
+    renderBuilder();
+    if(key){
+      const el = document.querySelector('[data-answer-key="'+CSS.escape(key)+'"]');
+      if(el && typeof el.focus === 'function') el.focus({preventScroll:true});
+    }
+  }, 0);
+}
 function applyWeightClassificationFromCurrentData(){
+  // Se o médico escolheu PIG/AIG/GIG manualmente, a sugestão automática não sobrescreve.
+  if(answers.__percentilManual === '1') return false;
   const ga = getGaForCalc();
   if(!ga) return false;
   const info = ig21WeightPercentileInfo(answers[SEX_KEY], ga.weeks, ga.days, answers[BIRTH_WEIGHT_KEY]);
@@ -3494,7 +3520,13 @@ function applyWeightClassificationFromCurrentData(){
   }
   if(changed){
     const percentilInput = document.querySelector('[data-answer-key="'+CSS.escape(percentilKey)+'"]');
-    if(percentilInput) percentilInput.value = info.suggestedClass;
+    if(percentilInput){
+      percentilInput.value = info.suggestedClass;
+      // Atualiza o aviso de HGT sem marcar a escolha como manual.
+      suppressManualPercentil = true;
+      try { percentilInput.dispatchEvent(new Event('change', {bubbles:true})); }
+      finally { suppressManualPercentil = false; }
+    }
     if(hgtKey){
       const hgtInput = document.querySelector('[data-answer-key="'+CSS.escape(hgtKey)+'"]');
       if(hgtInput) hgtInput.value = answers[hgtKey] || '';
@@ -3677,6 +3709,128 @@ let recordRevision = 0;
 const recordSaveQueues = new Map();
 const recordSaveAbortControllers = new Map();
 
+// ==================== PROTEÇÃO CONTRA PERDA DE DADOS ====================
+const SYNC_BASE_PREFIX = HISTORY_STORAGE_KEY + ':base:';
+const BLANK_RECORD_GRACE_MS = 10 * 60 * 1000;
+let suppressManualPercentil = false;
+let pullInFlight = false;
+let pendingRerenderAfterEdit = false;
+
+function isEmptyDeep(v){
+  if(v === undefined || v === null || v === '' || v === false) return true;
+  if(Array.isArray(v)) return v.every(isEmptyDeep);
+  if(typeof v === 'object') return Object.values(v).every(isEmptyDeep);
+  return false;
+}
+// Um RN só "existe" se tiver algum dado clínico/identificação além do nome do aluno e metadados (__*).
+function hasRealContent(ans){
+  return Object.entries(ans || {}).some(([k, v]) =>
+    !k.startsWith('__') && !isEmptyDeep(v));
+}
+function normalizeSyncVal(v){ return (v === undefined || v === null) ? '' : v; }
+function sameVal(a, b){ return JSON.stringify(normalizeSyncVal(a)) === JSON.stringify(normalizeSyncVal(b)); }
+function readSyncBase(id){
+  try { const raw = localStorage.getItem(SYNC_BASE_PREFIX + String(id)); return raw ? JSON.parse(raw) : null; }
+  catch(_) { return null; }
+}
+function writeSyncBase(id, ans){
+  try { localStorage.setItem(SYNC_BASE_PREFIX + String(id), JSON.stringify(ans || {})); } catch(_) {}
+}
+function recordWorthSaving(recordId, ans){
+  if(hasRealContent(ans)) return true;
+  // RN já existente pode ser esvaziado de propósito; RN vazio e inédito não vira registro.
+  try { return Boolean(recordId) && localStorage.getItem(localRecordKey(recordId)) !== null; }
+  catch(_) { return false; }
+}
+// Merge por campo: só os campos alterados NESTE aparelho (em relação à última versão sincronizada)
+// sobrescrevem o servidor; o restante preserva o que outros aparelhos gravaram.
+function mergeAnswersForSync(localAns, baseAns, remoteAns){
+  if(!remoteAns) return {...localAns};
+  const merged = {...remoteAns};
+  Object.keys(localAns).forEach(k => {
+    const dirty = baseAns ? !sameVal(localAns[k], baseAns[k]) : !isEmptyDeep(localAns[k]);
+    if(dirty) merged[k] = localAns[k];
+  });
+  return merged;
+}
+// Traz para "target" apenas o que veio do servidor e que o usuário não mexeu desde o envio.
+function adoptRemoteAnswers(target, sent, remote){
+  let changed = false;
+  Object.keys(remote || {}).forEach(k => {
+    if(k === '__evaluatorName' || k.startsWith('__')) return;
+    if(sameVal(remote[k], sent[k])) return;
+    if(sameVal(target[k], sent[k])){ target[k] = remote[k]; changed = true; }
+  });
+  return changed;
+}
+function removeLocalRecordArtifacts(id){
+  try { localStorage.removeItem(localRecordKey(id)); } catch(_) {}
+  try { localStorage.removeItem(queueStorageKey(id)); } catch(_) {}
+  try { localStorage.removeItem(SYNC_BASE_PREFIX + String(id)); } catch(_) {}
+}
+function isEditingField(){
+  const el = document.activeElement;
+  return Boolean(el && builderHost && builderHost.contains(el) && /^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName));
+}
+function notifyRemoteAdopted(){
+  if(isEditingField()) pendingRerenderAfterEdit = true;
+  else { try { renderBuilder(); } catch(_) {} }
+}
+function handleStaleInput(){
+  setSaveDatabaseMessage('Um campo desatualizado não pôde ser salvo porque o RN mudou. A ficha foi recarregada; confira os dados.', true);
+  try { if(currentRecordId) renderBuilder(); } catch(_) {}
+}
+// Remove RNs totalmente vazios (criados por versões anteriores) com mais de 10 minutos.
+function purgeBlankLocalRecords(){
+  const now = Date.now();
+  loadHistory().forEach(record => {
+    if(String(record.id) === String(currentRecordId)) return;
+    if(hasRealContent(record.answers)) return;
+    if(readPendingQueue(record.id).some(item => ['queued','running','failed'].includes(item.state))) return;
+    const t = Date.parse(record.updatedAt || '');
+    if(Number.isFinite(t) && now - t < BLANK_RECORD_GRACE_MS) return;
+    removeLocalRecordArtifacts(record.id);
+  });
+  updatePendingStatus();
+}
+// Busca a versão do servidor do RN aberto e incorpora o que outro aparelho alterou.
+async function pullRemoteForCurrent(){
+  if(pullInFlight || !supabaseClient || !currentUser || !currentRecordId) return;
+  const key = String(currentRecordId);
+  if(readPendingQueue(key).some(item => ['queued','running','failed'].includes(item.state))) return;
+  if(!hasRealContent(answers)) return;
+  let context;
+  try { context = createOpContext(key); } catch(_) { return; }
+  const dbId = currentDatabaseRecordId || key;
+  pullInFlight = true;
+  try {
+    const {data, error} = await supabaseClient.from(DATABASE_TABLE)
+      .select('answers').eq('id', dbId).eq('user_id', currentUser.id).maybeSingle();
+    if(error || !data || !data.answers || !contextMatchesActive(context)) return;
+    const base = readSyncBase(key);
+    let changed = false;
+    Object.keys(data.answers).forEach(k => {
+      if(k === '__evaluatorName' || k.startsWith('__')) return;
+      const remoteVal = data.answers[k], localVal = answers[k];
+      if(sameVal(remoteVal, localVal)){ if(base) base[k] = remoteVal; return; }
+      const dirty = base ? !sameVal(localVal, base[k]) : !isEmptyDeep(localVal);
+      if(!dirty){ answers[k] = remoteVal; if(base) base[k] = remoteVal; changed = true; }
+    });
+    if(base) writeSyncBase(key, base);
+    if(changed){
+      recordRevision++;
+      setSaveDatabaseMessage('Dados atualizados a partir de outro aparelho.');
+      scheduleAutoSave();
+      notifyRemoteAdopted();
+    }
+  } catch(_) {
+    /* falha de rede: tenta de novo no próximo ciclo */
+  } finally {
+    pullInFlight = false;
+  }
+}
+// ==================== FIM DA PROTEÇÃO CONTRA PERDA DE DADOS ====================
+
 function createStableId(){
   if(window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
   const bytes = new Uint8Array(16);
@@ -3822,6 +3976,8 @@ function persistSnapshotLocally(context, snapshot){
 }
 function enqueueOperation(context, snapshot, type = 'record-save'){
   if(!context || !snapshot || context.recordId !== snapshot.recordId) throw new Error('Operação sem identidade válida do RN.');
+  // Nunca cria registro (local ou remoto) para um RN vazio.
+  if(!recordWorthSaving(context.recordId, snapshot.answers)) return null;
   let queue = readPendingQueue(context.recordId);
   queue.filter(item => item.state === 'queued' || item.state === 'failed').forEach(item => { item.state = 'superseded'; item.updatedAt = new Date().toISOString(); });
   const item = {
@@ -3873,24 +4029,44 @@ async function processQueueForRecord(recordId){
         if(existingRecord){ existingRecord.databaseId = dbId; saveRecordToLocal(existingRecord); }
         writePendingQueue(key, queue);
       }
+      const localAnswers = {...snap.answers, __gaInputs:snap.gaInputs || {}, __gaSource:snap.gaSource || '', __gaDum:snap.gaDum || null, __gaUs:snap.gaUs || null, __gaManual:snap.gaManual || null, __alta:snap.alta === true, __utiNeo:snap.utiNeo === true};
+      const controller = new AbortController();
+      recordSaveAbortControllers.set(key, controller);
+      // Lê a versão do servidor antes de gravar: evita que um aparelho com dados antigos apague o que outro digitou.
+      let remoteRow = null;
+      if(dbId){
+        const remoteResult = await supabaseClient.from(DATABASE_TABLE)
+          .select('answers, ga_dum, ga_us').eq('id', dbId).eq('user_id', item.userId)
+          .abortSignal(controller.signal).maybeSingle();
+        if(remoteResult.error) throw remoteResult.error;
+        remoteRow = remoteResult.data || null;
+      }
+      const mergedAnswers = mergeAnswersForSync(localAnswers, readSyncBase(key), remoteRow && remoteRow.answers);
       const payload = {
         user_id: item.userId,
-        answers: {...snap.answers, __gaInputs:snap.gaInputs || {}, __gaSource:snap.gaSource || '', __gaDum:snap.gaDum || null, __gaUs:snap.gaUs || null, __gaManual:snap.gaManual || null, __alta:snap.alta === true, __utiNeo:snap.utiNeo === true},
-        ga_dum: snap.gaDum,
-        ga_us: snap.gaUs,
+        answers: mergedAnswers,
+        ga_dum: snap.gaDum || (remoteRow && remoteRow.ga_dum) || null,
+        ga_us: snap.gaUs || (remoteRow && remoteRow.ga_us) || null,
         updated_at: new Date().toISOString()
       };
       if(dbId) payload.id = dbId;
       else if(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(key)) payload.id = key;
-      const controller = new AbortController();
-      recordSaveAbortControllers.set(key, controller);
       const {data, error} = await supabaseClient.from(DATABASE_TABLE)
         .upsert(payload, {onConflict:'id'})
         .abortSignal(controller.signal)
         .select('id, user_id, answers, ga_dum, ga_us, updated_at').single();
       if(error) throw error;
+      writeSyncBase(key, data.answers);
       const record = loadHistory().find(entry => String(entry.id) === key);
-      if(record){ record.database = true; record.databaseId = data.id; record.updatedAt = data.updated_at; saveRecordToLocal(record); }
+      if(record){
+        record.database = true; record.databaseId = data.id; record.updatedAt = data.updated_at;
+        if(record.answers) adoptRemoteAnswers(record.answers, localAnswers, data.answers);
+        saveRecordToLocal(record);
+      }
+      if(contextMatchesActive(item.context) && adoptRemoteAnswers(answers, localAnswers, data.answers)){
+        recordRevision++;
+        notifyRemoteAdopted();
+      }
 
       // Reconcile against the latest persisted queue: enqueueOperation may have
       // appended a newer snapshot while this remote request was in flight.
@@ -3997,7 +4173,7 @@ function switchRecordSafely(activateNext){
   return switchPromise;
 }
 function scheduleAutoSave(){
-  if(!Object.keys(answers).length) return;
+  if(!recordWorthSaving(currentRecordId, answers)) return;
   if(!currentRecordId) ensureCurrentRecordId();
   setFloatingSyncStatus('saving', 'Salvando alterações…', 'As alterações serão guardadas localmente antes da sincronização.');
   clearTimeout(autoSaveTimer);
@@ -4073,7 +4249,7 @@ function retryPendingSaves(){
     const id = decodeURIComponent(key.slice(PENDING_QUEUE_PREFIX.length));
     const queue = readPendingQueue(id);
     let changed = false;
-    queue.forEach(item => { if(item.state === 'running'){ item.state = 'failed'; item.error = 'A página foi recarregada durante a operação; pendência recuperada.'; changed = true; } });
+    queue.forEach(item => { if(item.state === 'running' && !recordSaveQueues.has(String(id))){ item.state = 'failed'; item.error = 'A página foi recarregada durante a operação; pendência recuperada.'; changed = true; } });
     if(changed) writePendingQueue(id, queue);
     if(queue.some(item => item.state === 'queued' || item.state === 'failed')) ids.push(id);
   }
@@ -4126,7 +4302,20 @@ async function loadCurrentUserRecords(){
     const localRecord = {...record, id:localId, databaseId:record.databaseId};
     if(String(localId) === String(currentRecordId)) return;
     const hasPending = readPendingQueue(localId).some(item => ['queued','running','failed'].includes(item.state));
-    if(!hasPending) saveRecordToLocal(localRecord);
+    if(hasPending) return;
+    const remoteTime = Date.parse(record.updatedAt || '');
+    // RN totalmente vazio no servidor (criado por versões anteriores): remove em vez de trazer de volta.
+    if(!hasRealContent(record.answers) && Number.isFinite(remoteTime) && Date.now() - remoteTime > BLANK_RECORD_GRACE_MS){
+      supabaseClient.from(DATABASE_TABLE).delete().eq('id', record.databaseId).eq('user_id', requestedUserId).then(() => {}, () => {});
+      removeLocalRecordArtifacts(localId);
+      return;
+    }
+    // Nunca sobrescreve uma cópia local mais nova com uma versão antiga do servidor.
+    let localTime = NaN;
+    try { const raw = localStorage.getItem(localRecordKey(localId)); if(raw) localTime = Date.parse(JSON.parse(raw).updatedAt || ''); } catch(_) {}
+    if(Number.isFinite(localTime) && Number.isFinite(remoteTime) && localTime > remoteTime) return;
+    saveRecordToLocal(localRecord);
+    writeSyncBase(localId, record.answers);
   });
   renderHistory();
   updatePendingStatus();
@@ -4199,8 +4388,10 @@ window.addEventListener('storage', event => {
   }
 });
 function recordDisplayName(record){
-  const motherName = (record.answers['0_0_0'] || '').trim();
-  return motherName ? 'RN de ' + motherName : 'RN sem nome';
+  const motherName = String((record.answers && record.answers['0_0_0']) || '').trim();
+  if(motherName) return 'RN de ' + motherName;
+  const rnName = String((record.answers && record.answers['1_0_0']) || '').trim();
+  return rnName ? 'RN ' + rnName : 'RN sem nome';
 }
 function recordEvaluatorName(record){
   return (record.answers && record.answers[EVALUATOR_NAME_KEY] || 'Aluno não informado').trim();
@@ -4539,11 +4730,13 @@ function renderHistory(){
         if(pending){ alert('Este RN possui alterações locais pendentes. Sincronize ou recupere a pendência antes de excluir.'); return; }
         if(String(currentRecordId) === String(record.id)){ alert('Não é possível excluir o RN que está aberto. Abra outro RN primeiro.'); return; }
         if(!confirm('Excluir este registro do histórico?')) return;
-        deleteRecordFromLocal(record.id);
-        if(currentRecordId === record.id) currentRecordId = null;
-        if(record.database && supabaseClient && currentUser){
-          await supabaseClient.from(DATABASE_TABLE).delete().eq('id', record.id).eq('user_id', currentUser.id);
+        // Exclui primeiro no banco: se falhar, o RN local é mantido e nada "ressuscita" depois.
+        if(record.database){
+          if(!supabaseClient || !currentUser){ alert('Faça login para excluir este registro do banco.'); return; }
+          const {error} = await supabaseClient.from(DATABASE_TABLE).delete().eq('id', record.databaseId || record.id).eq('user_id', currentUser.id);
+          if(error){ alert('Não foi possível excluir do banco: '+error.message); return; }
         }
+        removeLocalRecordArtifacts(record.id);
         renderHistory();
       });
       actions.append(open, altaButton, utiButton, remove); item.append(info, actions); groupList.appendChild(item);
@@ -4606,6 +4799,7 @@ async function loadRecord(id){
   currentPart = 0; document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.part === '0'));
   returnToEdit();
   renderBuilder();
+  setTimeout(() => pullRemoteForCurrent(), 400);
   requestAnimationFrame(() => {
     const historyContent = document.getElementById('historyContent');
     const historyToggle = document.getElementById('btnToggleHistory');
@@ -4963,7 +5157,7 @@ function selectGaSource(source){
   recordRevision++;
   scheduleAutoSave();
   updateGaRegistration();
-  if(currentPart === 1) renderBuilder();
+  refreshFirstHourDerived();
 }
 btnSelectGaDum?.addEventListener('click', () => selectGaSource('dum'));
 btnSelectGaUs?.addEventListener('click', () => selectGaSource('us'));
@@ -4987,7 +5181,7 @@ recordRevision++;
 scheduleAutoSave();
 dumResultEl.textContent = 'Idade gestacional na data do parto: '+weeks+' semanas e '+days+' dia(s)';
 updateGaRegistration();
-if(currentPart===1) renderBuilder();
+refreshFirstHourDerived();
 }
 function recomputeGaUs(context = createOpContext(currentRecordId)){
 if(!contextMatchesActive(context)) return;
@@ -5003,7 +5197,7 @@ recordRevision++;
 scheduleAutoSave();
 usResultEl.textContent = 'Idade gestacional na data do parto: '+weeks+' semanas e '+days+' dia(s)';
 updateGaRegistration();
-if(currentPart===1) renderBuilder();
+refreshFirstHourDerived();
 }
 function setupGaCalc(){
 calcBirthDateInput = document.getElementById('calcBirthDate');
@@ -5021,7 +5215,7 @@ calcBirthDateInput.addEventListener('change', () => {
 answers[BIRTH_DATE_KEY] = calcBirthDateInput.value;
 recomputeGaDum(); recomputeGaUs();
 scheduleAutoSave();
-if(currentPart===1) renderBuilder();
+refreshFirstHourDerived();
 });
 dumDateInput.addEventListener('change', () => recomputeGaDum());
 usDateInput.addEventListener('change', () => recomputeGaUs());
@@ -5043,8 +5237,12 @@ input.value = answers[key] || '';
 input.dataset.answerKey = key;
 const inputContext = createOpContext(currentRecordId);
 const sync = () => {
-  if(!contextMatchesActive(inputContext)) return;
+  if(!contextMatchesActive(inputContext)){ handleStaleInput(); return; }
   answers[key] = input.value;
+  // Escolha manual de PIG/AIG/GIG não pode ser sobrescrita pela sugestão automática.
+  if(fieldDef.l === 'Peso x IG (percentil)' && !suppressManualPercentil){
+    answers.__percentilManual = input.value ? '1' : '';
+  }
   recordRevision++;
   if (key === DISCHARGE_INSTRUCTIONS_KEY) {
     currentRecordAlta = input.value.trim() !== '';
@@ -5272,10 +5470,7 @@ if(field.l === 'IG' && sec.title === 'Dados de nascimento e exame físico da 1ª
   input.value = answers[baseKey] || '';
   input.placeholder = 'Ex.: 39s 2d ou 39+2';
   input.addEventListener('input', updateNirsevimabEligibility);
-  input.addEventListener('change', () => {
-    applyWeightClassificationFromCurrentData();
-    renderBuilder();
-  });
+  input.addEventListener('change', () => { refreshFirstHourDerived(); });
 }
 if(field.l === 'Formato do crânio — qualitativo' && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
   const reference = document.createElement('details');
@@ -5417,7 +5612,7 @@ recomputeGaDum(); recomputeGaUs();
 if(field.l === 'Sexo' && sec.title === 'Dados de nascimento e exame físico da 1ª hora'){
 input.addEventListener('change', () => {
   applyWeightClassificationFromCurrentData();
-  renderBuilder();
+  rerenderKeepingFocus();
 });
 }
 if(field.follow){
@@ -5772,6 +5967,7 @@ function setLoginMessage(message, error = false){
   loginMessage.textContent = message;
   loginMessage.style.color = error ? '#9C2E2E' : '#0B5850';
 }
+let lastRecordsLoad = {userId:null, at:0};
 function updateAuthView(session){
   currentUser = session ? session.user : null;
   if(!currentUser){ currentDatabaseRecordId = null; }
@@ -5780,7 +5976,14 @@ function updateAuthView(session){
   loginView.style.display = loggedIn ? 'none' : 'block';
   builderHost.style.display = loggedIn ? 'block' : 'none';
   btnSaveDatabase.style.display = loggedIn ? 'inline-block' : 'none';
-  if(loggedIn) loadCurrentUserRecords();
+  if(loggedIn){
+    // O Supabase dispara eventos de auth a cada retorno à aba; evita recarregar tudo a cada um.
+    const now = Date.now();
+    if(lastRecordsLoad.userId !== session.user.id || now - lastRecordsLoad.at > 30000){
+      lastRecordsLoad = {userId:session.user.id, at:now};
+      loadCurrentUserRecords();
+    }
+  }
   if(!loggedIn){
     printView.style.display = 'none';
     printHintText.style.display = 'none';
@@ -5927,8 +6130,80 @@ document.getElementById('btnRetryPendingFab').addEventListener('click', event =>
 btnGenerate.addEventListener('click', () => generatePrint());
 
 // Garante o salvamento ao sair ou ocultar a página.
-window.addEventListener('pagehide', () => {
-  if (Object.keys(answers).length) saveCurrentRecord();
+function flushCurrentLocalNow(){
+  try {
+    if(currentRecordId && hasRealContent(answers)){
+      clearTimeout(autoSaveTimer);
+      saveCurrentRecord();
+      if(SAFE_CONTEXT_MODE && supabaseClient && currentUser) processQueueForRecord(currentRecordId);
+    }
+  } catch(_) {}
+}
+window.addEventListener('pagehide', flushCurrentLocalNow);
+
+// ==================== ATUALIZAÇÃO AUTOMÁTICA DO APP ====================
+// O GitHub Pages deixa o navegador reaproveitar o HTML por ~10 min. Aqui o app compara a data do
+// arquivo no servidor (sem cache) com a data do arquivo que está rodando e recarrega se houver versão nova.
+let updateCheckInFlight = false;
+function showUpdateBanner(){
+  if(document.getElementById('appUpdateBanner')) return;
+  const bar = document.createElement('div');
+  bar.id = 'appUpdateBanner';
+  bar.setAttribute('role', 'alert');
+  bar.style.cssText = 'position:fixed;left:8px;right:8px;top:calc(8px + env(safe-area-inset-top));z-index:9999;display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;background:#fff3cd;border:1px solid #e7cfb4;border-radius:10px;box-shadow:0 8px 24px rgba(27,58,75,.25);font:600 .8rem -apple-system,"Segoe UI",sans-serif;color:#7a4b00;';
+  const text = document.createElement('span');
+  text.textContent = 'Há uma nova versão do app. Seus dados já foram salvos.';
+  const btn = document.createElement('button');
+  btn.type = 'button'; btn.className = 'btn-primary'; btn.textContent = 'Atualizar agora';
+  btn.addEventListener('click', () => applyAppUpdate(true));
+  bar.append(text, btn);
+  document.body.appendChild(bar);
+}
+function applyAppUpdate(force){
+  let last = 0;
+  try { last = Number(sessionStorage.getItem('appUpdateReloadAt') || 0); } catch(_) {}
+  if(!force && Date.now() - last < 60000) return; // proteção contra recarga em loop
+  if(!force && hasRealContent(answers)){ flushCurrentLocalNow(); showUpdateBanner(); return; }
+  flushCurrentLocalNow();
+  try { sessionStorage.setItem('appUpdateReloadAt', String(Date.now())); } catch(_) {}
+  const url = new URL(location.href);
+  url.hash = '';
+  url.searchParams.set('_v', String(Date.now())); // URL nova = ignora o cache do navegador
+  location.replace(url.toString());
+}
+async function checkForAppUpdate(){
+  if(updateCheckInFlight || !navigator.onLine) return;
+  updateCheckInFlight = true;
+  try {
+    const url = new URL(location.href);
+    url.hash = '';
+    url.searchParams.set('_chk', String(Date.now()));
+    const res = await fetch(url.toString(), {method:'HEAD', cache:'no-store'});
+    const lastModified = res.headers.get('last-modified');
+    if(!res.ok || !lastModified) return;
+    const serverTime = Date.parse(lastModified);
+    const pageTime = new Date(document.lastModified).getTime();
+    if(!Number.isFinite(serverTime) || !Number.isFinite(pageTime)) return;
+    if(serverTime - pageTime > 1000) applyAppUpdate(false);
+  } catch(_) {
+    /* offline ou sem acesso ao servidor: segue com a versão atual */
+  } finally {
+    updateCheckInFlight = false;
+  }
+}
+// No celular a aba costuma ser descartada sem pagehide: salva ao ocultar e busca ao voltar.
+document.addEventListener('visibilitychange', () => {
+  if(document.hidden) flushCurrentLocalNow();
+  else { pullRemoteForCurrent(); checkForAppUpdate(); }
+});
+window.addEventListener('online', () => { retryPendingSaves(); pullRemoteForCurrent(); });
+setInterval(() => { if(!document.hidden) pullRemoteForCurrent(); }, 30000);
+setInterval(() => { if(!document.hidden) checkForAppUpdate(); }, 5 * 60 * 1000);
+builderHost.addEventListener('focusout', () => {
+  if(!pendingRerenderAfterEdit) return;
+  setTimeout(() => {
+    if(!isEditingField()){ pendingRerenderAfterEdit = false; try { renderBuilder(); } catch(_) {} }
+  }, 80);
 });
 
 btnBackToEdit.addEventListener('click', () => {
@@ -6016,9 +6291,11 @@ document.getElementById('btnCancelBulkHistory').addEventListener('click', () => 
   if(message && activeBulkHistoryRun) message.textContent = 'Cancelamento solicitado; a operação atual terminará antes de parar.';
 });
 recoverPendingLocalSnapshots();
+purgeBlankLocalRecords();
 renderHistory();
 setInterval(updateHistoryAgeBadges, 60000);
 renderBuilder();
+checkForAppUpdate();
 
 </script>
 </body>
