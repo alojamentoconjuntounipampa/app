@@ -3042,6 +3042,7 @@ body.login-mode .sync-status-controls { display: none !important; }
 <button class="btn-primary" type="submit">Entrar</button>
 </form>
 <p id="loginMessage" role="status"></p>
+<button class="btn-secondary" id="btnOfflineContinue" type="button" style="display:none;width:100%;margin-top:12px;">Continuar sem conexão (salvar só neste aparelho)</button>
 </div>
 <nav class="tabs" aria-label="Navegação da ficha">
 <button class="tab-btn active" data-part="0" type="button" aria-label="Dados da mãe"><span class="nav-icon" aria-hidden="true">♧</span><span class="tab-label">Dados da mãe</span></button>
@@ -3229,6 +3230,27 @@ function Sn(l,o,normal){ return {l, t:'select', o, normal}; }
 function Sx(field,sex){ field.sex=sex; return field; }
 function G(l,items,fmt){ return {l, t:'group', items, fmt}; }
 const HIV_FOLLOW = {when:['R'], sub:{l:'Carga viral', t:'text'}};
+// Ausculta cardíaca/pulmonar: texto livre; "Marcar tudo normal" preenche o texto-padrão abaixo.
+const CARDIAC_NORMAL_TEXT = 'BNF, RR2T, sem sopros';
+const RESP_NORMAL_TEXT = 'MV+, SRA';
+const CARDIAC_NORMAL_TOKENS = ['bnf','rr2t','rr','2t','rcr','sem','sopro','sopros','normal','normais','em','2','tempos','ritmo','regular','bulhas','normofoneticas','normofonetica'];
+const RESP_NORMAL_TOKENS = ['mv','sra','normal','normais','presente','bilateral','bilateralmente','simetrico','sem','ruidos','adventicios'];
+function AuscCardiaca(label){ return Object.assign(T(label), {normal:CARDIAC_NORMAL_TEXT, normalTokens:CARDIAC_NORMAL_TOKENS}); }
+function AuscPulmonar(label){ return Object.assign(T(label), {normal:RESP_NORMAL_TEXT, normalTokens:RESP_NORMAL_TOKENS}); }
+// Texto é "normal" se todas as palavras estiverem na lista aceita (ex.: "MV+, SRA", "BNF RR2T sem sopros").
+function textMatchesNormalTokens(value, tokens){
+  const parts = String(value || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/[^a-z0-9]+/).filter(Boolean);
+  return parts.length > 0 && parts.every(part => tokens.includes(part));
+}
+// Ordem de exibição/impressão independente da posição (chave) do campo, para não deslocar dados já salvos.
+function getFieldOrder(sec){
+  const n = sec.fields.length, order = [], seen = new Set();
+  (Array.isArray(sec.order) ? sec.order : []).forEach(i => {
+    if(Number.isInteger(i) && i >= 0 && i < n && !seen.has(i)){ seen.add(i); order.push(i); }
+  });
+  for(let i = 0; i < n; i++) if(!seen.has(i)) order.push(i);
+  return order;
+}
 const DATA = [
 { label: "Ficha de avaliação neonatal — Dados maternos", tabLabel:"Dados da mãe", sections: [
 {title:"Dados da mãe", fields:[
@@ -3333,9 +3355,9 @@ T("Más formações")
 ]},
 {title:"Pele", quickNormal:true, fields:[Sn("Coloração",["Rosada","Pálida","Cianótica","Ictérica","Acrocianose"],"Rosada"),Sn("Hematomas",AUSPRES,"Ausente"),T("Outros achados")]},
 {title:"Tórax e sinais vitais", quickNormal:true, fields:[
-Object.assign(Sf("Ausculta cardíaca",["Normal (sem sopros)","Sopro presente","Outro"],{when:['Outro'],sub:{l:'Descrever',t:'text'}}), {normal:"Normal (sem sopros)"}),
+AuscCardiaca("Ausculta cardíaca"),
 N("FC"),
-Object.assign(Sf("Ausculta pulmonar",["MV presente bilateral","Estertores","Roncos","Diminuído","Outro"],{when:['Outro'],sub:{l:'Descrever',t:'text'}}), {normal:"MV presente bilateral"}),
+AuscPulmonar("Ausculta pulmonar"),
 N("FR"),
 Sn("Esforço respiratório",["Ausente","Presente (leve)","Presente (moderado/grave)"],"Ausente"),
 Sn("Pulso braquial",["Presente e simétrico","Diminuído","Ausente"],"Presente e simétrico"),
@@ -3384,10 +3406,12 @@ T("Intercorrências na 1ª hora")
   {l:"Horas de vida na 1ª avaliação",t:'number',auto:'hoursFromBirth'},
   {l:"Peso da 1ª avaliação (g)",t:'number'},
   {l:"Perda ponderal (%)",t:'number',auto:'weightLossFirstEvaluation'},
-  {l:"Avaliação pulmonar",t:'text'},
-  {l:"Avaliação cardíaca",t:'text'},
-  {l:"Bilirrubina transcutânea (BTC)",t:'number'}
-]}
+  AuscPulmonar("Ausculta pulmonar"),
+  AuscCardiaca("Ausculta cardíaca"),
+  {l:"Bilirrubina transcutânea (BTC)",t:'number'},
+  N("FC"),
+  N("FR")
+], order:[0,1,2,4,6,3,7,5]}
 ] },
 { label: "Exame físico de alta hospitalar", tabLabel:"Alta hospitalar", sections: [
 {title:"Dados gerais de alta", fields:[
@@ -3426,7 +3450,7 @@ Sn("Mancha salmão",AUSPRES,"Ausente"),
 T("Outros achados")
 ]},
 {title:"Tórax e abdome", quickNormal:true, fields:[
-T("Ausculta cardíaca e FC"),T("Ausculta pulmonar e FR"),
+AuscCardiaca("Ausculta cardíaca"),AuscPulmonar("Ausculta pulmonar"),
 Sn("Ginecomastia",AUSPRES,"Ausente"),
 Sn("Mamilo acessório",AUSPRES,"Ausente"),
 Sn("Tiragem",AUSPRES,"Ausente"),
@@ -3435,8 +3459,9 @@ Sn("Ausculta abdominal",["RHA presentes","RHA ausentes","RHA aumentados"],"RHA p
 Sn("Organomegalia",AUSPRES,"Ausente"),
 Sn("Distensão",AUSPRES,"Ausente"),
 Sn("Cólica",AUSPRES,"Ausente"),
-Sn("Aparência do coto",["Em mumificação normal","Sinais de infecção (onfalite)"],"Em mumificação normal")
-]},
+Sn("Aparência do coto",["Em mumificação normal","Sinais de infecção (onfalite)"],"Em mumificação normal"),
+N("FC"),N("FR")
+], order:[0,11,1,12,2,3,4,5,6,7,8,9,10]},
 {title:"Genitália e ânus", quickNormal:true, fields:[
 Sx(Sn("Testículos tópicos (masc.)",["Sim","Não - criptorquidia"],"Sim"),'M'),
 Sx(Sn("Fimose (Kayaba)",[
@@ -4183,6 +4208,14 @@ function healMisplacedAnswers(ans){
       else if(f.t === 'number') misplaced = !Number.isFinite(Number(v));
       else if(f.t === 'text') misplaced = v.length >= 12; // só textos longos que sejam exatamente uma opção
       if(!misplaced) return;
+      // Ausculta cardíaca/pulmonar agora são texto: valor antigo caído em campo numérico volta para o campo certo.
+      if(f.t === 'number'){
+        const textHomes = [];
+        sec.fields.forEach((cand, ci) => {
+          if(cand.normalTokens && textMatchesNormalTokens(v, cand.normalTokens) && isEmptyDeep(ans[p+'_'+s+'_'+ci])) textHomes.push(p+'_'+s+'_'+ci);
+        });
+        if(textHomes.length === 1){ ans[textHomes[0]] = v; ans[key] = ''; changed = true; return; }
+      }
       const homes = slots.filter(sl => sl.key !== key && sl.opts.includes(v));
       if(homes.length !== 1 || !isEmptyDeep(ans[homes[0].key])) return;
       ans[homes[0].key] = v; ans[key] = ''; changed = true;
@@ -4729,6 +4762,8 @@ function updatePendingStatus(){
     setFloatingSyncStatus('error', 'Falha na sincronização · '+failed, lastError || 'Há operações que precisam ser sincronizadas.');
   } else if(queued){
     setFloatingSyncStatus('pending', 'Sincronização pendente · '+queued, 'Os dados estão salvos localmente e aguardam envio ao Supabase.');
+  } else if(offlineMode){
+    setFloatingSyncStatus('error', 'Sem conexão · só neste aparelho', 'Toque para tentar entrar novamente. Os dados estão salvos neste aparelho e serão enviados depois do login.');
   } else if(supabaseConfigured && !supabaseClient){
     setFloatingSyncStatus('error', 'Somente neste aparelho', 'A biblioteca do banco de dados não carregou (provável bloqueio de rede). Os dados estão salvos apenas neste aparelho e serão enviados quando a conexão for liberada.');
   } else {
@@ -5742,6 +5777,9 @@ function fieldIsAbnormal(field, value, context = {}){
   const normalizedNeutralText = normalizedValue.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   if (isFreeTextField && ['nao', 'nada', 'nega'].includes(normalizedNeutralText)) return false;
 
+  // Ausculta cardíaca/pulmonar em texto livre: só destaca se fugir do padrão normal.
+  if(field.normalTokens) return !textMatchesNormalTokens(rawValue, field.normalTokens);
+
   // Chagas deve ser rastreada ao menos uma vez na gestação; a ausência do exame
   // nos outros trimestres não constitui, por si só, uma alteração.
   if (context.sectionTitle.includes('Sorologias maternas') && field.l.startsWith('Chagas -')) {
@@ -5842,7 +5880,8 @@ function updateProblemsList(){
   // Limpa destaques antigos antes de recalcular as alterações.
   document.querySelectorAll('.field-row.abnormal').forEach(row => row.classList.remove('abnormal'));
   const problemsByPart = DATA.map(() => []);
-  DATA.forEach((part, pIdx) => part.sections.forEach((sec, sIdx) => sec.fields.forEach((field, fIdx) => {
+  DATA.forEach((part, pIdx) => part.sections.forEach((sec, sIdx) => getFieldOrder(sec).forEach(fIdx => {
+    const field = sec.fields[fIdx];
     if(!fieldVisible(field)) return;
     const key = pIdx+'_'+sIdx+'_'+fIdx;
     const value = field.t === 'group'
@@ -6112,7 +6151,8 @@ head.appendChild(btn);
 }
 card.appendChild(head);
 if(sec.note){ const note = document.createElement('div'); note.className='note-box'; note.textContent=sec.note; card.appendChild(note); }
-sec.fields.forEach((field, fIdx) => {
+getFieldOrder(sec).forEach(fIdx => {
+const field = sec.fields[fIdx];
 if(!fieldVisible(field)) return;
 const fieldContext = createOpContext(currentRecordId);
 const baseKey = currentPart+'_'+sIdx+'_'+fIdx;
@@ -6834,7 +6874,10 @@ function setLoginMessage(message, error = false){
   loginMessage.style.color = error ? '#9C2E2E' : '#0B5850';
 }
 let lastRecordsLoad = {userId:null, at:0};
+let offlineMode = false; // usuário escolheu seguir sem login porque o servidor está inacessível
 function updateAuthView(session){
+  if(session) offlineMode = false;
+  if(!session && offlineMode) return;
   currentUser = session ? session.user : null;
   if(!currentUser){ currentDatabaseRecordId = null; }
   const loggedIn = Boolean(session);
@@ -6876,7 +6919,15 @@ function setupAuth(){
     const email = LOGIN_EMAIL;
     const {data, error} = await supabaseClient.auth.signInWithPassword({email, password});
     if(error){
-      setLoginMessage('Erro: ' + error.message, true);
+      const networkProblem = /fetch|network|timeout|conex|load failed|abort/i.test(String(error.message || '')) ||
+        error.name === 'AuthRetryableFetchError';
+      if(networkProblem){
+        setLoginMessage('Não foi possível falar com o servidor (a rede pode estar bloqueando aybuyzhwtihahkoeqmsa.supabase.co). Você pode continuar sem conexão: os dados ficam salvos neste aparelho e sobem depois, quando o login funcionar.', true);
+        const offlineButton = document.getElementById('btnOfflineContinue');
+        if(offlineButton) offlineButton.style.display = 'block';
+      } else {
+        setLoginMessage('Erro: ' + error.message, true);
+      }
       console.error(error);
       return;
     }
@@ -6934,7 +6985,7 @@ function generatePrint(groupIndexes = PRINT_GROUPS.map((_, index) => index), rec
       sections.forEach(sec => {
         const sIdx = part.sections.indexOf(sec);
         html += `<div class="p-section"><div class="p-band">${escapeHTML(sec.title)}</div>`;
-        const fields = sec.fields.filter(field => {
+        const fields = getFieldOrder(sec).map(i => sec.fields[i]).filter(field => {
           const label = field.l.toLowerCase();
           if(partIdx === 3 && sec.title === 'Dados de alta do RN' && [
             'bilirrubina transcutânea (btc)','bilirrubina total sérica (bt)',
@@ -7155,6 +7206,21 @@ document.getElementById('importBackupFile').addEventListener('change', async eve
   if(file) await importBackupFile(file);
 });
 document.getElementById('btnOpenTrash').addEventListener('click', openTrashModal);
+document.getElementById('btnOfflineContinue').addEventListener('click', () => {
+  offlineMode = true;
+  document.body.classList.remove('login-mode');
+  loginView.style.display = 'none';
+  builderHost.style.display = 'block';
+  btnSaveDatabase.style.display = 'none';
+  updatePendingStatus();
+});
+document.getElementById('syncStatusFab').addEventListener('click', () => {
+  if(!offlineMode) return;
+  if(confirm('Tentar entrar novamente? A página será recarregada; seus dados estão salvos neste aparelho.')){
+    flushCurrentLocalNow();
+    location.reload();
+  }
+});
 document.addEventListener('keydown', event => { if(event.key === 'Escape') closeVersionsModal(); });
 document.getElementById('selectAllHistory').addEventListener('change', event => {
   const records = loadHistory();
