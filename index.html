@@ -3023,6 +3023,139 @@ body.login-mode .sync-status-controls { display: none !important; }
     font-size: 0; gap: 0; padding: 0; width: 40px; min-width: 40px; justify-content: center;
   }
 }
+
+/* ====================== CADERNETA DO RN (folhas A4 para impressão) ====================== */
+/* Cores com !important porque regras antigas de impressão forçam todo texto em preto. */
+.cn-measure{ position:absolute; left:-12000px; top:0; visibility:hidden; pointer-events:none; }
+.cn-page{
+  width:210mm; height:296mm; position:relative; overflow:hidden; box-sizing:border-box;
+  padding:0 0 13mm; background:#ffffff !important;
+  font-family:"Segoe UI","Avenir Next","Helvetica Neue",Arial,sans-serif !important;
+  font-size:9pt; line-height:1.28; color:#23404A !important;
+}
+.cn-page *{ box-sizing:border-box; }
+.cn-p4{ font-size:8.1pt; }
+.cn-body{ padding:0 9mm; font-size:100%; }
+.cn-page.cn-grow-3 .cn-body{ font-size:118%; }
+.cn-page.cn-grow-2 .cn-body{ font-size:112%; }
+.cn-page.cn-grow-1 .cn-body{ font-size:106%; }
+.cn-page.cn-fit-1 .cn-body{ font-size:94%; }
+.cn-page.cn-fit-2 .cn-body{ font-size:88%; }
+.cn-page.cn-fit-3 .cn-body{ font-size:82%; }
+.cn-page.cn-fit-4 .cn-body{ font-size:77%; }
+.cn-page.cn-fit-5 .cn-body{ font-size:72%; }
+
+/* Cabeçalho com onda suave na cor da folha */
+.cn-head{ position:relative; height:31mm; padding:6mm 9mm 0; }
+.cn-wave{ position:absolute; left:0; top:0; width:210mm; height:36mm; }
+.cn-p1 .cn-wave-a{ fill:#F7DCE3; } .cn-p1 .cn-wave-b{ fill:#FBEDF1; }
+.cn-p2 .cn-wave-a{ fill:#CDEBE2; } .cn-p2 .cn-wave-b{ fill:#E6F5F0; }
+.cn-p3 .cn-wave-a{ fill:#D3E4F5; } .cn-p3 .cn-wave-b{ fill:#EAF2FB; }
+.cn-p4 .cn-wave-a{ fill:#F6E2B8; } .cn-p4 .cn-wave-b{ fill:#FCF2DD; }
+.cn-head-table{ position:relative; width:100%; border-collapse:collapse; }
+.cn-head-table td{ vertical-align:middle; padding:0; border:0; }
+.cn-head-logo{ width:30mm; }
+.cn-head-logo img{ width:24mm !important; height:auto !important; display:block; }
+.cn-head-text{ padding-left:2mm !important; }
+.cn-title{ font-family:Georgia,"Iowan Old Style","Times New Roman",serif !important; font-size:19pt; font-weight:700; letter-spacing:-.01em; color:#23404A !important; line-height:1.1; }
+.cn-feet{ width:8mm; height:6.5mm; vertical-align:middle; margin-left:1.5mm; }
+.cn-p1 .cn-feet{ fill:#D98CA0; } .cn-p2 .cn-feet{ fill:#5DB59D; } .cn-p3 .cn-feet{ fill:#6F9FD1; } .cn-p4 .cn-feet{ fill:#D9A441; }
+.cn-subtitle{ margin-top:1mm; font-size:8.6pt; color:#4E6A75 !important; }
+.cn-head-page{ width:40mm; text-align:right; }
+.cn-badge{ display:inline-block; width:14mm; height:14mm; border-radius:7mm; background:#ffffff !important; text-align:center; padding-top:2.2mm; border:.5mm solid #ffffff; }
+.cn-p1 .cn-badge{ border-color:#E9AFBE; } .cn-p2 .cn-badge{ border-color:#86CDB8; } .cn-p3 .cn-badge{ border-color:#97BCE3; } .cn-p4 .cn-badge{ border-color:#E8C175; }
+.cn-badge-num{ display:block; font-family:Georgia,"Times New Roman",serif !important; font-size:15pt; font-weight:700; line-height:1; color:#23404A !important; }
+.cn-badge-of{ display:block; font-size:6.3pt; color:#5A7480 !important; margin-top:.4mm; }
+.cn-topic{ white-space:nowrap; margin-top:1.2mm; font-size:8pt; font-weight:600; color:#23404A !important; }
+
+/* Faixa de identificação */
+.cn-id{ width:100%; border-collapse:separate; border-spacing:0; margin:0 0 3.2mm; background:#ffffff !important; border:.35mm solid #D6E3E0; border-radius:2.6mm; }
+.cn-id td{ padding:1.6mm 3mm; vertical-align:top; border-left:.3mm solid #E4ECEA; }
+.cn-id td:first-child{ border-left:0; width:34%; }
+.cn-id-label{ font-size:.74em; color:#6A838D !important; }
+.cn-id-value{ font-size:1.06em; font-weight:700; color:#23404A !important; }
+
+/* Cartões */
+.cn-card{ display:inline-block; width:100%; margin:0 0 3mm; background:#ffffff !important; border:.35mm solid #DCE6E3; border-radius:2.6mm; overflow:hidden;
+  break-inside:avoid; page-break-inside:avoid; -webkit-column-break-inside:avoid; }
+.cn-card-title{ margin:0; padding:1.5mm 2.8mm 1.3mm; font-family:Georgia,"Iowan Old Style","Times New Roman",serif !important; font-size:1.08em; font-weight:700; color:#23404A !important; border-bottom:.35mm solid #E3ECE9; }
+.cn-p1 .cn-card-title{ background:#FBEDF1 !important; } .cn-p2 .cn-card-title{ background:#E9F6F1 !important; }
+.cn-p3 .cn-card-title{ background:#EDF4FB !important; } .cn-p4 .cn-card-title{ background:#FCF3E0 !important; }
+.cn-grid{ width:100%; border-collapse:collapse; table-layout:fixed; }
+.cn-grid > tbody > tr > td, .cn-grid > tr > td{ vertical-align:top; padding:0 2mm; }
+.cn-grid > tbody > tr > td:first-child, .cn-grid > tr > td:first-child{ padding-left:0; }
+.cn-grid > tbody > tr > td:last-child, .cn-grid > tr > td:last-child{ padding-right:0; }
+.cn-grid-3 > tbody > tr > td{ padding:0 1.5mm; }
+
+/* Pares rótulo / valor */
+.cn-kv{ width:100%; border-collapse:collapse; table-layout:fixed; }
+.cn-kv th, .cn-kv td{ padding:.85mm 2.8mm; vertical-align:top; text-align:left; border-top:.25mm solid #EEF3F2; overflow-wrap:break-word; word-wrap:break-word; }
+.cn-kv tr:first-child th, .cn-kv tr:first-child td{ border-top:0; }
+.cn-kv th{ width:50%; font-weight:500; font-size:.93em; color:#5A7480 !important; }
+.cn-kv td{ font-weight:600; color:#1F3A44 !important; }
+.cn-kv2 th{ width:24%; } .cn-kv2 td{ width:26%; }
+.cn-kv2 .cn-kv2-gap{ border-left:.3mm solid #EEF3F2; }
+.cn-kv tr.is-alert th, .cn-kv th.is-alert{ color:#A8392F !important; }
+.cn-kv tr.is-alert td, .cn-kv td.is-alert{ color:#A8392F !important; background:#FCEDEA !important; }
+.cn-empty{ color:#B6C5C9 !important; font-weight:400; }
+
+/* Matriz de sorologias */
+.cn-matrix{ width:100%; border-collapse:collapse; table-layout:fixed; }
+.cn-matrix th, .cn-matrix td{ padding:.9mm 2mm; border-top:.25mm solid #EEF3F2; text-align:center; font-size:.95em; }
+.cn-matrix thead th{ border-top:0; font-weight:700; color:#23404A !important; background:#FFF7F9 !important; font-size:.86em; }
+.cn-matrix tbody th{ text-align:left; font-weight:500; color:#5A7480 !important; width:31%; padding-left:2.8mm; }
+.cn-matrix .cn-mx-exam{ text-align:left; padding-left:2.8mm; width:31%; }
+.cn-matrix td{ font-weight:700; color:#1F3A44 !important; border-left:.25mm solid #F1F5F4; }
+.cn-matrix td.cn-na{ background:#F4F6F6 !important; }
+.cn-matrix td.is-alert{ color:#A8392F !important; background:#FCEDEA !important; }
+.cn-legend{ margin:0; padding:1.1mm 2.8mm 1.5mm; font-size:.78em; color:#6A838D !important; border-top:.25mm solid #EEF3F2; }
+
+/* Medidas ao nascer e na alta */
+.cn-hero{ margin:0 0 3.2mm; }
+.cn-tiles{ width:100%; border-collapse:separate; border-spacing:2.2mm 0; margin:0 -2.2mm; table-layout:fixed; width:calc(100% + 4.4mm); }
+.cn-tile{ padding:2mm 2.4mm 2.2mm; border-radius:2.6mm; vertical-align:top; }
+.cn-p2 .cn-tile{ background:#E9F6F1 !important; } .cn-p4 .cn-tile{ background:#FCF3E0 !important; }
+.cn-tile-label{ font-size:.8em; color:#4E6A75 !important; }
+.cn-tile-value{ margin-top:.6mm; font-family:Georgia,"Iowan Old Style","Times New Roman",serif !important; font-size:1.65em; font-weight:700; line-height:1.05; color:#23404A !important; }
+.cn-tiles-alta .cn-tile-value{ font-size:1.4em; }
+.cn-tile-long .cn-tile-value, .cn-tiles-alta .cn-tile-long .cn-tile-value{ font-size:1.06em; line-height:1.15; }
+.cn-p4 .cn-kv th{ width:46%; }
+.cn-card.cn-wide .cn-kv th{ width:23%; }
+.cn-tile-unit{ font-family:"Segoe UI",Arial,sans-serif !important; font-size:.5em; font-weight:600; margin-left:.8mm; color:#4E6A75 !important; }
+.cn-tile.is-alert .cn-tile-value{ color:#A8392F !important; }
+.cn-apgar{ width:100%; border-collapse:collapse; margin-top:2.6mm; border:.35mm solid #DCE6E3; border-radius:2.6mm; background:#ffffff !important; }
+.cn-apgar td{ padding:1.8mm 2mm; text-align:center; vertical-align:middle; }
+.cn-apgar-title{ width:17%; font-family:Georgia,"Times New Roman",serif !important; font-size:1.3em; font-weight:700; text-align:left !important; padding-left:3mm !important; color:#23404A !important; }
+.cn-apgar-dot{ display:inline-block; width:10mm; height:10mm; border-radius:5mm; line-height:10mm; background:#E9F6F1 !important; border:.4mm solid #86CDB8;
+  font-family:Georgia,"Times New Roman",serif !important; font-size:1.5em; font-weight:700; color:#23404A !important; }
+.cn-apgar-dot.is-alert{ background:#FCEDEA !important; border-color:#E2A49B; color:#A8392F !important; }
+.cn-apgar-label{ margin-top:.8mm; font-size:.8em; color:#5A7480 !important; }
+.cn-apgar-ig{ width:30%; text-align:left !important; border-left:.3mm solid #E4ECEA; padding-left:3mm !important; }
+.cn-apgar-ig .cn-id-value{ margin-bottom:.8mm; }
+
+/* Espaço para anotações à mão (folha 2) */
+.cn-notes{ margin-top:1mm; }
+.cn-notes-lines{ padding:0 3mm 2mm; }
+.cn-notes-lines div{ height:8mm; border-bottom:.3mm dashed #C9DCD5; }
+
+/* Assinaturas e rodapé */
+.cn-sign{ width:100%; border-collapse:collapse; margin-top:5mm; }
+.cn-sign td{ width:50%; padding:0 4mm; vertical-align:bottom; text-align:center; }
+.cn-sign-line{ border-top:.35mm solid #5A7480; margin:0 3mm 1mm; }
+.cn-sign-label{ font-size:.82em; color:#4E6A75 !important; }
+.cn-foot{ position:absolute; left:9mm; right:9mm; bottom:5mm; border-top:.3mm solid #DCE6E3; padding-top:1.4mm; }
+.cn-foot table{ width:100%; border-collapse:collapse; }
+.cn-foot td{ padding:0; font-size:6.8pt; color:#6A838D !important; }
+.cn-foot-right{ text-align:right; }
+
+@media print{
+  @page{ size:A4 portrait; margin:0; }
+  html, body{ margin:0 !important; padding:0 !important; background:#ffffff !important; }
+  main{ max-width:none !important; margin:0 !important; padding:0 !important; }
+  #printView{ display:block !important; margin:0 !important; padding:0 !important; background:#ffffff !important; }
+  #printView .cn-page{ margin:0 !important; page-break-after:always; break-after:page; }
+  #printView .cn-page:last-child{ page-break-after:auto; break-after:auto; }
+}
 </style>
 </head>
 <body class="workflow-locked">
@@ -6965,7 +7098,284 @@ function preparePrintSnapshot(recordId){
   if(!captured) throw new Error('Não foi possível capturar o RN para impressão.');
   return deepFreeze({...cloneData(captured), evaluatorName:String(captured.answers[EVALUATOR_NAME_KEY] || 'Não informado'), printCreatedAt:new Date().toISOString()});
 }
-function generatePrint(groupIndexes = PRINT_GROUPS.map((_, index) => index), recordId = currentRecordId) {
+// ==================== CADERNETA DO RN: IMPRESSÃO EM 4 FOLHAS A4 ====================
+// Folha 1: mãe e gestação · Folha 2: nascimento · Folha 3: exame físico da 1ª hora · Folha 4: alta.
+const CN_BIRTH_SEC = 'Dados de nascimento e exame físico da 1ª hora';
+const CN_TOPICS = ['Mãe e gestação', 'Nascimento', 'Exame físico da 1ª hora', 'Alta hospitalar'];
+const CN_RENAME = {
+  'Histórico gestacional':'Gestações', 'Grupo sanguíneo (mãe)':'Tipagem sanguínea da mãe', 'Grupo sanguíneo do pai':'Tipagem sanguínea do pai',
+  'Uso de fórceps / vácuo extrator':'Fórceps ou vácuo', 'Nº de circulares de cordão':'Circulares de cordão',
+  'Reanimação (descrever)':'Reanimação', 'Formato do crânio — qualitativo':'Formato do crânio',
+  'Intercorrências durante o parto':'Intercorrências no parto', 'Necessita Dextro (HGT)?':'Necessita dextro (HGT)',
+  'Necessita coleta de exames precoce?':'Coleta precoce de exames', 'Vitamina K (Kanakion)':'Vitamina K',
+  'Profilaxia de conjuntivite (PVPI)':'Profilaxia ocular (PVPI)', 'Intercorrências na 1ª hora':'Intercorrências na 1ª hora',
+  'Cardiopatia congênita com repercussão conhecida ao nascimento':'Cardiopatia congênita com repercussão',
+  'Anomalia congênita de vias aéreas conhecida ao nascimento':'Anomalia congênita de vias aéreas',
+  'Necessidade de Nirsevimabe na maternidade':'Indicação na maternidade',
+  'Testículos tópicos (masc.)':'Testículos tópicos', 'Saída da uretra (masc.)':'Meato uretral', 'Saída da uretra':'Meato uretral',
+  'Hidrocele / hérnia (masc.)':'Hidrocele ou hérnia', 'Hidrocele / hérnia':'Hidrocele ou hérnia', 'Presença de sinéquia (fem.)':'Sinéquia',
+  'Genitália ambígua (descrever)':'Genitália ambígua', 'Manobras de Ortolani e Barlow (D/E)':'Ortolani e Barlow', 'Manobra de Ortolani e Barlow':'Ortolani e Barlow',
+  'Sinal da tecla (clavícula)':'Sinal da tecla', 'Interpretação (coraçãozinho)':'Interpretação do coraçãozinho', 'Interpretação (olhinho)':'Interpretação do olhinho',
+  'Profilaxias neonatais realizadas':'Profilaxias neonatais', 'Intercorrências na internação':'Intercorrências na internação',
+  'Placing (maca/escada)':'Placing', 'Medicações utilizadas na gestação':'Medicações na gestação', 'Uso de corticoide (doses)':'Corticoide antenatal',
+  'Bolsa rota (horas)':'Tempo de bolsa rota', 'Intercorrências em gestações anteriores':'Intercorrências em gestações anteriores'
+};
+function cnLocate(pIdx, sectionTitle, label){
+  const part = DATA[pIdx]; if(!part) return null;
+  const sIdx = part.sections.findIndex(sec => sec.title === sectionTitle); if(sIdx < 0) return null;
+  const sec = part.sections[sIdx];
+  const fIdx = sec.fields.findIndex(f => f.l === label); if(fIdx < 0) return null;
+  return {sec, sIdx, fIdx, field:sec.fields[fIdx], key:pIdx+'_'+sIdx+'_'+fIdx};
+}
+function cnFormatDate(value){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value || ''));
+  return m ? m[3]+'/'+m[2]+'/'+m[1] : String(value || '');
+}
+function cnValue(snapshot, pIdx, sectionTitle, label){
+  const loc = cnLocate(pIdx, sectionTitle, label);
+  if(!loc || !fieldVisible(loc.field, snapshot.answers)) return null;
+  const f = loc.field, a = snapshot.answers;
+  let text;
+  if(f.t === 'group'){
+    const items = f.items.map((it, i) => a[loc.key+'_'+i] || '');
+    text = items.some(Boolean) ? fieldPrintValue(f, loc.key, snapshot) : '';
+  } else {
+    text = fieldPrintValue(f, loc.key, snapshot);
+    if(f.t === 'date') text = cnFormatDate(text);
+  }
+  const raw = f.t === 'group' ? f.items.map((it, i) => a[loc.key+'_'+i] || '').filter(Boolean).join(' — ') : (a[loc.key] || '');
+  let alert = false;
+  try { alert = Boolean(raw) && fieldIsAbnormal(f, raw, {sectionTitle}); } catch(_) {}
+  return {label:CN_RENAME[f.l] || f.l, text:String(text || '').trim(), alert};
+}
+function cnRows(snapshot, pIdx, sectionTitle, only){
+  const part = DATA[pIdx]; if(!part) return [];
+  const sec = part.sections.find(x => x.title === sectionTitle); if(!sec) return [];
+  const labels = only || getFieldOrder(sec).map(i => sec.fields[i].l);
+  return labels.map(l => cnValue(snapshot, pIdx, sectionTitle, l)).filter(Boolean);
+}
+function cnCell(v){ return v && v.text ? escapeHTML(v.text) : '<span class="cn-empty">—</span>'; }
+function cnKV(rows){
+  return '<table class="cn-kv">' + rows.map(r =>
+    '<tr' + (r.alert ? ' class="is-alert"' : '') + '><th>' + escapeHTML(r.label) + '</th><td>' + cnCell(r) + '</td></tr>').join('') + '</table>';
+}
+// Duas colunas de pares rótulo/valor lado a lado (para cartões largos).
+function cnKV2(rows){
+  const half = Math.ceil(rows.length / 2);
+  let h = '<table class="cn-kv cn-kv2">';
+  for(let i = 0; i < half; i++){
+    const a = rows[i], b = rows[i + half];
+    h += '<tr><th' + (a.alert ? ' class="is-alert"' : '') + '>' + escapeHTML(a.label) + '</th><td' + (a.alert ? ' class="is-alert"' : '') + '>' + cnCell(a) + '</td>';
+    h += b ? '<th class="cn-kv2-gap' + (b.alert ? ' is-alert' : '') + '">' + escapeHTML(b.label) + '</th><td' + (b.alert ? ' class="is-alert"' : '') + '>' + cnCell(b) + '</td>' : '<th class="cn-kv2-gap"></th><td></td>';
+    h += '</tr>';
+  }
+  return h + '</table>';
+}
+function cnCard(title, body, cls){
+  return '<section class="cn-card' + (cls ? ' ' + cls : '') + '"><h3 class="cn-card-title">' + escapeHTML(title) + '</h3>' + body + '</section>';
+}
+function cnSectionCard(snapshot, pIdx, sectionTitle, title, only){
+  const rows = cnRows(snapshot, pIdx, sectionTitle, only);
+  return rows.length ? cnCard(title || sectionTitle, cnKV(rows)) : '';
+}
+// Mesmo cartão, com peso estimado (linhas + quebras de texto longo) para montar colunas equilibradas.
+function cnCardObj(snapshot, pIdx, sectionTitle, title, only, charsPerLine){
+  const rows = cnRows(snapshot, pIdx, sectionTitle, only);
+  if(!rows.length) return null;
+  const cpl = charsPerLine || 30;
+  const weight = 2.2 + rows.reduce((sum, r) => sum + Math.max(1, Math.ceil(Math.max(String(r.text).length, String(r.label).length * 0.8) / cpl)), 0);
+  return {html:cnCard(title || sectionTitle, cnKV(rows)), weight};
+}
+// Divide uma sequência de alturas em n colunas contíguas com a menor coluna mais alta possível.
+function cnPartition(weights, n){
+  const m = weights.length;
+  if(n <= 1 || m <= 1) return [];
+  if(m <= n) return Array.from({length:m - 1}, (_, i) => i + 1);
+  const pre = [0]; weights.forEach(w => pre.push(pre[pre.length - 1] + w));
+  const sum = (a, b) => pre[b] - pre[a];
+  let best = null;
+  if(n === 2){
+    for(let i = 1; i < m; i++){ const v = Math.max(sum(0, i), sum(i, m)); if(!best || v < best.v) best = {v, cuts:[i]}; }
+  } else {
+    for(let i = 1; i < m - 1; i++) for(let j = i + 1; j < m; j++){
+      const v = Math.max(sum(0, i), sum(i, j), sum(j, m)); if(!best || v < best.v) best = {v, cuts:[i, j]};
+    }
+  }
+  return best ? best.cuts : [];
+}
+// Colunas em tabela (mesmo resultado em qualquer navegador), mantendo a ordem de leitura de cima para baixo.
+function cnColumns(cards, n){
+  const list = cards.filter(Boolean);
+  const cuts = cnPartition(list.map(c => c.weight), n);
+  const cols = Array.from({length:n}, () => []);
+  let start = 0;
+  [...cuts, list.length].forEach((end, ci) => { for(let k = start; k < end; k++) cols[ci].push(list[k].html); start = end; });
+  return '<table class="cn-grid cn-grid-' + n + '"><tr>' + cols.map(c => '<td>' + c.join('') + '</td>').join('') + '</tr></table>';
+}
+function cnTile(label, value, unit, alert){
+  const has = value !== null && value !== undefined && String(value).trim() !== '';
+  const long = has && String(value).length > 14;
+  return '<td class="cn-tile' + (alert ? ' is-alert' : '') + (long ? ' cn-tile-long' : '') + '"><div class="cn-tile-label">' + escapeHTML(label) + '</div><div class="cn-tile-value">' +
+    (has ? escapeHTML(value) + (unit ? '<span class="cn-tile-unit">' + escapeHTML(unit) + '</span>' : '') : '<span class="cn-empty">—</span>') + '</div></td>';
+}
+function cnWave(){
+  return '<svg class="cn-wave" viewBox="0 0 210 36" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    '<path class="cn-wave-a" d="M0 0H210V24C176 34 146 18 112 24C80 30 52 36 26 30C14 27 6 24 0 25Z"/>' +
+    '<path class="cn-wave-b" d="M0 0H210V15C180 24 150 10 118 15C86 20 60 26 34 21C20 18 9 16 0 17Z"/></svg>';
+}
+function cnFeet(){
+  // Par de pezinhos estilizados (decoração do cabeçalho).
+  const foot = (x, y, r) => '<g transform="translate(' + x + ' ' + y + ') rotate(' + r + ')">' +
+    '<ellipse cx="0" cy="6" rx="3.1" ry="5"/><circle cx="-2.6" cy="-0.6" r="0.95"/><circle cx="-0.8" cy="-1.6" r="0.9"/>' +
+    '<circle cx="1.0" cy="-1.6" r="0.85"/><circle cx="2.5" cy="-0.9" r="0.75"/><circle cx="3.4" cy="0.4" r="0.65"/></g>';
+  return '<svg class="cn-feet" viewBox="0 0 22 18" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' + foot(6, 5, -12) + foot(15.5, 3, 12) + '</svg>';
+}
+function cnHeader(pageNo){
+  return '<header class="cn-head">' + cnWave() +
+    '<table class="cn-head-table"><tr>' +
+    '<td class="cn-head-logo">' + UNIPAMPA_LOGO_IMG + '</td>' +
+    '<td class="cn-head-text"><div class="cn-title">Caderneta do recém-nascido ' + cnFeet() + '</div>' +
+    '<div class="cn-subtitle">Ficha de avaliação neonatal do Alojamento Conjunto</div></td>' +
+    '<td class="cn-head-page"><div class="cn-badge"><span class="cn-badge-num">' + pageNo + '</span><span class="cn-badge-of">de 4</span></div>' +
+    '<div class="cn-topic">' + escapeHTML(CN_TOPICS[pageNo - 1]) + '</div></td>' +
+    '</tr></table></header>';
+}
+function cnIdentity(s){
+  const v = (p, sec, l) => cnValue(s, p, sec, l);
+  const rn = v(1, CN_BIRTH_SEC, 'Nome do RN'), mae = v(0, 'Dados da mãe', 'Nome');
+  const data = v(1, CN_BIRTH_SEC, 'Data'), hora = v(1, CN_BIRTH_SEC, 'Horário'), sexo = v(1, CN_BIRTH_SEC, 'Sexo');
+  const nasc = [data && data.text, hora && hora.text ? 'às ' + hora.text : ''].filter(Boolean).join(' ');
+  const cell = (label, text) => '<td><div class="cn-id-label">' + label + '</div><div class="cn-id-value">' + (text ? escapeHTML(text) : '<span class="cn-empty">—</span>') + '</div></td>';
+  return '<table class="cn-id"><tr>' + cell('Recém-nascido', rn && rn.text) + cell('Mãe', mae && mae.text) + cell('Nascimento', nasc) + cell('Sexo', sexo && sexo.text) + '</tr></table>';
+}
+function cnFooter(s){
+  const aluno = String(s.answers[EVALUATOR_NAME_KEY] || '').trim();
+  return '<footer class="cn-foot"><table><tr><td>Hospital Santa Casa de Uruguaiana, Serviço de Pediatria, e UNIPAMPA, Curso de Medicina</td>' +
+    '<td class="cn-foot-right">' + (aluno ? 'Avaliação: ' + escapeHTML(aluno) : '') + '</td></tr></table></footer>';
+}
+function cnPage(no, s, body){
+  return '<section class="cn-page cn-p' + no + '">' + cnHeader(no) + '<div class="cn-body">' + cnIdentity(s) + body + '</div>' + cnFooter(s) + '</section>';
+}
+function cnFmtGa(g){ return g && Number.isInteger(Number(g.weeks)) ? g.weeks + ' semanas e ' + (g.days || 0) + ' dia(s)' : ''; }
+function cnSerologyMatrix(s){
+  const cols = [['1º trimestre','Sorologias maternas — 1º trimestre'], ['2º trimestre','Sorologias maternas — 2º trimestre'],
+    ['3º trimestre','Sorologias maternas — 3º trimestre'], ['Maternidade','Sorologias coletadas na maternidade']];
+  const exams = [['HBsAg','HBsAg'], ['HCV','Hepatite C (HCV)'], ['Toxoplasmose - IgG','Toxoplasmose IgG'], ['Toxoplasmose - IgM','Toxoplasmose IgM'],
+    ['Toxoplasmose - Avidez (se IgM R, até 16 semanas)','Toxoplasmose, avidez'], ['HIV (± CV)','HIV (carga viral)'], ['Chagas - IgG','Chagas IgG'],
+    ['Chagas - IgM','Chagas IgM'], ['Sífilis - VDRL','Sífilis, VDRL'], ['Sífilis - Teste rápido (TR)','Sífilis, teste rápido'],
+    ['SGB (swab reto-vaginal)','Estreptococo do grupo B'], ['Indicação de profilaxia intraparto para SGB?','Profilaxia intraparto para SGB']];
+  let h = '<table class="cn-matrix"><thead><tr><th class="cn-mx-exam">Exame</th>' + cols.map(c => '<th>' + c[0] + '</th>').join('') + '</tr></thead><tbody>';
+  exams.forEach(([label, disp]) => {
+    const cells = cols.map(([, title]) => cnValue(s, 0, title, label));
+    if(cells.every(c => c === null)) return;
+    h += '<tr><th>' + escapeHTML(disp) + '</th>' + cells.map(c => c === null ? '<td class="cn-na"></td>' :
+      '<td' + (c.alert ? ' class="is-alert"' : '') + '>' + cnCell(c) + '</td>').join('') + '</tr>';
+  });
+  return h + '</tbody></table><p class="cn-legend">R: reagente. NR: não reagente. Em cinza, exame que não faz parte daquele período.</p>';
+}
+function cnPage1(s){
+  const mae = cnRows(s, 0, 'Dados da mãe').filter(r => r.label !== 'Nome');
+  const gm = s.gaManual || {};
+  mae.push({label:'IG pela DUM', text:cnFmtGa(gm.dum || s.gaDum)}, {label:'IG pelo ultrassom', text:cnFmtGa(gm.us || s.gaUs)});
+  return cnCard('Dados da mãe', cnKV2(mae), 'cn-wide') +
+    cnCard('Sorologias na gestação e na maternidade', cnSerologyMatrix(s), 'cn-wide cn-card-matrix') +
+    cnColumns([
+      cnCardObj(s, 0, 'História médica pregressa', 'História médica pregressa'),
+      cnCardObj(s, 0, 'Hábitos de vida', 'Hábitos de vida'),
+      cnCardObj(s, 0, 'História da gestação atual', 'Gestação atual'),
+      cnCardObj(s, 0, 'Vacinação materna', 'Vacinação da mãe')
+    ], 2);
+}
+function cnPage2(s){
+  const v = l => cnValue(s, 1, CN_BIRTH_SEC, l) || {text:'', alert:false};
+  const peso = v('Peso (g)'), comp = v('Comprimento (cm)'), pc = v('PC (cm)'), pt = v('PT (cm)'), cls = v('Peso x IG (percentil)');
+  const ig = v('IG'), cap = v('IG presumida (Capurro)');
+  const apgar = ['Apgar 1º min','Apgar 5º min','Apgar 10º min'].map(l => v(l));
+  const apgarNames = ['1º minuto','5º minuto','10º minuto'];
+  const apgarHTML = '<table class="cn-apgar"><tr><td class="cn-apgar-title">Apgar</td>' + apgar.map((a, i) => {
+    const low = a.text !== '' && Number(a.text) < 7;
+    return '<td><div class="cn-apgar-dot' + (low ? ' is-alert' : '') + '">' + (a.text !== '' ? escapeHTML(a.text) : '—') + '</div><div class="cn-apgar-label">' + apgarNames[i] + '</div></td>';
+  }).join('') + '<td class="cn-apgar-ig"><div class="cn-id-label">Idade gestacional</div><div class="cn-id-value">' + (ig.text ? escapeHTML(ig.text) : '—') + '</div>' +
+    '<div class="cn-id-label">Pelo Capurro</div><div class="cn-id-value">' + (cap.text ? escapeHTML(cap.text) : '—') + '</div></td></tr></table>';
+  const tiles = '<table class="cn-tiles"><tr>' + cnTile('Peso', peso.text, 'g', peso.alert) + cnTile('Comprimento', comp.text, 'cm') +
+    cnTile('Perímetro cefálico', pc.text, 'cm') + cnTile('Perímetro torácico', pt.text, 'cm') + cnTile('Peso para a IG', cls.text, '', cls.alert) + '</tr></table>';
+  return '<div class="cn-hero">' + tiles + apgarHTML + '</div>' +
+    cnColumns([
+      cnCardObj(s, 1, CN_BIRTH_SEC, 'Parto', ['Tipo de parto','Motivo do tipo de parto','Uso de fórceps / vácuo extrator','Apresentação do RN','Aspecto do líquido amniótico','Nº de circulares de cordão','Intercorrências durante o parto']),
+      cnCardObj(s, 1, CN_BIRTH_SEC, 'Primeiros cuidados', ['Pele a pele','Aspiração','Reanimação (descrever)','Formato do crânio — qualitativo']),
+      cnCardObj(s, 1, 'Profilaxia neonatal', 'Profilaxias ao nascer'),
+      cnCardObj(s, 1, 'Rastreio de hipoglicemia e infecção', 'Rastreios'),
+      cnCardObj(s, 1, NIRSEVIMAB_SECTION, 'Nirsevimabe (proteção contra o VSR)')
+    ], 2) +
+    '<section class="cn-card cn-wide cn-notes"><h3 class="cn-card-title">Anotações</h3><div class="cn-notes-lines">' +
+      '<div></div><div></div><div></div><div></div><div></div></div></section>';
+}
+function cnPage3(s){
+  const secs = [['Exame neurológico','Exame neurológico'], ['Cabeça e pescoço','Cabeça e pescoço'], ['Pele','Pele'], ['Tórax e sinais vitais','Tórax e sinais vitais'],
+    ['Abdome','Abdome'], ['Genitália e ânus','Genitália e ânus'], ['Eliminações fisiológicas','Eliminações'], ['Músculo-esquelético','Músculo-esquelético'], ['Reflexos primitivos','Reflexos primitivos']];
+  return cnColumns(secs.map(([t, d]) => cnCardObj(s, 1, t, d)), 2);
+}
+function cnPage4(s){
+  const g = l => cnValue(s, 3, 'Dados gerais de alta', l) || {text:''};
+  const d = l => cnValue(s, 3, 'Dados de alta do RN', l) || {text:''};
+  const aleit = cnValue(s, 3, 'Amamentação', 'Tipo de amamentação') || {text:''};
+  const pesoAlta = d('Peso de alta (g)').text || g('Peso atual (g)').text;
+  const perdaG = g('Perda ponderal (g)').text, perdaP = g('Perda ponderal (%)').text;
+  const perda = [perdaG ? perdaG + ' g' : '', perdaP ? '(' + perdaP + '%)' : ''].filter(Boolean).join(' ');
+  const tiles = '<table class="cn-tiles cn-tiles-alta"><tr>' + cnTile('Data da alta', d('Data de alta').text) + cnTile('Horas de vida', g('Horas de vida').text, 'h') +
+    cnTile('Peso na alta', pesoAlta, 'g') + cnTile('Perda de peso', perda) + cnTile('Alimentação', aleit.text) + '</tr></table>';
+  const secs = [['Exame neurológico','Exame neurológico'], ['Cabeça e pescoço','Cabeça e pescoço'], ['Pele','Pele'], ['Tórax e abdome','Tórax e abdome'],
+    ['Genitália e ânus','Genitália e ânus'], ['Eliminações fisiológicas','Eliminações'], ['Músculo-esquelético','Músculo-esquelético'], ['Reflexos primitivos','Reflexos primitivos'], ['Triagem neonatal','Triagem neonatal']];
+  const aluno = String(s.answers[EVALUATOR_NAME_KEY] || '').trim();
+  const sign = '<table class="cn-sign"><tr><td><div class="cn-sign-line"></div><div class="cn-sign-label">Aluno(a)' + (aluno ? ': ' + escapeHTML(aluno) : '') + '</div></td>' +
+    '<td><div class="cn-sign-line"></div><div class="cn-sign-label">Médico(a) responsável, assinatura e carimbo</div></td></tr></table>';
+  return '<div class="cn-hero">' + tiles + '</div>' +
+    cnColumns(secs.map(([t, dd]) => cnCardObj(s, 3, t, dd, null, 20)), 3) +
+    cnSectionCard(s, 3, 'Encerramento', 'Encerramento da internação').replace('class="cn-card"', 'class="cn-card cn-wide"') + sign;
+}
+function buildCadernetaHTML(snapshot){
+  return cnPage(1, snapshot, cnPage1(snapshot)) + cnPage(2, snapshot, cnPage2(snapshot)) +
+    cnPage(3, snapshot, cnPage3(snapshot)) + cnPage(4, snapshot, cnPage4(snapshot));
+}
+// Reduz a fonte da folha, em degraus, até tudo caber em uma folha A4 (nunca corta nem cria 5ª folha).
+const CN_FIT_LEVELS = ['cn-grow-3', 'cn-grow-2', 'cn-grow-1', '', 'cn-fit-1', 'cn-fit-2', 'cn-fit-3', 'cn-fit-4', 'cn-fit-5'];
+function cnRebalanceGrids(page){
+  page.querySelectorAll('table.cn-grid').forEach(grid => {
+    const cells = grid.rows && grid.rows[0] ? Array.from(grid.rows[0].cells) : [];
+    if(cells.length < 2) return;
+    const cards = [];
+    cells.forEach(td => Array.from(td.children).forEach(card => cards.push(card)));
+    if(cards.length < 2) return;
+    cards.forEach(card => cells[0].appendChild(card));
+    const weights = cards.map(card => card.getBoundingClientRect().height + (parseFloat(getComputedStyle(card).marginBottom) || 0));
+    const cuts = cnPartition(weights, cells.length);
+    let start = 0;
+    [...cuts, cards.length].forEach((end, ci) => { for(let k = start; k < end; k++) cells[ci].appendChild(cards[k]); start = end; });
+  });
+}
+function fitCadernetaPages(container){
+  container.querySelectorAll('.cn-page').forEach(page => {
+    let fitted = false;
+    for(let i = 0; i < CN_FIT_LEVELS.length; i++){
+      CN_FIT_LEVELS.forEach(c => { if(c) page.classList.remove(c); });
+      if(CN_FIT_LEVELS[i]) page.classList.add(CN_FIT_LEVELS[i]);
+      cnRebalanceGrids(page);
+      if(page.scrollHeight <= page.clientHeight + 1){ fitted = true; break; }
+    }
+    if(!fitted) page.classList.add('cn-overflow');
+  });
+}
+function renderCadernetaInto(target, snapshot){
+  const measure = document.createElement('div');
+  measure.className = 'cn-measure';
+  measure.innerHTML = buildCadernetaHTML(snapshot);
+  document.body.appendChild(measure);
+  try { fitCadernetaPages(measure); target.innerHTML = measure.innerHTML; }
+  finally { measure.remove(); }
+}
+// ==================== FIM DA CADERNETA ====================
+
+function generatePrint(groupIndexes, recordId = currentRecordId) {
   if(document.body.classList.contains('workflow-locked') || !String(answers[EVALUATOR_NAME_KEY] || '').trim()){
     alert('Selecione um RN e informe o nome do aluno antes de gerar a ficha.');
     return;
@@ -6975,53 +7385,8 @@ function generatePrint(groupIndexes = PRINT_GROUPS.map((_, index) => index), rec
   catch(error){ alert(error.message); return; }
   const printContext = createOpContext(snapshot.recordId);
   saveCurrentRecord(snapshot.recordId, snapshot, printContext);
-  let html = '';
-  groupIndexes.map(index => PRINT_GROUPS[index]).filter(Boolean).forEach(group => {
-    html += `<div class="sheet ${escapeHTML(group.pageClass || '')}${group.playful ? ' playful-sheet' : ''} ${group.parts[0] === 3 ? 'alta-sheet' : ''} no-split-sheet">`;
-    html += `<div class="print-header"><div class="ph-logo">${UNIPAMPA_LOGO_IMG}</div><div class="ph-text"><h2 class="ph-title">${escapeHTML(group.label)}</h2><p class="ph-sub">Hospital Santa Casa de Uruguaiana</p><p class="ph-hosp">Aluno: ${escapeHTML(snapshot.evaluatorName)}</p></div></div>`;
-    group.parts.forEach(partIdx => {
-      const part = DATA[partIdx];
-      const sections = group.sectionRange ? part.sections.slice(group.sectionRange[0], group.sectionRange[1]) : part.sections;
-      sections.forEach(sec => {
-        const sIdx = part.sections.indexOf(sec);
-        html += `<div class="p-section"><div class="p-band">${escapeHTML(sec.title)}</div>`;
-        const fields = getFieldOrder(sec).map(i => sec.fields[i]).filter(field => {
-          const label = field.l.toLowerCase();
-          if(partIdx === 3 && sec.title === 'Dados de alta do RN' && [
-            'bilirrubina transcutânea (btc)','bilirrubina total sérica (bt)',
-            'outros fatores de risco para neurotoxicidade','avaliação aap 2022 (conforme calculadora oficial)'
-          ].includes(label)) return false;
-          return fieldVisible(field, snapshot.answers);
-        });
-        if(fields.length){
-          const isSorologia = sec.title.toLowerCase().includes('sorologia');
-          const isAltaCompacta = partIdx === 3 && !['Dados de alta do RN','Amamentação','Encerramento'].includes(sec.title);
-          const columnCount = isSorologia || isAltaCompacta ? 3 : 2;
-          const columnClass = columnCount === 3 ? 'p-col-3' : 'p-col-2';
-          const rowsPerColumn = Math.ceil(fields.length / columnCount);
-          html += '<div class="p-row">';
-          for(let column=0; column<columnCount; column++){
-            html += `<div class="${columnClass}"><table class="p-table"><tbody>`;
-            const chunk = fields.slice(column * rowsPerColumn, (column + 1) * rowsPerColumn);
-            chunk.forEach(field => {
-              const fieldIndex = sec.fields.indexOf(field);
-              const value = fieldPrintValue(field, partIdx+'_'+sIdx+'_'+fieldIndex, snapshot);
-              const width = columnCount === 3 ? '' : ' style="width:50%;"';
-              html += `<tr><td class="lbl"${width}>${escapeHTML(field.l)}</td><td class="val"${width}>${escapeHTML(value || '-')}</td></tr>`;
-            });
-            for(let row=chunk.length; row<rowsPerColumn; row++) html += '<tr><td class="lbl">&nbsp;</td><td class="val"></td></tr>';
-            html += '</tbody></table></div>';
-          }
-          html += '</div>';
-        }
-        const hideAltaTechnicalNote = partIdx === 3 && sec.title === 'Dados de alta do RN';
-        if(sec.note && !hideAltaTechnicalNote) html += `<div class="p-note">${escapeHTML(sec.note)}</div>`;
-        html += '</div>';
-      });
-    });
-    html += '</div>';
-  });
-  printView.innerHTML = html;
+  try { renderCadernetaInto(printView, snapshot); }
+  catch(error){ alert('Não foi possível montar a ficha para impressão: ' + error.message); return; }
   document.title = 'RN de (' + String(snapshot.answers['0_0_0'] || 'sem nome').trim() + ')';
   window.print();
 }
