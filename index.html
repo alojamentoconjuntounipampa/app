@@ -3400,8 +3400,13 @@ body.login-mode .sync-status-controls { display: none !important; }
 <li>Profilaxia para estreptococo do grupo B: American College of Obstetricians and Gynecologists. Prevention of Group B Streptococcal Early-Onset Disease in Newborns. Committee Opinion No. 797. <em>Obstetrics &amp; Gynecology</em>. 2020;135:e51-e72. Confirmar também o protocolo institucional vigente.</li>
 <li>Percentis de peso ao nascer e perímetro cefálico: Villar J, Ismail LC, Victora CG, et al. International standards for newborn weight, length, and head circumference by gestational age and sex: the Newborn Cross-Sectional Study of the INTERGROWTH-21st Project. <em>Lancet</em>. 2014;384(9946):857-868.</li>
 <li>Bilirrubina neonatal: Kemper AR, Newman TB, Slaughter JL, et al. Clinical Practice Guideline Revision: Management of Hyperbilirubinemia in the Newborn Infant 35 or More Weeks of Gestation. <em>Pediatrics</em>. 2022;150(3):e2022058859. A avaliação deve seguir a diretriz e o protocolo institucional vigentes.</li>
-<li>Sífilis congênita, HIV (transmissão vertical), hepatites B e C, Chagas e toxoplasmose: Ministério da Saúde, Protocolos Clínicos e Diretrizes Terapêuticas (PCDT) vigentes. Os alertas automáticos são apoio à decisão e devem ser confirmados no protocolo institucional.</li>
+<li>Sífilis congênita, HIV (transmissão vertical), hepatites B e C, Chagas e toxoplasmose: Brasil. Ministério da Saúde. Protocolo Clínico e Diretrizes Terapêuticas para Prevenção da Transmissão Vertical de HIV, Sífilis e Hepatites Virais. Brasília: Ministério da Saúde; 2022, e demais PCDT vigentes. Os alertas automáticos são apoio à decisão e devem ser confirmados no protocolo institucional.</li>
 <li>Classificação de Robson (cesáreas): World Health Organization. Robson Classification: Implementation Manual. Geneva: WHO; 2017.</li>
+<li>Fatores de alto risco gestacional (listas de seleção em comorbidades e intercorrências): Brasil. Ministério da Saúde. Manual de Gestação de Alto Risco. Brasília: Ministério da Saúde; 2022 (Cap. 1, estratificação do risco obstétrico no pré-natal).</li>
+<li>Número de consultas e início do pré-natal: Brasil. Ministério da Saúde. Atenção ao pré-natal de baixo risco. Cadernos de Atenção Básica nº 32. Brasília: Ministério da Saúde; 2012 (mínimo de seis consultas; captação precoce). O corte de 12 semanas para início precoce é o adotado nesta ficha.</li>
+<li>Classificação pela idade gestacional (pré-termo, termo precoce, termo, termo tardio, pós-termo): American College of Obstetricians and Gynecologists. Committee Opinion No. 579: Definition of Term Pregnancy. <em>Obstetrics &amp; Gynecology</em>. 2013;122(5):1139-1140.</li>
+<li>Perda ponderal neonatal: Flaherman VJ, Schaefer EW, Kuzniewicz MW, et al. Early weight loss nomograms for exclusively breastfed newborns. <em>Pediatrics</em>. 2015;135(1):e16-e23.</li>
+<li>Nirsevimabe na maternidade (SUS): Brasil. Ministério da Saúde. Nota Técnica Conjunta nº 20/2026-DPNI/DAHU/SVSA/SAES/MS, de 26/01/2026: Orientações Técnicas para a Imunização de Recém-Nascidos no Âmbito das Maternidades.</li>
 <li>Teste do coraçãozinho (oximetria de pulso): Kemper AR, Mahle WT, Martin GR, et al. Strategies for implementing screening for critical congenital heart disease. <em>Pediatrics</em>. 2011;128(5):e1259-e1267.</li>
 </ul>
 </div>
@@ -3518,7 +3523,7 @@ S("Vacinação contra VSR",["Realizada","Não realizada"])
 Object.assign(N("Nº de consultas de pré-natal"),{derive:'prenatalCons'}),
 Object.assign(N("Semana de início do pré-natal"),{derive:'prenatalStart'}),
 Sf("Risco gestacional",["Habitual","Alto risco"],{when:['Alto risco'],sub:{l:'Motivo do alto risco',t:'text'}}),
-T("ESF / UBS de referência da mãe")
+Sf("ESF / UBS de referência da mãe",["ESF 01 – Rui Ramos / Ipiranga (Urbana)", "ESF 02 – Mascarenhas de Moraes (Urbana)", "ESF 03 – Cidade Nova (Urbana)", "ESF 04 – Cohab I (Urbana)", "ESF 05 – Tarragó / Bela Vista (Urbana)", "ESF 06 – São João (Urbana)", "ESF 07 – União das Vilas (Urbana)", "ESF 09 – Barragem Sanchuri (Rural)", "ESF 14 – Tabajara Brites (Urbana)", "ESF 15 – Hípica I e II (Urbana)", "ESF 16 – Cidade Alegria (Urbana)", "ESF 17 – Nova Esperança (Urbana)", "ESF 18 – Profilurb (Urbana)", "ESF 19 – João Paulo II (Urbana)", "ESF 20 – CAIC (Urbana)", "ESF 21 – Centro (Urbana)", "ESF 22 – Cabo Luiz Quevedo (Urbana)", "ESF 23 – Santo Antônio (Urbana)", "Outra unidade / sem cobertura de ESF", "Não sabe informar"],{when:["Outra unidade / sem cobertura de ESF"],sub:{l:"Qual unidade ou bairro?",t:"text"}})
 ]},
 {title:"Sífilis materna — tratamento", showIf:'syphMother', note:"Aparece quando o VDRL ou o teste rápido da mãe é reagente. Tratamento adequado: penicilina benzatina, esquema compatível com o estágio, iniciado pelo menos 30 dias antes do parto, com documentação de queda dos títulos.", fields:[
 S("Tratamento da sífilis materna",["Adequado","Inadequado","Não tratada"]),
@@ -7498,14 +7503,6 @@ inputsWrap.appendChild(subWrap);
 } else {
 const input = makeInput(field, baseKey);
 inputsWrap.appendChild(input);
-if(field.l === 'ESF / UBS de referência da mãe'){
-  try{
-    const dl = document.createElement('datalist'); dl.id = 'dl-esf';
-    const seen = {};
-    loadHistory().forEach(rec => { const v = rec && rec.answers ? String(rec.answers[baseKey] || '').trim() : ''; const k = dashNormUnit(v); if(v && k && !seen[k]){ seen[k] = 1; dl.appendChild(new Option(v)); } });
-    input.setAttribute('list', 'dl-esf'); inputsWrap.appendChild(dl);
-  }catch(e){}
-}
 if(field.picklist){
   const items = field.picklist;
   const det = document.createElement('details'); det.className = 'pick-list';
