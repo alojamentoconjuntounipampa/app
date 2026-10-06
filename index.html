@@ -206,9 +206,14 @@ main{padding:14px 10px 70px;}
 /* ---- Lista de fatores de alto risco ---- */
 .pick-list{flex-basis:100%;margin-top:6px;border:1px solid #d5e4de;border-radius:12px;background:rgba(255,255,255,.55);padding:6px 10px;}
 .pick-list summary{cursor:pointer;font-size:.78rem;font-weight:700;color:#0b5850;}
-.pick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:4px 12px;margin-top:6px;}
-.pick-item{display:flex;gap:6px;align-items:flex-start;font-size:.8rem;line-height:1.35;cursor:pointer;min-width:0;overflow-wrap:anywhere;}
-.pick-item input{flex:none;width:18px;height:18px;margin-top:1px;accent-color:#15947F;}
+.pick-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px 10px;margin-top:8px;}
+.pick-cell{min-width:0;}
+.pick-item{display:flex!important;flex-direction:row!important;gap:8px;align-items:center;font-size:.8rem;line-height:1.3;cursor:pointer;min-width:0;margin:0!important;padding:6px 9px;border:1px solid #d5e4de;border-radius:10px;background:#fff;color:var(--ink);text-align:left;}
+.pick-item:has(input:checked){background:#e3f4ee;border-color:#15947F;font-weight:600;}
+.pick-item input{flex:0 0 18px!important;width:18px!important;min-width:18px!important;height:18px!important;margin:0!important;padding:0!important;accent-color:#15947F;}
+.pick-item span{flex:1 1 auto;min-width:0;}
+.dash-faint td{color:#8a9a95;} .dash-sig td{background:#fff4e0;font-weight:600;} .dash-cmp-lab{display:block;margin:6px 0;} .dash-cmp-lab select{max-width:100%;}
+.pick-detail{display:block;width:100%!important;box-sizing:border-box;margin-top:4px;font-size:.78rem;padding:6px 9px!important;}
 /* ---- Painel do serviço ---- */
 .dash-select{font:inherit;padding:6px 8px;border:1px solid #d5e4de;border-radius:8px;background:#fff;color:#1b3a4b;max-width:100%;}
 .dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0;}
@@ -3415,7 +3420,7 @@ const supabaseClient = supabaseConfigured && window.supabase && typeof window.su
   : null;
 
 // Fatores que indicam encaminhamento para obstetra (gestação de alto risco). Selecionáveis nos campos de texto correspondentes.
-const ALTO_RISCO_PREVIAS = ["Cardiopatias","Diabetes tipo I ou II","Hipotireoidismo ou hipertireoidismo prévios","Hipertensão prévia","Epilepsia","Lúpus eritematoso sistêmico","Doenças psiquiátricas (acompanhadas pelo CAPS)","Infecção pelo HIV","Dependência química","Síndrome do anticorpo antifosfolipídeo (SAAF)","Asma","Doenças hematológicas (anemia falciforme, PTI)","Depressão grave","Tromboembolismo venoso (TVP)","Cirurgia bariátrica"];
+const ALTO_RISCO_PREVIAS = ["Cardiopatias","Diabetes tipo 1","Diabetes tipo 2","Hipotireoidismo prévio","Hipertireoidismo prévio","Hipertensão prévia","Epilepsia","Lúpus eritematoso sistêmico","Doenças psiquiátricas (acompanhadas pelo CAPS)","Infecção pelo HIV","Dependência química","Síndrome do anticorpo antifosfolipídeo (SAAF)","Asma","Doenças hematológicas","Depressão grave","Tromboembolismo venoso (TVP)","Cirurgia bariátrica"];
 const ALTO_RISCO_REPRODUTIVA = ["Feto morto em gestação anterior (após 20 semanas de IG)","Pré-eclâmpsia em gestação anterior","Eclâmpsia e síndrome HELLP em gestação anterior","Trabalho de parto prematuro em gestação anterior","Feto anterior com malformação"];
 const ALTO_RISCO_ATUAL = ["Restrição de crescimento intrauterino","Polidrâmnio ou oligodrâmnio","Malformações fetais","Distúrbios hipertensivos na gestação","HIV","Diabetes gestacional","Vômitos inexplicáveis no 3º trimestre","Infecções no pré-natal (como toxoplasmose)","Placenta prévia","Gestação múltipla","Anemia grave","Colestase gestacional"];
 function range(a,b){ let r=[]; for(let i=a;i<=b;i++) r.push(String(i)); return r; }
@@ -3494,7 +3499,7 @@ Sn("HBsAg",RNR,"NR"), Sn("HCV",RNR,"NR"),
 Sf("HIV (± CV)",RNR,HIV_FOLLOW),
 Sn("Sífilis - VDRL",RNR,"NR"), Sn("Sífilis - Teste rápido (TR)",RNR,"NR")
 ]},
-{title:"História médica pregressa", fields:[Object.assign(T("Comorbidades"),{picklist:ALTO_RISCO_PREVIAS,pickTitle:"Fatores de alto risco: condições prévias"}),T("Medicações de uso prévio"),Object.assign(T("Intercorrências em gestações anteriores"),{picklist:ALTO_RISCO_REPRODUTIVA,pickTitle:"Fatores de alto risco: história reprodutiva anterior",note:"Dica: perguntar à paciente se houve enterro. Se sim, foi feto morto; se não, foi aborto."})]},
+{title:"História médica pregressa", fields:[Object.assign(T("Comorbidades"),{picklist:ALTO_RISCO_PREVIAS,pickDetail:{"Doenças hematológicas":"Qual? (ex.: anemia falciforme, PTI)"},pickTitle:"Fatores de alto risco: condições prévias"}),T("Medicações de uso prévio"),Object.assign(T("Intercorrências em gestações anteriores"),{picklist:ALTO_RISCO_REPRODUTIVA,pickTitle:"Fatores de alto risco: história reprodutiva anterior",note:"Dica: perguntar à paciente se houve enterro. Se sim, foi feto morto; se não, foi aborto."})]},
 {title:"Hábitos de vida", fields:[S("Tabagismo",["Não","Sim - ativo","Sim - passivo"]),S("Etilismo",SN),S("Uso de drogas",SN)]},
 {title:"História da gestação atual", fields:[
 Object.assign(T("Intercorrências na gestação atual"),{picklist:ALTO_RISCO_ATUAL,pickTitle:"Fatores de alto risco: gestação atual"}),
@@ -3512,7 +3517,8 @@ S("Vacinação contra VSR",["Realizada","Não realizada"])
 {title:"Pré-natal", fields:[
 Object.assign(N("Nº de consultas de pré-natal"),{derive:'prenatalCons'}),
 Object.assign(N("Semana de início do pré-natal"),{derive:'prenatalStart'}),
-Sf("Risco gestacional",["Habitual","Alto risco"],{when:['Alto risco'],sub:{l:'Motivo do alto risco',t:'text'}})
+Sf("Risco gestacional",["Habitual","Alto risco"],{when:['Alto risco'],sub:{l:'Motivo do alto risco',t:'text'}}),
+T("ESF / UBS de referência da mãe")
 ]},
 {title:"Sífilis materna — tratamento", showIf:'syphMother', note:"Aparece quando o VDRL ou o teste rápido da mãe é reagente. Tratamento adequado: penicilina benzatina, esquema compatível com o estágio, iniciado pelo menos 30 dias antes do parto, com documentação de queda dos títulos.", fields:[
 S("Tratamento da sífilis materna",["Adequado","Inadequado","Não tratada"]),
@@ -3542,8 +3548,9 @@ S("Apresentação do RN",["Cefálica","Pélvica","Córmica"]),
 S("Aspecto do líquido amniótico",["Claro","Meconial fluido","Meconial espesso","Sanguinolento","Fétido"]),
 S("Nº de circulares de cordão",["0","1","2","3 ou mais"]),
 S("Início do trabalho de parto",["Espontâneo","Induzido","Cesárea sem trabalho de parto"]),
-S("Gestação",["Única","Gemelar","Múltipla (3 ou mais)"])
-], order:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,25,26,20,21,22,23,24]},
+S("Gestação",["Única","Gemelar","Múltipla (3 ou mais)"]),
+S("Maior suporte na reanimação",["Nenhum","Estímulo, aspiração ou O₂ inalatório","Ventilação com pressão positiva (balão/máscara)","Intubação","Massagem cardíaca e/ou medicações"])
+], order:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,27,18,19,25,26,20,21,22,23,24]},
 {title:"Avaliação de elegibilidade para Nirsevimabe na maternidade (SUS)", fields:[
 S("Cardiopatia congênita com repercussão conhecida ao nascimento",SN),
 Object.assign(S("Displasia broncopulmonar (doença pulmonar crônica)",SN), {hiddenFromBirth:true}),
@@ -6473,7 +6480,7 @@ const NIRSEV_LABELS = ['Cardiopatia congênita com repercussão conhecida ao nas
 function altoRiscoFatores(a){
   const txt = [av(a, 0, 'História médica pregressa', 'Comorbidades'), av(a, 0, 'História médica pregressa', 'Intercorrências em gestações anteriores'), av(a, 0, 'História da gestação atual', 'Intercorrências na gestação atual')].join(';');
   const toks = txt.split(/\s*;\s*/).map(t => t.trim());
-  return [].concat(ALTO_RISCO_PREVIAS, ALTO_RISCO_REPRODUTIVA, ALTO_RISCO_ATUAL).filter(x => toks.includes(x)).map(x => x.replace(/ \(.*\)$/, ''));
+  return [].concat(ALTO_RISCO_PREVIAS, ALTO_RISCO_REPRODUTIVA, ALTO_RISCO_ATUAL).filter(x => toks.some(t => t === x || t.startsWith(x + ':'))).map(x => x.replace(/ \(.*\)$/, ''));
 }
 function riskReasons(a, extra){
   const bio = [], mat = [];
@@ -6559,7 +6566,6 @@ function dischargeChecklist(a){
   const ol = av(a, 3, 'Triagem neonatal', 'Teste do olhinho');
   if(ol === 'Alterado') add('warn', 'Teste do olhinho alterado');
   else if(ol) add('ok', 'Teste do olhinho normal');
-  else add('pend', 'Teste do olhinho não registrado');
   const vk = av(a, 1, SEC_PROF, 'Vitamina K (Kanakion)'), hb = av(a, 1, SEC_PROF, 'Vacina Hepatite B');
   if(vk === 'Realizada' && hb === 'Realizada') add('ok', 'Vitamina K e vacina contra hepatite B realizadas');
   else if(!vk && !hb) add('pend', 'Vitamina K e vacina contra hepatite B não registradas');
@@ -6611,7 +6617,7 @@ const CRIT_FIELDS = (() => {
     F(3, 'Dados gerais de alta', 'Horas de vida'), F(3, 'Dados gerais de alta', 'Peso atual (g)'),
     {p:3, label:'Bilirrubina (BTC ou BT)', ok:a => av(a, 3, 'Dados de alta do RN', 'Bilirrubina transcutânea (BTC)') !== '' || av(a, 3, 'Dados de alta do RN', 'Bilirrubina total sérica (BT)') !== ''},
     F(3, 'Dados de alta do RN', 'Data de alta'), F(3, 'Amamentação', 'Tipo de amamentação'),
-    F(3, 'Triagem neonatal', 'Interpretação (coraçãozinho)'), F(3, 'Triagem neonatal', 'Teste do olhinho'),
+    F(3, 'Triagem neonatal', 'Interpretação (coraçãozinho)'),
     F(3, 'Encerramento', 'Orientações de alta')
   ];
 })();
@@ -6782,7 +6788,7 @@ function dashRow(rec){
   const bd = av(a, 1, FS1, 'Data');
   const mk = /^\d{4}-\d{2}/.test(bd) ? bd.slice(0, 7) : String(rec.updatedAt || '').slice(0, 7);
   const ga = gaFromAnswers(a), alta = !!rec.alta;
-  return {
+  const base = {
     id:rec.id, a, mes:mk, data:bd, alta, uti:!!rec.utiNeo,
     rn:av(a, 1, FS1, 'Nome do RN') || 'RN sem nome',
     d:gaDays(ga), w:classifyWeight(a), age:motherAgeInfo(a), pn:prenatalInfo(a), risk:riskReasons(a),
@@ -6790,8 +6796,11 @@ function dashRow(rec){
     am:av(a, 3, 'Amamentação', 'Tipo de amamentação'), lp:weightLossPct(a),
     aap:av(a, 3, 'Dados de alta do RN', 'Avaliação AAP 2022 (conforme calculadora oficial)'),
     robson:robsonGroup(a), syph:syphReagent(a), hiv:serReagent(a, 'HIV (± CV)'),
-    comp:computeCompleteness(a, {alta})
+    comp:computeCompleteness(a, {alta}),
+    unit:av(a, 0, 'Pré-natal', 'ESF / UBS de referência da mãe')
   };
+  base.x = dashFlags(a, base);
+  return base;
 }
 function dashFmtDate(iso){ const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || ''); return m ? m[3] + '/' + m[2] + '/' + m[1] : ''; }
 function dashMonthLabel(mk){ const m = /^(\d{4})-(\d{2})$/.exec(mk); if(!m) return 'Sem data'; const n = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez']; return n[Number(m[2]) - 1] + '/' + m[1]; }
@@ -6853,15 +6862,168 @@ function dashSurveillance(rows){
   });
   return list;
 }
+
+// ===== Indicadores para o painel: comparações exposição × desfecho =====
+function dashNormUnit(t){ return normTxt(t).replace(/\b(esf|ubs|ubsf|unidade|posto|de|da|do|dos|das|saude|familia|basica)\b/g, ' ').replace(/[^a-z0-9]+/g, ' ').trim(); }
+function dashFlags(a, base){
+  const T3 = (x) => x === null ? null : !!x;
+  const d = base.d, w = base.w, pn = base.pn, age = base.age;
+  const prem = d === null ? null : d < 37 * 7;
+  let pnAdq = null;
+  if((pn.c !== null && pn.c < 6) || (pn.w !== null && pn.w > 12)) pnAdq = false;
+  else if(pn.c !== null && pn.w !== null) pnAdq = true;
+  const parto = base.parto;
+  const ces = parto === 'Cesárea' ? true : (parto === 'Parto vaginal' ? false : null);
+  const ap5 = base.ap5;
+  const ap1 = numv(av(a, 1, FS1, 'Apgar 1º min'));
+  const nivel = av(a, 1, FS1, 'Maior suporte na reanimação');
+  let rean = null;
+  if(nivel) rean = nivel !== 'Nenhum';
+  else {
+    const t = normTxt(av(a, 1, FS1, 'Reanimação (descrever)'));
+    if(t){ if(/^(nao|nenhum|nenhuma|sem|nega|nada|-)/.test(t)) rean = false; else rean = true; }
+  }
+  const reanAv = nivel ? /Ventilação|Intubação|Massagem/.test(nivel) : null;
+  // Desconforto respiratório: calculado (esforço respiratório, tiragem, gemência ou FR >60)
+  let dr = null; const sinais = [];
+  const esf = av(a, 1, 'Tórax e sinais vitais', 'Esforço respiratório');
+  if(esf){ dr = dr || false; if(esf !== 'Ausente') dr = true; }
+  [[1, 'Tórax e sinais vitais'], [2, '1ª avaliação no alojamento conjunto'], [3, 'Tórax e abdome']].forEach(([pp, sec]) => {
+    const fr = numv(av(a, pp, sec, 'FR')); if(fr !== null){ dr = dr || false; if(fr > 60) dr = true; }
+  });
+  ['Tiragem', 'Gemência'].forEach(l => { const v = av(a, 3, 'Tórax e abdome', l); if(v){ dr = dr || false; if(v === 'Presente') dr = true; } });
+  const invest = av(a, 1, 'Rastreio de hipoglicemia e infecção', 'Necessita coleta de exames precoce?');
+  const dextro = av(a, 1, 'Rastreio de hipoglicemia e infecção', 'Necessita Dextro (HGT)?');
+  const bolsa = av(a, 0, 'História da gestação atual', 'Bolsa rota (horas)');
+  const sg = av(a, 0, SEC3, 'SGB (swab reto-vaginal)');
+  const cort = av(a, 0, 'História da gestação atual', 'Uso de corticoide (doses)');
+  const mg = av(a, 0, 'Dados da mãe', 'Grupo sanguíneo (mãe)'), rg = av(a, 1, 'Tipagem do RN e Coombs', 'Grupo sanguíneo do RN');
+  let abo = null;
+  if(mg && rg){
+    const m = mg.replace(/[+-]/g, ''), r = rg.replace(/[+-]/g, '');
+    abo = (m === 'O' && r !== 'O') || (m === 'A' && (r === 'B' || r === 'AB')) || (m === 'B' && (r === 'A' || r === 'AB'));
+  }
+  const coombs = av(a, 1, 'Tipagem do RN e Coombs', 'Coombs direto (DAT)');
+  const alta = base.alta;
+  const photo = alta && base.aap ? base.aap === 'Fototerapia indicada' : null;
+  const lp = base.lp;
+  const ame = alta && base.am ? base.am.startsWith('Aleitamento materno exclusivo') : null;
+  const syphTr = base.syph ? av(a, 0, SEC_SYPH_M, 'Tratamento da sífilis materna') : '';
+  const hbig = av(a, 1, SEC_PROF, 'Imunoglobulina anti-hepatite B (HBIG)'), vhb = av(a, 1, SEC_PROF, 'Vacina Hepatite B');
+  const arv = av(a, 1, SEC_PROF, 'Profilaxia antirretroviral do RN');
+  const hbs = serReagent(a, 'HBsAg');
+  return {
+    prem, pnAdq, pnInad: pnAdq === null ? null : !pnAdq, ces, vag: ces === null ? null : !ces,
+    pig: w && w.pct ? (w.pct === 'PIG' ? true : (w.pct === 'AIG' ? false : null)) : null,
+    gig: w && w.pct ? (w.pct === 'GIG' ? true : (w.pct === 'AIG' ? false : null)) : null,
+    lbw: w ? w.bw < 2500 : null,
+    ap5low: ap5 === null ? null : ap5 < 7, ap1low: ap1 === null ? null : ap1 < 7,
+    rean, reanAv, dr, invest: invest ? invest === 'Sim' : null, dextro: dextro ? dextro === 'Sim' : null,
+    bolsa18: bolsa ? bolsa === 'Maior que 18 horas' : null,
+    sgbPos: sg === 'R' ? true : (sg === 'NR' ? false : null),
+    corticoide: cort ? cort.startsWith('Sim') : null,
+    abo, coombsPos: coombs && coombs !== 'Não realizado' ? coombs === 'Positivo' : null,
+    photo, loss10: alta && lp !== null ? lp >= 10 : null, ame,
+    teen: age ? age.age < 20 : null, adv: age ? age.age >= 35 : null,
+    syph: !!base.syph, syphAdeq: base.syph && syphTr ? syphTr === 'Adequado' : null,
+    hbs, hbigOk: hbs ? (hbig ? hbig === 'Realizada' : null) : null, vhbOk: hbs ? (vhb ? vhb === 'Realizada' : null) : null,
+    hivProf: base.hiv ? (arv ? arv === 'Realizada' : null) : null, hiv: !!base.hiv,
+    termo: prem === null ? null : !prem
+  };
+}
+// exposição: f = campo booleano (true = exposto, false = comparação, null = ignorado)
+const DASH_EXPOSURES = [
+  {id:'pnInad', l:'Pré-natal inadequado (<6 consultas ou início >12 sem) × adequado', f:'pnInad'},
+  {id:'ces', l:'Cesárea × parto vaginal', f:'ces'},
+  {id:'prem', l:'Prematuro (<37 sem) × termo', f:'prem'},
+  {id:'pig', l:'PIG × AIG', f:'pig'},
+  {id:'gig', l:'GIG × AIG', f:'gig'},
+  {id:'corticoide', l:'Corticoide antenatal × sem corticoide', f:'corticoide'},
+  {id:'syph', l:'Mãe com sífilis × sem sífilis', f:'syph'},
+  {id:'bolsa18', l:'Bolsa rota ≥18 h × <18 h', f:'bolsa18'},
+  {id:'sgbPos', l:'SGB positivo × negativo', f:'sgbPos'},
+  {id:'abo', l:'Incompatibilidade ABO × compatível', f:'abo'},
+  {id:'coombsPos', l:'Coombs direto positivo × negativo', f:'coombsPos'},
+  {id:'loss10', l:'Perda de peso ≥10% × <10% (na alta)', f:'loss10'},
+  {id:'teen', l:'Mãe adolescente (<20) × ≥20', f:'teen'},
+  {id:'adv', l:'Mãe ≥35 anos × <35', f:'adv'},
+  {id:'ameE', l:'Aleitamento exclusivo na alta × não exclusivo', f:'ame'}
+];
+const DASH_OUTCOMES = [
+  {id:'prem', l:'Prematuridade (<37 sem)', f:'prem'},
+  {id:'pig', l:'PIG', f:'pig'},
+  {id:'lbw', l:'Baixo peso (<2.500 g)', f:'lbw'},
+  {id:'ap5low', l:'Apgar 5º min <7', f:'ap5low'},
+  {id:'ap1low', l:'Apgar 1º min <7', f:'ap1low'},
+  {id:'rean', l:'Qualquer reanimação', f:'rean'},
+  {id:'reanAv', l:'Reanimação avançada (VPP, intubação, massagem)', f:'reanAv'},
+  {id:'dr', l:'Desconforto respiratório (calculado)', f:'dr'},
+  {id:'invest', l:'Coleta precoce de exames (investigação infecciosa)', f:'invest'},
+  {id:'dextro', l:'Indicação de dextro (HGT)', f:'dextro'},
+  {id:'photo', l:'Fototerapia indicada (AAP 2022)', f:'photo'},
+  {id:'loss10', l:'Perda de peso ≥10%', f:'loss10'},
+  {id:'ame', l:'Aleitamento exclusivo na alta', f:'ame'},
+  {id:'ces', l:'Cesárea', f:'ces'},
+  {id:'hbigOk', l:'HBIG realizada (mãe HBsAg R)', f:'hbigOk'},
+  {id:'vhbOk', l:'Vacina hepatite B realizada (mãe HBsAg R)', f:'vhbOk'},
+  {id:'hivProf', l:'Profilaxia ARV do RN realizada (mãe HIV R)', f:'hivProf'}
+];
+const DASH_SUBSETS = [
+  {id:'', l:'Todos os RNs', f:r => true},
+  {id:'prem', l:'Somente prematuros (<37 sem)', f:r => r.x.prem === true},
+  {id:'termo', l:'Somente RNs a termo (≥37 sem)', f:r => r.x.prem === false},
+  {id:'alta', l:'Somente RNs com alta registrada', f:r => r.alta},
+  {id:'hbs', l:'Somente mães HBsAg reagente', f:r => r.x.hbs},
+  {id:'hiv', l:'Somente mães HIV reagente', f:r => r.x.hiv},
+  {id:'syph', l:'Somente mães com sífilis', f:r => r.x.syph}
+];
+// Principais comparações (pré-definidas)
+const DASH_PRESETS = [
+  ['pnInad','prem',''], ['pnInad','pig',''], ['ces','rean',''], ['ces','dr',''], ['prem','ap5low',''], ['prem','rean',''],
+  ['pig','ap5low',''], ['pig','rean',''], ['gig','rean',''], ['corticoide','dr','prem'], ['corticoide','rean','prem'],
+  ['syph','prem',''], ['bolsa18','invest',''], ['sgbPos','invest',''], ['abo','photo',''], ['coombsPos','photo',''],
+  ['loss10','photo',''], ['ces','ame',''], ['teen','prem',''], ['adv','prem','']
+];
+function dashCompare(rows, expId, outId, subId){
+  const E = DASH_EXPOSURES.find(x => x.id === expId), O = DASH_OUTCOMES.find(x => x.id === outId), S = DASH_SUBSETS.find(x => x.id === (subId || '')) || DASH_SUBSETS[0];
+  const g = {e:{n:0, y:0}, c:{n:0, y:0}};
+  rows.filter(S.f).forEach(r => {
+    const ex = r.x[E.f], oc = r.x[O.f];
+    if(ex === null || ex === undefined || oc === null || oc === undefined) return;
+    const k = ex ? g.e : g.c; k.n++; if(oc) k.y++;
+  });
+  const out = {E, O, S, e:g.e, c:g.c, rr:null, lo:null, hi:null, small:false, sig:false};
+  out.small = g.e.n < 20 || g.c.n < 20 || (g.e.y + g.c.y) < 5;
+  if(g.e.n && g.c.n){
+    const a = g.e.y, b = g.e.n - g.e.y, c = g.c.y, d = g.c.n - g.c.y;
+    const z = (a === 0 || c === 0 || b === 0 || d === 0) ? 0.5 : 0;
+    const A = a + z, B = b + z, C = c + z, D = d + z;
+    const rr = (A / (A + B)) / (C / (C + D));
+    const se = Math.sqrt(1 / A - 1 / (A + B) + 1 / C - 1 / (C + D));
+    out.rr = rr; out.lo = Math.exp(Math.log(rr) - 1.96 * se); out.hi = Math.exp(Math.log(rr) + 1.96 * se);
+    out.sig = !out.small && (out.lo > 1 || out.hi < 1);
+  }
+  return out;
+}
+function dashCmpRow(c){
+  const f = x => x.n ? x.y + '/' + x.n + ' (' + Math.round(x.y / x.n * 100) + '%)' : '—';
+  const rr = c.rr === null ? '—' : c.rr.toFixed(2).replace('.', ',') + ' (' + c.lo.toFixed(2).replace('.', ',') + '–' + c.hi.toFixed(2).replace('.', ',') + ')';
+  const flag = c.rr === null ? 'sem dados' : (c.small ? 'amostra pequena' : (c.sig ? (c.rr > 1 ? '↑ maior no exposto' : '↓ menor no exposto') : 'sem diferença clara'));
+  return [c.E.l, c.O.l + (c.S.id ? ' · ' + c.S.l.replace('Somente ', '') : ''), f(c.e), f(c.c), rr, flag];
+}
 function openDashboardModal(){
   const panel = vmShell('Painel do serviço');
   const all = loadHistory().filter(rec => rec && rec.answers && hasRealContent(rec.answers)).map(dashRow);
   if(!all.length){ panel.append(vmEl('p', 'vm-info', 'Ainda não há RNs salvos para calcular o painel.')); return; }
   const months = [...new Set(all.map(r => r.mes))].sort().reverse();
   const sel = document.createElement('select'); sel.id = 'dashMonth'; sel.className = 'dash-select';
+  const now = new Date(), cutD = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+  const cut = cutD.getFullYear() + '-' + String(cutD.getMonth() + 1).padStart(2, '0');
+  const inLast12 = r => /^\d{4}-\d{2}$/.test(r.mes) && r.mes >= cut;
+  sel.append(new Option('Últimos 12 meses (' + all.filter(inLast12).length + ' RNs)', 'u12'));
   sel.append(new Option('Todos os períodos (' + all.length + ' RNs)', ''));
   months.forEach(m => sel.append(new Option(dashMonthLabel(m) + ' (' + all.filter(r => r.mes === m).length + ' RNs)', m)));
-  sel.value = months[0] || '';
+  sel.value = 'u12';
   const lab = vmEl('label', 'vm-info', 'Período: '); lab.htmlFor = 'dashMonth'; lab.append(sel);
   const body = vmEl('div', 'dash-body');
   panel.append(lab, body);
@@ -6873,7 +7035,7 @@ function openDashboardModal(){
     t.append(thead, tb); wrap.append(t); return wrap;
   }
   function draw(){
-    const rows = sel.value ? all.filter(r => r.mes === sel.value) : all;
+    const rows = sel.value === 'u12' ? all.filter(inLast12) : (sel.value ? all.filter(r => r.mes === sel.value) : all);
     const st = dashStats(rows);
     body.replaceChildren();
     const grid = vmEl('div', 'dash-grid');
@@ -6898,10 +7060,48 @@ function openDashboardModal(){
     const names = {'1':'Nulípara, único, cefálico, ≥37 sem, espontâneo','2':'Nulípara, único, cefálico, ≥37 sem, induzido ou cesárea antes do trabalho de parto','3':'Multípara sem cesárea anterior, único, cefálico, ≥37 sem, espontâneo','4':'Multípara sem cesárea anterior, único, cefálico, ≥37 sem, induzido ou cesárea antes do trabalho de parto','5':'Cesárea anterior, único, cefálico, ≥37 sem','6':'Nulípara, pélvico','7':'Multípara, pélvico','8':'Gestação múltipla','9':'Situação transversa/oblíqua','10':'Único, cefálico, <37 sem','nc':'Não classificável (dados incompletos)'};
     const rrows = Object.keys(st.rob).filter(g => st.rob[g].n).map(g => {
       const x = st.rob[g];
-      return [g === 'nc' ? '—' : g, names[g], x.n, dashPct(x.n, st.n), x.ces, dashPct(x.ces, x.n), dashPct(x.ces, st.robTotalCes)];
+      const gr = rows.filter(r => (r.robson || 'nc') === g);
+      const pr = gr.filter(r => r.x.prem === true).length, prN = gr.filter(r => r.x.prem !== null).length;
+      const ap = gr.filter(r => r.x.ap5low === true).length, apN = gr.filter(r => r.x.ap5low !== null).length;
+      return [g === 'nc' ? '—' : g, names[g], x.n, dashPct(x.n, st.n), x.ces, dashPct(x.ces, x.n), dashPct(x.ces, st.robTotalCes), pr + '/' + prN, ap + '/' + apN];
     });
-    if(rrows.length) body.append(table(['Grupo','Descrição','RNs','% dos partos','Cesáreas','Taxa no grupo','% das cesáreas'], rrows));
+    if(rrows.length) body.append(table(['Grupo','Descrição','RNs','% dos partos','Cesáreas','Taxa no grupo','% das cesáreas','Prematuros','Apgar 5º <7'], rrows));
     body.append(vmEl('p', 'vm-info', 'Para classificar, a ficha precisa ter: gestação única/múltipla, início do trabalho de parto, apresentação, IG e o histórico gestacional (PV e PC são lidos como partos anteriores, sem o atual).'));
+    // Principais comparações
+    body.append(vmEl('h4', 'dash-h', 'Principais comparações (exposição × desfecho)'));
+    body.append(vmEl('p', 'vm-info', 'Cada linha mostra casos/total e % em cada grupo, e o risco relativo (RR) com intervalo de confiança de 95%. É uma associação descritiva, não prova causa: por exemplo, a cesárea pode concentrar casos mais graves por indicação. Linhas em cinza têm amostra pequena (menos de 20 RNs num dos grupos ou menos de 5 casos no total) e não devem ser interpretadas como diferença.'));
+    const cmpHead = ['Exposição','Desfecho','Expostos','Comparação','RR (IC 95%)','Leitura'];
+    const cmpTable = (list) => {
+      const w = table(cmpHead, list.map(dashCmpRow));
+      Array.from(w.querySelectorAll('tbody tr')).forEach((tr, i) => { if(list[i].small || list[i].rr === null) tr.classList.add('dash-faint'); else if(list[i].sig) tr.classList.add('dash-sig'); });
+      return w;
+    };
+    body.append(cmpTable(DASH_PRESETS.map(([e, o, sub]) => dashCompare(rows, e, o, sub))));
+    // Comparador livre
+    body.append(vmEl('h4', 'dash-h', 'Comparador livre'));
+    const mkSel = (items, id) => { const x = document.createElement('select'); x.className = 'dash-select'; x.id = id; items.forEach(i => x.append(new Option(i.l, i.id))); return x; };
+    const sE = mkSel(DASH_EXPOSURES, 'dashCmpE'), sO = mkSel(DASH_OUTCOMES, 'dashCmpO'), sS = mkSel(DASH_SUBSETS, 'dashCmpS');
+    sO.value = 'rean';
+    const cmpOut = vmEl('div', 'dash-cmp-out');
+    const mkLab = (t, x) => { const l = vmEl('label', 'vm-info dash-cmp-lab', t + ' '); l.append(x); return l; };
+    const redraw = () => { cmpOut.replaceChildren(cmpTable([dashCompare(rows, sE.value, sO.value, sS.value)])); };
+    [sE, sO, sS].forEach(x => x.addEventListener('change', redraw));
+    body.append(mkLab('Exposição:', sE), mkLab('Desfecho:', sO), mkLab('Restringir a:', sS), cmpOut);
+    redraw();
+    // Evolução mensal
+    body.append(vmEl('h4', 'dash-h', 'Evolução mensal'));
+    const ms = [...new Set((sel.value === 'u12' || !sel.value ? (sel.value === 'u12' ? all.filter(inLast12) : all) : rows).map(r => r.mes))].sort();
+    const pc = (rs, k, v) => { const k2 = rs.filter(r => r.x[k] !== null); const n = k2.filter(r => v === undefined ? r.x[k] : r.x[k] === v).length; return k2.length ? Math.round(n / k2.length * 100) + '% (' + n + '/' + k2.length + ')' : '—'; };
+    body.append(table(['Mês','RNs','Cesárea','Prematuros','Pré-natal adequado','Reanimação','Desconforto resp.','AME na alta','Sífilis materna'],
+      ms.map(m => { const rs = all.filter(r => r.mes === m); return [dashMonthLabel(m), rs.length, pc(rs, 'ces'), pc(rs, 'prem'), pc(rs, 'pnAdq'), pc(rs, 'rean'), pc(rs, 'dr'), pc(rs, 'ame'), rs.filter(r => r.x.syph).length]; })));
+    // Por ESF/UBS
+    body.append(vmEl('h4', 'dash-h', 'Por ESF/UBS de referência da mãe'));
+    const units = {};
+    rows.forEach(r => { const k = dashNormUnit(r.unit) || ''; if(!units[k]) units[k] = {names:{}, rs:[]}; units[k].rs.push(r); if(r.unit) units[k].names[r.unit.trim()] = (units[k].names[r.unit.trim()] || 0) + 1; });
+    const ulist = Object.entries(units).sort((x, y) => y[1].rs.length - x[1].rs.length);
+    body.append(table(['ESF/UBS','RNs','Cesárea','Prematuros','Pré-natal adequado','RN de risco','Aviso'],
+      ulist.map(([k, u]) => { const nm = k ? Object.entries(u.names).sort((x, y) => y[1] - x[1])[0][0] : 'Não informada'; return [nm, u.rs.length, pc(u.rs, 'ces'), pc(u.rs, 'prem'), pc(u.rs, 'pnAdq'), u.rs.filter(r => r.risk.level !== 'none').length, u.rs.length < 20 ? 'amostra pequena' : '']; })));
+    body.append(vmEl('p', 'vm-info', 'Grafias parecidas do mesmo nome (maiúsculas, acentos, "ESF", "UBS") são agrupadas. Unidades com menos de 20 RNs no período ficam marcadas como amostra pequena.'));
     // Vigilância
     const surv = dashSurveillance(rows);
     body.append(vmEl('h4', 'dash-h', 'Vigilância: sífilis e HIV'));
@@ -7298,28 +7498,57 @@ inputsWrap.appendChild(subWrap);
 } else {
 const input = makeInput(field, baseKey);
 inputsWrap.appendChild(input);
+if(field.l === 'ESF / UBS de referência da mãe'){
+  try{
+    const dl = document.createElement('datalist'); dl.id = 'dl-esf';
+    const seen = {};
+    loadHistory().forEach(rec => { const v = rec && rec.answers ? String(rec.answers[baseKey] || '').trim() : ''; const k = dashNormUnit(v); if(v && k && !seen[k]){ seen[k] = 1; dl.appendChild(new Option(v)); } });
+    input.setAttribute('list', 'dl-esf'); inputsWrap.appendChild(dl);
+  }catch(e){}
+}
 if(field.picklist){
   const items = field.picklist;
   const det = document.createElement('details'); det.className = 'pick-list';
   const sum = document.createElement('summary'); det.appendChild(sum);
   const grid = document.createElement('div'); grid.className = 'pick-grid'; det.appendChild(grid);
   const tokensOf = v => String(v || '').split(/\s*;\s*/).map(t => t.trim()).filter(Boolean);
+  const detailMap = field.pickDetail || {};
+  const isItemTok = t => items.some(l => t === l || t.startsWith(l + ':'));
+  const details = {};
   const boxes = items.map((label, i) => {
+    const cell = document.createElement('div'); cell.className = 'pick-cell';
     const lb = document.createElement('label'); lb.className = 'pick-item';
     const cb = document.createElement('input'); cb.type = 'checkbox'; cb.id = 'pick-' + baseKey + '-' + i;
-    lb.append(cb, document.createTextNode(' ' + label)); grid.appendChild(lb);
-    cb.addEventListener('change', () => {
-      const keep = tokensOf(input.value).filter(t => !items.includes(t));
-      const chosen = items.filter((l, j) => boxes[j].checked);
-      input.value = keep.concat(chosen).join('; ');
-      input.dispatchEvent(new Event('input', {bubbles:true}));
-      refreshPick();
-    });
+    const sp = document.createElement('span'); sp.textContent = label;
+    lb.append(cb, sp); cell.appendChild(lb); grid.appendChild(cell);
+    if(detailMap[label]){
+      const di = document.createElement('input'); di.type = 'text'; di.className = 'pick-detail'; di.placeholder = detailMap[label]; di.style.display = 'none';
+      di.addEventListener('input', writeBack);
+      cell.appendChild(di); details[i] = di;
+    }
+    cb.addEventListener('change', () => { if(details[i]){ details[i].style.display = cb.checked ? '' : 'none'; if(cb.checked) details[i].focus(); } writeBack(); });
     return cb;
   });
+  function writeBack(){
+    const keep = tokensOf(input.value).filter(t => !isItemTok(t));
+    const chosen = items.map((l, j) => {
+      if(!boxes[j].checked) return null;
+      const d = details[j] ? details[j].value.trim().replace(/;/g, ',') : '';
+      return d ? l + ': ' + d : l;
+    }).filter(Boolean);
+    input.value = keep.concat(chosen).join('; ');
+    input.dispatchEvent(new Event('input', {bubbles:true}));
+  }
   function refreshPick(){
     const cur = tokensOf(input.value);
-    boxes.forEach((cb, i) => { cb.checked = cur.includes(items[i]); });
+    boxes.forEach((cb, i) => {
+      const t = cur.find(x => x === items[i] || x.startsWith(items[i] + ':'));
+      cb.checked = !!t;
+      if(details[i]){
+        details[i].style.display = t ? '' : 'none';
+        if(t && document.activeElement !== details[i]) details[i].value = t.indexOf(':') >= 0 ? t.slice(t.indexOf(':') + 1).trim() : '';
+      }
+    });
     const n = boxes.filter(cb => cb.checked).length;
     sum.textContent = (field.pickTitle || 'Selecionar da lista') + (n ? ' (' + n + ' marcado' + (n > 1 ? 's' : '') + ')' : '');
   }
