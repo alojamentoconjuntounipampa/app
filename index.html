@@ -6749,14 +6749,24 @@ function renderInsights(){
   }
 }
 // Preenche a interpretação do teste do coraçãozinho quando o resultado é conclusivo e o campo está vazio.
+let coraAutoLast = null, coraAutoRec = null;
 function autoApplyCoracao(){
+  if(coraAutoRec !== currentRecordId){ coraAutoRec = currentRecordId; coraAutoLast = null; }
   const k = K(3, 'Triagem neonatal', 'Interpretação (coraçãozinho)');
   if(!k) return;
+  const cur = answers[k] || '';
+  // só mexe se estiver vazio ou se o valor foi colocado automaticamente por este recurso (escolha manual é respeitada)
+  if(cur && cur !== coraAutoLast) return;
+  const kk = K(3, 'Triagem neonatal', 'Teste do coraçãozinho');
+  const r = kk ? numv(answers[kk + '_0']) : null, l = kk ? numv(answers[kk + '_1']) : null;
+  if(r === null || l === null) return;
+  if(r < 10 || l < 10) return; // número ainda sendo digitado
   const info = coraInfo(answers);
-  if(!info || !info.result || answers[k]) return;
-  answers[k] = info.result; recordRevision++;
+  const want = info && info.result ? info.result : '';
+  if(want === cur) { coraAutoLast = want || null; return; }
+  answers[k] = want; coraAutoLast = want || null; recordRevision++;
   const el = document.querySelector('[data-answer-key="' + CSS.escape(k) + '"]');
-  if(el) el.value = info.result;
+  if(el) el.value = want;
 }
 let derivedBoxes = [];
 function refreshDerivedBoxes(){
