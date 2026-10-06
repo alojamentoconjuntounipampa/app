@@ -203,6 +203,12 @@ main{padding:14px 10px 70px;}
 #sectionsHost > .card:first-child{scroll-margin-top:96px;}
 
 
+/* ---- Lista de fatores de alto risco ---- */
+.pick-list{flex-basis:100%;margin-top:6px;border:1px solid #d5e4de;border-radius:12px;background:rgba(255,255,255,.55);padding:6px 10px;}
+.pick-list summary{cursor:pointer;font-size:.78rem;font-weight:700;color:#0b5850;}
+.pick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:4px 12px;margin-top:6px;}
+.pick-item{display:flex;gap:6px;align-items:flex-start;font-size:.8rem;line-height:1.35;cursor:pointer;min-width:0;overflow-wrap:anywhere;}
+.pick-item input{flex:none;width:18px;height:18px;margin-top:1px;accent-color:#15947F;}
 /* ---- Painel do serviço ---- */
 .dash-select{font:inherit;padding:6px 8px;border:1px solid #d5e4de;border-radius:8px;background:#fff;color:#1b3a4b;max-width:100%;}
 .dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin:10px 0;}
@@ -3408,6 +3414,10 @@ const supabaseClient = supabaseConfigured && window.supabase && typeof window.su
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
 
+// Fatores que indicam encaminhamento para obstetra (gestação de alto risco). Selecionáveis nos campos de texto correspondentes.
+const ALTO_RISCO_PREVIAS = ["Cardiopatias","Diabetes tipo I ou II","Hipotireoidismo ou hipertireoidismo prévios","Hipertensão prévia","Epilepsia","Lúpus eritematoso sistêmico","Doenças psiquiátricas (acompanhadas pelo CAPS)","Infecção pelo HIV","Dependência química","Síndrome do anticorpo antifosfolipídeo (SAAF)","Asma","Doenças hematológicas (anemia falciforme, PTI)","Depressão grave","Tromboembolismo venoso (TVP)","Cirurgia bariátrica"];
+const ALTO_RISCO_REPRODUTIVA = ["Feto morto em gestação anterior (após 20 semanas de IG)","Pré-eclâmpsia em gestação anterior","Eclâmpsia e síndrome HELLP em gestação anterior","Trabalho de parto prematuro em gestação anterior","Feto anterior com malformação"];
+const ALTO_RISCO_ATUAL = ["Restrição de crescimento intrauterino","Polidrâmnio ou oligodrâmnio","Malformações fetais","Distúrbios hipertensivos na gestação","HIV","Diabetes gestacional","Vômitos inexplicáveis no 3º trimestre","Infecções no pré-natal (como toxoplasmose)","Placenta prévia","Gestação múltipla","Anemia grave","Colestase gestacional"];
 function range(a,b){ let r=[]; for(let i=a;i<=b;i++) r.push(String(i)); return r; }
 const SN = ["Não","Sim"];
 const AUSPRES = ["Ausente","Presente"];
@@ -3478,16 +3488,16 @@ Sn("Sífilis - VDRL",RNR,"NR"), Sn("Sífilis - Teste rápido (TR)",RNR,"NR"),
 Sn("SGB (swab reto-vaginal)",RNR,"NR"),
 S("Indicação de profilaxia intraparto para SGB?",["Sim","Não","Não se aplica"]),
 S("Antibiótico intraparto para SGB (realizado)",["Sim - adequado (≥4 h antes do parto)","Sim - inadequado (<4 h)","Não"])
-], note:"Indicação de profilaxia intraparto para SGB (SBP/FEBRASGO):\n• SGB positivo na gestação atual (35–37 semanas).\n• Bacteriúria por SGB na gestação atual.\n• Filho anterior com doença invasiva por SGB.\n• SGB desconhecido associado a algum fator de risco:\n  – Trabalho de parto <37 semanas.\n  – Bolsa rota ≥18 horas.\n  – Febre intraparto ≥38 °C.\n\nConfirme sempre com o protocolo institucional vigente."},
+], noteBottom:"Indicação de profilaxia intraparto para SGB (SBP/FEBRASGO):\n• SGB positivo na gestação atual (35–37 semanas).\n• Bacteriúria por SGB na gestação atual.\n• Filho anterior com doença invasiva por SGB.\n• SGB desconhecido associado a algum fator de risco:\n  – Trabalho de parto <37 semanas.\n  – Bolsa rota ≥18 horas.\n  – Febre intraparto ≥38 °C.\n\nConfirme sempre com o protocolo institucional vigente."},
 {title:"Sorologias coletadas na maternidade", quickNormal:true, fields:[
 Sn("HBsAg",RNR,"NR"), Sn("HCV",RNR,"NR"),
 Sf("HIV (± CV)",RNR,HIV_FOLLOW),
 Sn("Sífilis - VDRL",RNR,"NR"), Sn("Sífilis - Teste rápido (TR)",RNR,"NR")
 ]},
-{title:"História médica pregressa", fields:[T("Comorbidades"),T("Medicações de uso prévio"),T("Intercorrências em gestações anteriores")]},
+{title:"História médica pregressa", fields:[Object.assign(T("Comorbidades"),{picklist:ALTO_RISCO_PREVIAS,pickTitle:"Fatores de alto risco: condições prévias"}),T("Medicações de uso prévio"),Object.assign(T("Intercorrências em gestações anteriores"),{picklist:ALTO_RISCO_REPRODUTIVA,pickTitle:"Fatores de alto risco: história reprodutiva anterior",note:"Dica: perguntar à paciente se houve enterro. Se sim, foi feto morto; se não, foi aborto."})]},
 {title:"Hábitos de vida", fields:[S("Tabagismo",["Não","Sim - ativo","Sim - passivo"]),S("Etilismo",SN),S("Uso de drogas",SN)]},
 {title:"História da gestação atual", fields:[
-T("Intercorrências na gestação atual"),
+Object.assign(T("Intercorrências na gestação atual"),{picklist:ALTO_RISCO_ATUAL,pickTitle:"Fatores de alto risco: gestação atual"}),
 S("US morfológico",["Normal","Alterado","Não realizado"]),
 S("Ecocardiograma fetal",["Normal","Alterado","Não realizado"]),
 S("Uso de corticoide (doses)",["Não","Sim - 1 dose","Sim - esquema completo (2 doses)"]),
@@ -6285,8 +6295,8 @@ function classifyWeight(a){
   else if(bw > 4000){ text = 'Macrossomia (>4.000 g)'; lvl = 'warn'; }
   else text = 'Peso adequado (2.500 a 4.000 g)';
   const pct = av(a, 1, FS1, 'Peso x IG (percentil)');
-  if(pct){ text += ' · ' + pct; if(pct !== 'AIG' && lvl === 'ok') lvl = 'warn'; }
-  return {text, lvl, bw, pct};
+  const pctText = pct === 'PIG' ? 'PIG: abaixo do percentil 10 para a IG' : pct === 'GIG' ? 'GIG: acima do percentil 90 para a IG' : pct === 'AIG' ? 'AIG: entre os percentis 10 e 90 para a IG' : '';
+  return {text, lvl, bw, pct, pctText, pctLvl: pct === 'AIG' ? 'ok' : (pct ? 'warn' : 'ok')};
 }
 function motherAgeInfo(a){
   const age = numv(av(a, 0, 'Dados da mãe', 'Idade'));
@@ -6460,6 +6470,11 @@ function weightLossPct(a){
   return null;
 }
 const NIRSEV_LABELS = ['Cardiopatia congênita com repercussão conhecida ao nascimento','Síndrome de Down','Anomalia congênita de vias aéreas conhecida ao nascimento'];
+function altoRiscoFatores(a){
+  const txt = [av(a, 0, 'História médica pregressa', 'Comorbidades'), av(a, 0, 'História médica pregressa', 'Intercorrências em gestações anteriores'), av(a, 0, 'História da gestação atual', 'Intercorrências na gestação atual')].join(';');
+  const toks = txt.split(/\s*;\s*/).map(t => t.trim());
+  return [].concat(ALTO_RISCO_PREVIAS, ALTO_RISCO_REPRODUTIVA, ALTO_RISCO_ATUAL).filter(x => toks.includes(x)).map(x => x.replace(/ \(.*\)$/, ''));
+}
 function riskReasons(a, extra){
   const bio = [], mat = [];
   let crit = false;
@@ -6509,6 +6524,8 @@ function riskReasons(a, extra){
   if(av(a, 0, 'Hábitos de vida', 'Etilismo') === 'Sim') mat.push('Etilismo');
   const gest = av(a, 1, FS1, 'Gestação');
   if(gest && gest !== 'Única') mat.push('Gestação ' + gest.toLowerCase());
+  const hrf = altoRiscoFatores(a);
+  if(hrf.length) mat.push('Fatores de alto risco obstétrico: ' + hrf.join(', '));
   const g = sgbInfo(a);
   if((g.ind === 'Sim' || g.expected === true) && g.done && !g.adequate) mat.push('Profilaxia para SGB não realizada/inadequada');
   const any = bio.length + mat.length > 0;
@@ -6616,6 +6633,7 @@ function computeInsights(a, opts){
   const ga = gaFromAnswers(a), gaC = classifyGa(ga), wC = classifyWeight(a), age = motherAgeInfo(a), pn = prenatalInfo(a);
   if(gaC) chips.push({k:'Idade gestacional', v:ga.weeks + 's' + ga.days + 'd · ' + gaC.text, lvl:gaC.lvl});
   if(wC) chips.push({k:'Peso ao nascer', v:wC.text, lvl:wC.lvl});
+  if(wC && wC.pct) chips.push({k:'Peso para a idade gestacional', v:wC.pctText, lvl:wC.pctLvl});
   if(age) chips.push({k:'Idade da mãe', v:age.text, lvl:age.lvl});
   if(pn.cons) chips.push({k:'Consultas de pré-natal', v:pn.cons.text, lvl:pn.cons.lvl});
   if(pn.start) chips.push({k:'Início do pré-natal', v:pn.start.text, lvl:pn.start.lvl});
@@ -6627,6 +6645,8 @@ function computeInsights(a, opts){
   if(lp !== null && lp >= 10) alerts.push({lvl:'warn', cat:'peso', text:'Perda ponderal de ' + lp.toFixed(1).replace('.', ',') + '% (≥10%): avaliar mamada, hidratação e necessidade de complemento.'});
   const hb = hyperbiliFactors(a);
   if(hb.neurotox && (hb.neuroSel === '' || hb.neuroSel === 'Não')) alerts.push({lvl:'warn', cat:'bili', text:'Coombs direto positivo: em "Outros fatores de risco para neurotoxicidade" (aba Alta) selecione "' + hb.neurotox + '" antes de aplicar a avaliação AAP 2022.'});
+  const hrf = altoRiscoFatores(a);
+  if(hrf.length && av(a, 0, 'Pré-natal', 'Risco gestacional') !== 'Alto risco') alerts.push({lvl:'info', cat:'obst', text:'Fatores de alto risco obstétrico marcados (' + hrf.join(', ') + '): conferir o campo "Risco gestacional" na seção Pré-natal.'});
   const order = {crit:0, warn:1, info:2, ok:3};
   alerts.sort((x, y) => order[x.lvl] - order[y.lvl]);
   return {chips, risk, alerts, hyper:hb, checklist:dischargeChecklist(a), completeness:computeCompleteness(a)};
@@ -7278,6 +7298,37 @@ inputsWrap.appendChild(subWrap);
 } else {
 const input = makeInput(field, baseKey);
 inputsWrap.appendChild(input);
+if(field.picklist){
+  const items = field.picklist;
+  const det = document.createElement('details'); det.className = 'pick-list';
+  const sum = document.createElement('summary'); det.appendChild(sum);
+  const grid = document.createElement('div'); grid.className = 'pick-grid'; det.appendChild(grid);
+  const tokensOf = v => String(v || '').split(/\s*;\s*/).map(t => t.trim()).filter(Boolean);
+  const boxes = items.map((label, i) => {
+    const lb = document.createElement('label'); lb.className = 'pick-item';
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.id = 'pick-' + baseKey + '-' + i;
+    lb.append(cb, document.createTextNode(' ' + label)); grid.appendChild(lb);
+    cb.addEventListener('change', () => {
+      const keep = tokensOf(input.value).filter(t => !items.includes(t));
+      const chosen = items.filter((l, j) => boxes[j].checked);
+      input.value = keep.concat(chosen).join('; ');
+      input.dispatchEvent(new Event('input', {bubbles:true}));
+      refreshPick();
+    });
+    return cb;
+  });
+  function refreshPick(){
+    const cur = tokensOf(input.value);
+    boxes.forEach((cb, i) => { cb.checked = cur.includes(items[i]); });
+    const n = boxes.filter(cb => cb.checked).length;
+    sum.textContent = (field.pickTitle || 'Selecionar da lista') + (n ? ' (' + n + ' marcado' + (n > 1 ? 's' : '') + ')' : '');
+  }
+  input.addEventListener('input', refreshPick);
+  det.addEventListener('toggle', refreshPick);
+  refreshPick();
+  det.open = boxes.some(cb => cb.checked);
+  inputsWrap.appendChild(det);
+}
 if(field.derive){
   const dBox = document.createElement('div'); dBox.className = 'bilirubin-result derive-box'; dBox.style.display = 'none';
   inputsWrap.appendChild(dBox); derivedBoxes.push({box:dBox, id:field.derive});
@@ -7291,6 +7342,7 @@ if(field.l === 'Comorbidades') {
   normalButton.addEventListener('click', () => {
     if(!contextMatchesActive(fieldContext)) return;
     input.value = 'Sem comorbidades';
+    input.dispatchEvent(new Event('input', {bubbles:true}));
     answers[baseKey] = input.value;
     recordRevision++;
     updateProblemsList();
@@ -7524,6 +7576,7 @@ inputsWrap.appendChild(followInput);
 row.appendChild(inputsWrap);
 card.appendChild(row);
 });
+if(sec.noteBottom){ const nb = document.createElement('div'); nb.className = 'note-box'; nb.style.cssText = 'margin:8px 14px 14px;'; nb.textContent = sec.noteBottom; card.appendChild(nb); }
 if(sec.title === NIRSEVIMAB_SECTION){
   const eligibilityResult = document.createElement('div');
   eligibilityResult.id = 'nirsevimabEligibilityResult';
@@ -7712,7 +7765,7 @@ function buildPrintView(snapshot) {
         const section = document.createElement('div');
         section.className = 'p-section';
         let html = '<div class="p-band">' + escapeHTML(sec.title) + '</div>';
-        if (sec.note) html += '<div class="p-note">' + escapeHTML(sec.note) + '</div>';
+        if (sec.note || sec.noteBottom) html += '<div class="p-note">' + escapeHTML(sec.note || sec.noteBottom) + '</div>';
         html += '<table class="p-table"><tbody>' + tableRowsHTML(sec.fields, pIdx, sIdx, snapshot);
         if (pIdx === 0 && sec.title === 'Dados da mãe') {
           html += '<tr><td colspan="6" class="lbl">IG por DUM</td><td colspan="18" class="val">' + (snapshot.gaDum ? snapshot.gaDum.weeks + 's ' + snapshot.gaDum.days + 'd' : '&nbsp;') + '</td></tr>';
