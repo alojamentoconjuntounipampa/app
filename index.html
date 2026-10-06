@@ -212,6 +212,55 @@ main{padding:14px 10px 70px;}
 .pick-item:has(input:checked){background:#e3f4ee;border-color:#15947F;font-weight:600;}
 .pick-item input{flex:0 0 18px!important;width:18px!important;min-width:18px!important;height:18px!important;margin:0!important;padding:0!important;accent-color:#15947F;}
 .pick-item span{flex:1 1 auto;min-width:0;}
+.dash-panel{width:min(980px,100%)!important;max-height:94vh;padding-top:12px;}
+.vm-overlay.dash-ov{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;}
+body .vm-panel.dash-panel{background:#fff!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:0 -6px 24px rgba(15,40,50,.22)!important;}
+.dash-bar{position:sticky;top:-12px;z-index:2;background:#fff;padding:8px 0 6px;margin:0 0 4px;border-bottom:1px solid #e1ece8;}
+.dash-period{display:flex;gap:8px;align-items:center;font-size:.78rem;font-weight:600;color:#3f5a68;margin-bottom:8px;}
+.dash-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.dash-tabs::-webkit-scrollbar{display:none;}
+.dash-tab{flex:none;border:1px solid #d5e4de;background:#fff;color:#3f5a68;font:inherit;font-size:.78rem;font-weight:700;padding:6px 12px;border-radius:999px;cursor:pointer;}
+.dash-tab.on{background:#0f6e63;border-color:#0f6e63;color:#fff;}
+.dash-hint{font-size:.72rem;color:#5b7380;line-height:1.4;margin:4px 0 10px;}
+.dash-h{margin:18px 0 2px;font-size:.9rem;color:#1b3a4b;}
+.dk-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:10px 0 14px;}
+.dk{background:#f4faf8;border-radius:12px;padding:10px 12px;min-width:0;}
+.dk-v{font-size:1.6rem;font-weight:800;line-height:1.05;color:#0b5850;font-variant-numeric:tabular-nums;}
+.dk-k{font-size:.74rem;font-weight:700;margin-top:3px;color:#1b3a4b;}
+.dk-s{font-size:.68rem;color:#5b7380;margin-top:1px;}
+.dm-groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;}
+.dm-box{border:1px solid #e1ece8;border-radius:12px;padding:10px 12px;}
+.dm-title{font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#5b7380;margin-bottom:6px;}
+.dm-row{margin:7px 0;}
+.dm-head{display:flex;justify-content:space-between;gap:8px;font-size:.76rem;color:#1b3a4b;}
+.dm-v{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap;}
+.dm-track{height:7px;background:#e6efec;border-radius:4px;overflow:hidden;margin-top:3px;flex:1;}
+.dm-fill{height:100%;background:#15947F;border-radius:4px;}
+.dm-fill.warn{background:#C26A1B;} .dm-fill.ref{background:#9fb4ae;}
+.dm-faint .dm-fill{opacity:.45;} .dm-faint .dm-head{color:#5b7380;}
+.dc-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin:8px 0;}
+.dc-lab{display:flex;flex-direction:column;gap:3px;font-size:.7rem;font-weight:700;color:#5b7380;}
+.dc-lab select{width:100%;}
+.dc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px;}
+.dc{border:1px solid #d5e4de;border-radius:12px;padding:10px 12px;background:#fff;min-width:0;}
+.dc-faint{background:#f6f8f7;color:#6b7f79;border-color:#e1e8e5;} .dc-faint .dm-fill{opacity:.5;}
+.dc-sig{border-color:#E7CFB4;background:#FFF8EE;}
+.dc-t{font-size:.76rem;font-weight:700;color:#1b3a4b;line-height:1.3;} .dc-faint .dc-t{color:#5b7380;}
+.dc-o{font-size:.74rem;color:#3f5a68;margin:2px 0 8px;}
+.dc-tab{width:100%;border-collapse:collapse;font-size:.72rem;font-variant-numeric:tabular-nums;} .dc-tab th{font-size:.64rem;font-weight:700;color:#5b7380;text-align:right;padding:2px 4px;border-bottom:1px solid #e1ece8;} .dc-tab th:first-child{text-align:left;} .dc-tab td{text-align:right;padding:5px 4px;border-bottom:1px solid #eef3f1;} .dc-name{text-align:left!important;font-weight:600;line-height:1.2;} .dc-pc{min-width:64px;} .dc-pc b{display:block;} .dc-pc .dm-track{height:5px;margin-top:2px;}
+.dc-r{display:grid;grid-template-columns:112px 1fr auto;gap:8px;align-items:center;font-size:.7rem;margin:4px 0;}
+.dc-r .dm-track{margin-top:0;}
+.dc-n{line-height:1.2;} .dc-p{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap;}
+.dc-f{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px;font-size:.68rem;}
+.dc-chip{background:#e8f1ee;color:#3f5a68;border-radius:999px;padding:2px 8px;font-weight:700;} .dc-chip.sig{background:#F4DDBF;color:#7a3f0a;}
+.dc-rr{color:#5b7380;font-variant-numeric:tabular-nums;}
+.dash-chart{margin:8px 0;} .dash-svg{width:100%;height:auto;max-height:260px;display:block;}
+.dash-det{margin-top:6px;font-size:.74rem;} .dash-det summary{cursor:pointer;color:#0b5850;font-weight:700;}
+.dv-list{display:grid;gap:8px;} .dv-item{border:1px solid #d5e4de;border-radius:12px;padding:9px 12px;} .dv-item.pend{border-color:#E7CFB4;background:#FFF8EE;}
+.dv-h{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.8rem;} .dv-d{color:#5b7380;font-size:.72rem;margin-left:auto;}
+.dv-s{font-size:.74rem;color:#3f5a68;margin-top:4px;} .dv-c{font-size:.74rem;font-weight:700;margin-top:3px;}
+.dash-robson td:nth-child(2){min-width:170px;}
+@media (max-width:520px){.dc-r{grid-template-columns:92px 1fr auto;}.dk-v{font-size:1.4rem;}}
 .dash-faint td{color:#8a9a95;} .dash-sig td{background:#fff4e0;font-weight:600;} .dash-cmp-lab{display:block;margin:6px 0;} .dash-cmp-lab select{max-width:100%;}
 .pick-detail{display:block;width:100%!important;box-sizing:border-box;margin-top:4px;font-size:.78rem;padding:6px 9px!important;}
 /* ---- Painel do serviço ---- */
@@ -7026,111 +7075,220 @@ function dashCmpRow(c){
   const flag = c.rr === null ? 'sem dados' : (c.small ? 'amostra pequena' : (c.sig ? (c.rr > 1 ? '↑ maior no exposto' : '↓ menor no exposto') : 'sem diferença clara'));
   return [c.E.l, c.O.l + (c.S.id ? ' · ' + c.S.l.replace('Somente ', '') : ''), f(c.e), f(c.c), rr, flag];
 }
+const _dashCache = new Map();
+function dashRowCached(rec){
+  const key = String(rec.id) + '|' + String(rec.updatedAt || '') + '|' + (rec.alta ? 1 : 0) + '|' + (rec.utiNeo ? 1 : 0);
+  let r = _dashCache.get(key);
+  if(!r){ if(_dashCache.size > 3000) _dashCache.clear(); r = dashRow(rec); _dashCache.set(key, r); }
+  return r;
+}
+const DASH_INDICATORS = [
+  {k:'ces', l:'Cesárea', g:'Parto'}, {k:'prem', l:'Prematuros (<37 sem)', g:'Nascimento'}, {k:'lbw', l:'Baixo peso (<2.500 g)', g:'Nascimento'},
+  {k:'pig', l:'PIG', g:'Nascimento', pig:1}, {k:'gig', l:'GIG', g:'Nascimento', gig:1},
+  {k:'ap5low', l:'Apgar 5º min <7', g:'Nascimento', warn:1}, {k:'rean', l:'Qualquer reanimação', g:'Nascimento'}, {k:'dr', l:'Desconforto respiratório', g:'Nascimento'},
+  {k:'ame', l:'Aleitamento exclusivo na alta', g:'Alta'}, {k:'loss10', l:'Perda de peso ≥10%', g:'Alta', warn:1}, {k:'photo', l:'Fototerapia indicada', g:'Alta'},
+  {k:'teen', l:'Mães adolescentes (<20)', g:'Mãe'}, {k:'adv', l:'Mães ≥35 anos', g:'Mãe'}, {k:'pnInad', l:'Pré-natal inadequado', g:'Mãe', warn:1}
+];
+function dashInd(rows, ind){
+  let d = 0, n = 0;
+  rows.forEach(r => {
+    let v = r.x[ind.k];
+    if(ind.pig || ind.gig) v = r.w && r.w.pct ? r.w.pct === (ind.pig ? 'PIG' : 'GIG') : null;
+    if(v === null || v === undefined) return;
+    d++; if(v) n++;
+  });
+  return {n, d, pct: d ? n / d * 100 : null};
+}
 function openDashboardModal(){
   const panel = vmShell('Painel do serviço');
-  const all = loadHistory().filter(rec => rec && rec.answers && hasRealContent(rec.answers)).map(dashRow);
+  panel.classList.add('dash-panel'); panel.parentNode.classList.add('dash-ov');
+  const all = loadHistory().filter(rec => rec && rec.answers && hasRealContent(rec.answers)).map(dashRowCached);
   if(!all.length){ panel.append(vmEl('p', 'vm-info', 'Ainda não há RNs salvos para calcular o painel.')); return; }
   const months = [...new Set(all.map(r => r.mes))].sort().reverse();
-  const sel = document.createElement('select'); sel.id = 'dashMonth'; sel.className = 'dash-select';
   const now = new Date(), cutD = new Date(now.getFullYear(), now.getMonth() - 11, 1);
   const cut = cutD.getFullYear() + '-' + String(cutD.getMonth() + 1).padStart(2, '0');
   const inLast12 = r => /^\d{4}-\d{2}$/.test(r.mes) && r.mes >= cut;
+  const sel = document.createElement('select'); sel.id = 'dashMonth'; sel.className = 'dash-select';
   sel.append(new Option('Últimos 12 meses (' + all.filter(inLast12).length + ' RNs)', 'u12'));
   sel.append(new Option('Todos os períodos (' + all.length + ' RNs)', ''));
   months.forEach(m => sel.append(new Option(dashMonthLabel(m) + ' (' + all.filter(r => r.mes === m).length + ' RNs)', m)));
   sel.value = 'u12';
-  const lab = vmEl('label', 'vm-info', 'Período: '); lab.htmlFor = 'dashMonth'; lab.append(sel);
+  const bar = vmEl('div', 'dash-bar');
+  const lab = vmEl('label', 'dash-period', 'Período '); lab.htmlFor = 'dashMonth'; lab.append(sel);
+  const tabs = vmEl('div', 'dash-tabs'); tabs.setAttribute('role', 'tablist');
+  bar.append(lab, tabs);
   const body = vmEl('div', 'dash-body');
-  panel.append(lab, body);
-  function tile(label, value, sub, lvl){ const t = vmEl('div', 'dash-tile' + (lvl ? ' ' + lvl : '')); t.append(vmEl('div', 'dash-tile-v', value), vmEl('div', 'dash-tile-k', label)); if(sub) t.append(vmEl('div', 'dash-tile-s', sub)); return t; }
+  panel.append(bar, body);
+  const TABS = [['res', 'Resumo'], ['cmp', 'Comparações'], ['evo', 'Evolução'], ['esf', 'ESF/UBS'], ['vig', 'Vigilância'], ['qua', 'Qualidade']];
+  let tab = 'res';
+  const fmt = v => v === null ? '—' : Math.round(v) + '%';
+  const small = d => d < 20;
+  function getRows(){ return sel.value === 'u12' ? all.filter(inLast12) : (sel.value ? all.filter(r => r.mes === sel.value) : all); }
+  function meter(label, ind, opts){
+    opts = opts || {};
+    const row = vmEl('div', 'dm-row' + (small(ind.d) ? ' dm-faint' : ''));
+    const head = vmEl('div', 'dm-head'); head.append(vmEl('span', 'dm-l', label), vmEl('span', 'dm-v', ind.d ? fmt(ind.pct) + '  ·  ' + ind.n + '/' + ind.d : '—'));
+    const track = vmEl('div', 'dm-track'); const fill = vmEl('div', 'dm-fill' + (opts.warn ? ' warn' : '')); fill.style.width = (ind.pct || 0) + '%'; track.append(fill);
+    row.append(head, track); return row;
+  }
+  function kpi(v, k, s){ const t = vmEl('div', 'dk'); t.append(vmEl('div', 'dk-v', v), vmEl('div', 'dk-k', k)); if(s) t.append(vmEl('div', 'dk-s', s)); return t; }
   function table(head, rows, cls){
     const wrap = vmEl('div', 'dash-table-wrap'); const t = vmEl('table', 'dash-table' + (cls ? ' ' + cls : ''));
     const thead = vmEl('thead'); const hr = vmEl('tr'); head.forEach(h => hr.append(vmEl('th', '', h))); thead.append(hr);
     const tb = vmEl('tbody'); rows.forEach(r => { const tr = vmEl('tr'); r.forEach(c => tr.append(vmEl('td', '', String(c)))); tb.append(tr); });
     t.append(thead, tb); wrap.append(t); return wrap;
   }
-  function draw(){
-    const rows = sel.value === 'u12' ? all.filter(inLast12) : (sel.value ? all.filter(r => r.mes === sel.value) : all);
+  function section(title, hint){ const h = vmEl('h4', 'dash-h', title); const f = document.createDocumentFragment(); f.append(h); if(hint) f.append(vmEl('p', 'dash-hint', hint)); return f; }
+
+  function drawResumo(rows){
     const st = dashStats(rows);
-    body.replaceChildren();
-    const grid = vmEl('div', 'dash-grid');
-    grid.append(
-      tile('RNs no período', String(st.n), st.altas + ' com alta · ' + st.uti + ' na UTI Neo'),
-      tile('Cesárea', dashPct(st.ces, st.partoN), st.ces + ' de ' + st.partoN + ' partos'),
-      tile('Prematuros (<37 sem)', dashPct(st.pre, st.preN), st.pre + ' de ' + st.preN + ' com IG'),
-      tile('Baixo peso (<2.500 g)', dashPct(st.lbw, st.lbwN), st.lbw + ' de ' + st.lbwN),
-      tile('PIG / GIG', st.pig + ' / ' + st.gig, 'de ' + st.pctN + ' classificados'),
-      tile('Apgar 5º min <7', String(st.lowAp), 'de ' + st.apN + ' com Apgar', st.lowAp ? 'warn' : ''),
-      tile('RN de risco', dashPct(st.risk, st.n), st.risk + ' RNs · ' + st.riskCrit + ' de maior gravidade', st.riskCrit ? 'warn' : ''),
-      tile('AME na alta', dashPct(st.ame, st.amN), st.ame + ' de ' + st.amN + ' altas com alimentação'),
-      tile('Perda de peso ≥10%', String(st.loss10), 'de ' + st.lossN + ' altas com peso', st.loss10 ? 'warn' : ''),
-      tile('Fototerapia indicada', String(st.photo), 'entre as altas'),
-      tile('Mães adolescentes', dashPct(st.teen, st.ageN), st.teen + ' de ' + st.ageN + ' · ≥35 anos: ' + st.adv),
-      tile('Pré-natal <6 consultas', dashPct(st.fewCons, st.consN), 'início tardio: ' + st.late + ' de ' + st.startN),
-      tile('Completude média', st.avgComp + '%', 'campos importantes preenchidos')
-    );
-    body.append(grid);
+    const strip = vmEl('div', 'dk-strip');
+    strip.append(kpi(String(st.n), 'RNs no período', st.altas + ' com alta · ' + st.uti + ' UTI Neo'),
+      kpi(dashPct(st.ces, st.partoN), 'Cesárea', st.ces + ' de ' + st.partoN + ' partos'),
+      kpi(dashPct(st.pre, st.preN), 'Prematuros', st.pre + ' de ' + st.preN + ' com IG'),
+      kpi(dashPct(st.risk, st.n), 'RN de risco', st.risk + ' RNs'));
+    body.append(strip);
+    const groups = {};
+    DASH_INDICATORS.forEach(i => { (groups[i.g] = groups[i.g] || []).push(i); });
+    const gwrap = vmEl('div', 'dm-groups');
+    Object.keys(groups).forEach(g => {
+      const box = vmEl('div', 'dm-box'); box.append(vmEl('div', 'dm-title', g));
+      groups[g].forEach(i => box.append(meter(i.l, dashInd(rows, i), {warn:i.warn})));
+      gwrap.append(box);
+    });
+    body.append(gwrap);
+    body.append(vmEl('p', 'dash-hint', 'Barras mais claras: menos de 20 RNs com o dado, leia com cautela. O denominador (por exemplo 31/150) só conta os RNs em que o dado foi preenchido.'));
     // Robson
-    body.append(vmEl('h4', 'dash-h', 'Cesáreas por grupo de Robson'));
-    const names = {'1':'Nulípara, único, cefálico, ≥37 sem, espontâneo','2':'Nulípara, único, cefálico, ≥37 sem, induzido ou cesárea antes do trabalho de parto','3':'Multípara sem cesárea anterior, único, cefálico, ≥37 sem, espontâneo','4':'Multípara sem cesárea anterior, único, cefálico, ≥37 sem, induzido ou cesárea antes do trabalho de parto','5':'Cesárea anterior, único, cefálico, ≥37 sem','6':'Nulípara, pélvico','7':'Multípara, pélvico','8':'Gestação múltipla','9':'Situação transversa/oblíqua','10':'Único, cefálico, <37 sem','nc':'Não classificável (dados incompletos)'};
+    body.append(section('Cesáreas por grupo de Robson', 'Padrão OMS: o que importa é a taxa dentro de cada grupo e quanto cada grupo contribui para a taxa total.'));
+    const short = {'1':'Nulípara, espontâneo','2':'Nulípara, induzido ou cesárea antes do trabalho de parto','3':'Multípara sem cesárea prévia, espontâneo','4':'Multípara sem cesárea prévia, induzido ou cesárea antes do trabalho de parto','5':'Cesárea anterior','6':'Nulípara, pélvico','7':'Multípara, pélvico','8':'Gestação múltipla','9':'Situação transversa/oblíqua','10':'Prematuro (<37 sem), único e cefálico','nc':'Não classificável (dados incompletos)'};
     const rrows = Object.keys(st.rob).filter(g => st.rob[g].n).map(g => {
       const x = st.rob[g];
-      const gr = rows.filter(r => (r.robson || 'nc') === g);
-      const pr = gr.filter(r => r.x.prem === true).length, prN = gr.filter(r => r.x.prem !== null).length;
-      const ap = gr.filter(r => r.x.ap5low === true).length, apN = gr.filter(r => r.x.ap5low !== null).length;
-      return [g === 'nc' ? '—' : g, names[g], x.n, dashPct(x.n, st.n), x.ces, dashPct(x.ces, x.n), dashPct(x.ces, st.robTotalCes), pr + '/' + prN, ap + '/' + apN];
+      return [g === 'nc' ? '—' : g, short[g], x.n + ' (' + dashPct(x.n, st.n) + ')', x.ces + ' (' + dashPct(x.ces, x.n) + ')', dashPct(x.ces, st.robTotalCes)];
     });
-    if(rrows.length) body.append(table(['Grupo','Descrição','RNs','% dos partos','Cesáreas','Taxa no grupo','% das cesáreas','Prematuros','Apgar 5º <7'], rrows));
-    body.append(vmEl('p', 'vm-info', 'Para classificar, a ficha precisa ter: gestação única/múltipla, início do trabalho de parto, apresentação, IG e o histórico gestacional (PV e PC são lidos como partos anteriores, sem o atual).'));
-    // Principais comparações
-    body.append(vmEl('h4', 'dash-h', 'Principais comparações (exposição × desfecho)'));
-    body.append(vmEl('p', 'vm-info', 'Cada linha mostra casos/total e % em cada grupo, e o risco relativo (RR) com intervalo de confiança de 95%. É uma associação descritiva, não prova causa: por exemplo, a cesárea pode concentrar casos mais graves por indicação. Linhas em cinza têm amostra pequena (menos de 20 RNs num dos grupos ou menos de 5 casos no total) e não devem ser interpretadas como diferença.'));
-    const cmpHead = ['Exposição','Desfecho','Expostos','Comparação','RR (IC 95%)','Leitura'];
-    const cmpTable = (list) => {
-      const w = table(cmpHead, list.map(dashCmpRow));
-      Array.from(w.querySelectorAll('tbody tr')).forEach((tr, i) => { if(list[i].small || list[i].rr === null) tr.classList.add('dash-faint'); else if(list[i].sig) tr.classList.add('dash-sig'); });
-      return w;
+    if(rrows.length) body.append(table(['Grupo', 'Descrição', 'RNs', 'Cesáreas (taxa)', '% das cesáreas'], rrows, 'dash-robson'));
+    body.append(vmEl('p', 'dash-hint', 'Grupos 1 a 4: gestação única, cefálica, ≥37 semanas. Para classificar, a ficha precisa de gestação única/múltipla, início do trabalho de parto, apresentação, IG e histórico gestacional (PV e PC contam só partos anteriores).'));
+  }
+  function cmpCard(c){
+    const card = vmEl('div', 'dc' + (c.small || c.rr === null ? ' dc-faint' : '') + (c.sig ? ' dc-sig' : ''));
+    card.append(vmEl('div', 'dc-t', c.E.l));
+    card.append(vmEl('div', 'dc-o', '→ ' + c.O.l + (c.S.id ? ' · ' + c.S.l.replace('Somente ', 'só ') : '')));
+    const names = c.E.l.split(' × ');
+    const tb = vmEl('table', 'dc-tab');
+    const th = vmEl('tr'); ['', 'Teve', 'Não teve', 'Total', '%'].forEach(h => th.append(vmEl('th', '', h))); tb.append(th);
+    const rowOf = (name, g, cls) => {
+      const tr = vmEl('tr'); tr.append(vmEl('td', 'dc-name', name), vmEl('td', '', g.n ? String(g.y) : '—'), vmEl('td', '', g.n ? String(g.n - g.y) : '—'), vmEl('td', '', String(g.n)));
+      const pc = vmEl('td', 'dc-pc'); pc.append(vmEl('b', '', g.n ? Math.round(g.y / g.n * 100) + '%' : '—'));
+      const tr2 = vmEl('div', 'dm-track'); const f = vmEl('div', 'dm-fill ' + cls); f.style.width = (g.n ? g.y / g.n * 100 : 0) + '%'; tr2.append(f); pc.append(tr2);
+      tr.append(pc); return tr;
     };
-    body.append(cmpTable(DASH_PRESETS.map(([e, o, sub]) => dashCompare(rows, e, o, sub))));
-    // Comparador livre
-    body.append(vmEl('h4', 'dash-h', 'Comparador livre'));
+    tb.append(rowOf((names[0] || 'Expostos').replace(/ \(.*\)$/, ''), c.e, ''), rowOf((names[1] || 'Comparação').replace(/ \(.*\)$/, ''), c.c, 'ref'));
+    card.append(tb);
+    const foot = vmEl('div', 'dc-f');
+    const flag = c.rr === null ? 'sem dados' : (c.small ? 'amostra pequena' : (c.sig ? (c.rr > 1 ? 'maior no exposto' : 'menor no exposto') : 'sem diferença clara'));
+    foot.append(vmEl('span', 'dc-chip' + (c.sig ? ' sig' : ''), flag));
+    if(c.rr !== null) foot.append(vmEl('span', 'dc-rr', 'RR ' + c.rr.toFixed(2).replace('.', ',') + ' (IC95% ' + c.lo.toFixed(2).replace('.', ',') + '–' + c.hi.toFixed(2).replace('.', ',') + ')'));
+    card.append(foot); return card;
+  }
+  function drawCmp(rows){
+    body.append(section('Comparador', 'Escolha uma exposição e um desfecho. É associação descritiva, não prova causa (a cesárea, por exemplo, concentra casos mais graves por indicação).'));
     const mkSel = (items, id) => { const x = document.createElement('select'); x.className = 'dash-select'; x.id = id; items.forEach(i => x.append(new Option(i.l, i.id))); return x; };
     const sE = mkSel(DASH_EXPOSURES, 'dashCmpE'), sO = mkSel(DASH_OUTCOMES, 'dashCmpO'), sS = mkSel(DASH_SUBSETS, 'dashCmpS');
     sO.value = 'rean';
-    const cmpOut = vmEl('div', 'dash-cmp-out');
-    const mkLab = (t, x) => { const l = vmEl('label', 'vm-info dash-cmp-lab', t + ' '); l.append(x); return l; };
-    const redraw = () => { cmpOut.replaceChildren(cmpTable([dashCompare(rows, sE.value, sO.value, sS.value)])); };
+    const out = vmEl('div', 'dc-one');
+    const mkLab = (t, x) => { const l = vmEl('label', 'dc-lab', t); l.append(x); return l; };
+    const redraw = () => { out.replaceChildren(cmpCard(dashCompare(rows, sE.value, sO.value, sS.value))); };
     [sE, sO, sS].forEach(x => x.addEventListener('change', redraw));
-    body.append(mkLab('Exposição:', sE), mkLab('Desfecho:', sO), mkLab('Restringir a:', sS), cmpOut);
-    redraw();
-    // Evolução mensal
-    body.append(vmEl('h4', 'dash-h', 'Evolução mensal'));
-    const ms = [...new Set((sel.value === 'u12' || !sel.value ? (sel.value === 'u12' ? all.filter(inLast12) : all) : rows).map(r => r.mes))].sort();
-    const pc = (rs, k, v) => { const k2 = rs.filter(r => r.x[k] !== null); const n = k2.filter(r => v === undefined ? r.x[k] : r.x[k] === v).length; return k2.length ? Math.round(n / k2.length * 100) + '% (' + n + '/' + k2.length + ')' : '—'; };
-    body.append(table(['Mês','RNs','Cesárea','Prematuros','Pré-natal adequado','Reanimação','Desconforto resp.','AME na alta','Sífilis materna'],
-      ms.map(m => { const rs = all.filter(r => r.mes === m); return [dashMonthLabel(m), rs.length, pc(rs, 'ces'), pc(rs, 'prem'), pc(rs, 'pnAdq'), pc(rs, 'rean'), pc(rs, 'dr'), pc(rs, 'ame'), rs.filter(r => r.x.syph).length]; })));
-    // Por ESF/UBS
-    body.append(vmEl('h4', 'dash-h', 'Por ESF/UBS de referência da mãe'));
+    const form = vmEl('div', 'dc-form'); form.append(mkLab('Exposição', sE), mkLab('Desfecho', sO), mkLab('Restringir a', sS));
+    body.append(form, out); redraw();
+    body.append(section('Principais comparações', 'Cards cinza: amostra pequena (menos de 20 RNs num grupo ou menos de 5 casos). Destaque laranja: diferença com intervalo de confiança que exclui 1.'));
+    const grid = vmEl('div', 'dc-grid');
+    DASH_PRESETS.map(([e, o, sub]) => dashCompare(rows, e, o, sub)).forEach(c => grid.append(cmpCard(c)));
+    body.append(grid);
+  }
+  function drawBars(vals, labels, ns){
+    const NS = 'http://www.w3.org/2000/svg', W = 640, H = 200, L = 34, B = 26, T = 16;
+    const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('class', 'dash-svg'); svg.setAttribute('role', 'img');
+    const mx = Math.max(10, Math.ceil(Math.max.apply(null, vals.map(v => v === null ? 0 : v)) / 10) * 10);
+    const mk = (n, at) => { const e = document.createElementNS(NS, n); Object.keys(at).forEach(k => e.setAttribute(k, at[k])); return e; };
+    [0, .5, 1].forEach(f => { const y = T + (H - T - B) * (1 - f); svg.append(mk('line', {x1:L, x2:W - 6, y1:y, y2:y, stroke:'#e1ece8', 'stroke-width':1})); const t = mk('text', {x:L - 6, y:y + 3, 'text-anchor':'end', 'font-size':10, fill:'#5b7380'}); t.textContent = Math.round(mx * f) + '%'; svg.append(t); });
+    const n = vals.length, slot = (W - L - 6) / n, bw = Math.min(30, slot * .6);
+    vals.forEach((v, i) => {
+      const x = L + slot * i + (slot - bw) / 2, h = v === null ? 0 : (H - T - B) * v / mx, y = H - B - h;
+      const g = mk('g', {}); const tt = document.createElementNS(NS, 'title'); tt.textContent = labels[i] + ': ' + (v === null ? 'sem dados' : Math.round(v) + '%') + ' (n=' + ns[i] + ')'; g.append(tt);
+      if(h > 0) g.append(mk('path', {d:'M' + x + ' ' + (H - B) + 'V' + (y + 4) + 'Q' + x + ' ' + y + ' ' + (x + 4) + ' ' + y + 'H' + (x + bw - 4) + 'Q' + (x + bw) + ' ' + y + ' ' + (x + bw) + ' ' + (y + 4) + 'V' + (H - B) + 'Z', fill: ns[i] < 10 ? '#9bd3c7' : '#15947F'}));
+      const tv = mk('text', {x:x + bw / 2, y:y - 4, 'text-anchor':'middle', 'font-size':10, fill:'#1b3a4b', 'font-weight':600}); tv.textContent = v === null ? '' : Math.round(v) + '%'; g.append(tv);
+      const tl = mk('text', {x:x + bw / 2, y:H - 8, 'text-anchor':'middle', 'font-size':n > 8 ? 9 : 10, fill:'#5b7380'}); tl.textContent = labels[i]; g.append(tl);
+      svg.append(g);
+    });
+    svg.append(mk('line', {x1:L, x2:W - 6, y1:H - B, y2:H - B, stroke:'#b9cbc5', 'stroke-width':1}));
+    return svg;
+  }
+  function drawEvo(rows){
+    const base = sel.value === 'u12' ? all.filter(inLast12) : (sel.value ? rows : all);
+    const ms = [...new Set(base.map(r => r.mes))].sort();
+    body.append(section('Evolução mensal', 'Escolha o indicador. Barras claras: menos de 10 RNs com o dado no mês.'));
+    const s = document.createElement('select'); s.className = 'dash-select'; DASH_INDICATORS.forEach(i => s.append(new Option(i.l, i.k)));
+    const box = vmEl('div', 'dash-chart'); body.append(s, box);
+    const draw = () => {
+      const ind = DASH_INDICATORS.find(i => i.k === s.value);
+      const per = ms.map(m => dashInd(base.filter(r => r.mes === m), ind));
+      box.replaceChildren(drawBars(per.map(p => p.pct), ms.map(dashMonthLabel), per.map(p => p.d)));
+      const det = document.createElement('details'); det.className = 'dash-det'; det.append(vmEl('summary', '', 'Ver números'));
+      det.append(table(['Mês', 'RNs', ind.l], ms.map((m, i) => [dashMonthLabel(m), base.filter(r => r.mes === m).length, per[i].d ? fmt(per[i].pct) + ' (' + per[i].n + '/' + per[i].d + ')' : '—'])));
+      box.append(det);
+    };
+    s.addEventListener('change', draw); draw();
+  }
+  function drawEsf(rows){
+    body.append(section('Por ESF/UBS de referência da mãe', 'Ordenado por número de RNs. Unidades com menos de 20 RNs ficam em cinza.'));
     const units = {};
     rows.forEach(r => { const k = dashNormUnit(r.unit) || ''; if(!units[k]) units[k] = {names:{}, rs:[]}; units[k].rs.push(r); if(r.unit) units[k].names[r.unit.trim()] = (units[k].names[r.unit.trim()] || 0) + 1; });
-    const ulist = Object.entries(units).sort((x, y) => y[1].rs.length - x[1].rs.length);
-    body.append(table(['ESF/UBS','RNs','Cesárea','Prematuros','Pré-natal adequado','RN de risco','Aviso'],
-      ulist.map(([k, u]) => { const nm = k ? Object.entries(u.names).sort((x, y) => y[1] - x[1])[0][0] : 'Não informada'; return [nm, u.rs.length, pc(u.rs, 'ces'), pc(u.rs, 'prem'), pc(u.rs, 'pnAdq'), u.rs.filter(r => r.risk.level !== 'none').length, u.rs.length < 20 ? 'amostra pequena' : '']; })));
-    body.append(vmEl('p', 'vm-info', 'Grafias parecidas do mesmo nome (maiúsculas, acentos, "ESF", "UBS") são agrupadas. Unidades com menos de 20 RNs no período ficam marcadas como amostra pequena.'));
-    // Vigilância
-    const surv = dashSurveillance(rows);
-    body.append(vmEl('h4', 'dash-h', 'Vigilância: sífilis e HIV'));
-    const nS = rows.filter(r => r.syph).length, nH = rows.filter(r => r.hiv).length;
-    body.append(vmEl('p', 'vm-info', 'Mães com sífilis (VDRL/TR reagente): ' + nS + ' · Mães com HIV reagente: ' + nH + ' · Com pendência de conduta: ' + surv.filter(x => x.pend.length).length));
-    if(surv.length){
-      body.append(table(['RN','Nasc.','Agravo','Situação','Conduta completa?'], surv.map(x => [x.r.rn, dashFmtDate(x.r.data) || '—', x.agravo, x.detalhe, x.pend.length ? '▲ falta: ' + x.pend.join(', ') : '✓ sim'])));
-    }
-    // Completude
-    body.append(vmEl('h4', 'dash-h', 'Completude (informativa)'));
-    if(st.topMiss.length) body.append(table(['Campo importante em branco','RNs'], st.topMiss.map(([k, v]) => [k, v + ' de ' + st.n])));
-    else body.append(vmEl('p', 'vm-info', 'Todos os campos importantes estão preenchidos neste período.'));
-    body.append(vmEl('p', 'vm-info', 'A completude é só um indicador: não impede salvar nem imprimir. Alta e sorologias consideram apenas o que se aplica a cada RN.'));
+    const list = Object.entries(units).sort((x, y) => y[1].rs.length - x[1].rs.length);
+    const pc = (rs, k) => { const d = rs.filter(r => r.x[k] !== null), n = d.filter(r => r.x[k]).length; return d.length ? Math.round(n / d.length * 100) + '% (' + n + '/' + d.length + ')' : '—'; };
+    const t = table(['ESF/UBS', 'RNs', 'Cesárea', 'Prematuros', 'Pré-natal adequado', 'RN de risco'],
+      list.map(([k, u]) => [k ? Object.entries(u.names).sort((x, y) => y[1] - x[1])[0][0] : 'Não informada', u.rs.length, pc(u.rs, 'ces'), pc(u.rs, 'prem'), pc(u.rs, 'pnAdq'), u.rs.filter(r => r.risk.level !== 'none').length]));
+    Array.from(t.querySelectorAll('tbody tr')).forEach((tr, i) => { if(list[i][1].rs.length < 20) tr.classList.add('dash-faint'); });
+    body.append(t);
   }
+  function drawVig(rows){
+    const surv = dashSurveillance(rows);
+    const nS = rows.filter(r => r.syph).length, nH = rows.filter(r => r.hiv).length, pend = surv.filter(x => x.pend.length).length;
+    const strip = vmEl('div', 'dk-strip');
+    strip.append(kpi(String(nS), 'Mães com sífilis', 'VDRL ou TR reagente'), kpi(String(nH), 'Mães com HIV', 'reagente'), kpi(String(pend), 'Com pendência de conduta', pend ? 'conferir abaixo' : 'nenhuma'));
+    body.append(strip);
+    if(!surv.length){ body.append(vmEl('p', 'dash-hint', 'Nenhum caso de sífilis ou HIV no período.')); return; }
+    const list = vmEl('div', 'dv-list');
+    surv.forEach(x => {
+      const it = vmEl('div', 'dv-item' + (x.pend.length ? ' pend' : ''));
+      const h = vmEl('div', 'dv-h'); h.append(vmEl('strong', '', x.r.rn), vmEl('span', 'dc-chip', x.agravo), vmEl('span', 'dv-d', dashFmtDate(x.r.data) || ''));
+      it.append(h, vmEl('div', 'dv-s', x.detalhe), vmEl('div', 'dv-c', x.pend.length ? '▲ falta: ' + x.pend.join(', ') : '✓ conduta completa'));
+      list.append(it);
+    });
+    body.append(list);
+  }
+  function drawQua(rows){
+    const st = dashStats(rows);
+    const strip = vmEl('div', 'dk-strip'); strip.append(kpi(st.avgComp + '%', 'Completude média', 'campos importantes preenchidos'), kpi(String(st.n), 'Fichas no período', ''));
+    body.append(strip);
+    if(st.topMiss.length){
+      body.append(section('Campos importantes mais em branco'));
+      const box = vmEl('div', 'dm-box');
+      st.topMiss.forEach(([k, v]) => box.append(meter(k, {n:v, d:st.n, pct:v / st.n * 100}, {warn:1})));
+      body.append(box);
+    } else body.append(vmEl('p', 'dash-hint', 'Todos os campos importantes estão preenchidos neste período.'));
+    body.append(vmEl('p', 'dash-hint', 'A completude é só um indicador: não impede salvar nem imprimir. Alta e sorologias consideram apenas o que se aplica a cada RN.'));
+  }
+  function draw(){
+    const rows = getRows();
+    body.replaceChildren();
+    if(!rows.length){ body.append(vmEl('p', 'vm-info', 'Nenhum RN neste período.')); return; }
+    ({res:drawResumo, cmp:drawCmp, evo:drawEvo, esf:drawEsf, vig:drawVig, qua:drawQua})[tab](rows);
+  }
+  TABS.forEach(([id, label]) => {
+    const b = vmEl('button', 'dash-tab' + (id === tab ? ' on' : ''), label); b.type = 'button'; b.setAttribute('role', 'tab');
+    b.addEventListener('click', () => { tab = id; Array.from(tabs.children).forEach(x => x.classList.toggle('on', x === b)); draw(); body.scrollTop = 0; });
+    tabs.append(b);
+  });
   sel.addEventListener('change', draw);
   draw();
 }
