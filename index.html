@@ -8520,7 +8520,7 @@ const CN_TOPICS = ['Mãe e gestação', 'Nascimento', 'Exame físico da 1ª hora
 const CN_RENAME = {
   'Histórico gestacional':'Gestações', 'Grupo sanguíneo (mãe)':'Tipagem sanguínea da mãe', 'Grupo sanguíneo do pai':'Tipagem sanguínea do pai',
   'Uso de fórceps / vácuo extrator':'Fórceps ou vácuo', 'Nº de circulares de cordão':'Circulares de cordão',
-  'Reanimação (descrever)':'Reanimação', 'Formato do crânio — qualitativo':'Formato do crânio',
+  'Bilirrubina transcutânea (BTC)':'Bilirrubina transcutânea (mg/dL)', 'Bilirrubina total sérica (BT)':'Bilirrubina total sérica (mg/dL)', 'Reanimação (descrever)':'Reanimação', 'Formato do crânio — qualitativo':'Formato do crânio',
   'Intercorrências durante o parto':'Intercorrências no parto', 'Necessita Dextro (HGT)?':'Necessita dextro (HGT)',
   'Necessita coleta de exames precoce?':'Coleta precoce de exames', 'Vitamina K (Kanakion)':'Vitamina K',
   'Profilaxia de conjuntivite (PVPI)':'Profilaxia ocular (PVPI)', 'Intercorrências na 1ª hora':'Intercorrências na 1ª hora',
@@ -8768,7 +8768,7 @@ function cnPage4(s){
   const sign = '<table class="cn-sign"><tr><td><div class="cn-sign-line"></div><div class="cn-sign-label">Aluno(a)' + (aluno ? ': ' + escapeHTML(aluno) : '') + '</div></td>' +
     '<td><div class="cn-sign-line"></div><div class="cn-sign-label">Médico(a) responsável, assinatura e carimbo</div></td></tr></table>';
   return '<div class="cn-hero">' + tiles + '</div>' + cnClassCard(s) +
-    cnColumns(secs.map(([t, dd]) => cnCardObj(s, 3, t, dd, null, 20)), 3) +
+    cnColumns((() => { const cards = secs.map(([t, dd]) => cnCardObj(s, 3, t, dd, null, 20)); cards.splice(3, 0, cnCardObj(s, 3, 'Dados de alta do RN', 'Bilirrubina', ['Bilirrubina transcutânea (BTC)', 'Bilirrubina total sérica (BT)', 'Avaliação AAP 2022 (conforme calculadora oficial)'], 20)); return cards; })(), 3) +
     cnSectionCard(s, 3, 'Encerramento', 'Encerramento da internação').replace('class="cn-card"', 'class="cn-card cn-wide"') + sign;
 }
 function buildCadernetaHTML(snapshot){
