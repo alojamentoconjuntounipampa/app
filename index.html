@@ -4336,8 +4336,11 @@ function readSyncBase(id){
   try { const raw = localStorage.getItem(SYNC_BASE_PREFIX + String(id)); return raw ? JSON.parse(raw) : null; }
   catch(_) { return null; }
 }
-function writeSyncBase(id, ans){
-  try { localStorage.setItem(SYNC_BASE_PREFIX + String(id), JSON.stringify(ans || {})); } catch(_) {}
+function writeSyncBase(id, ans, noEvict){
+  try {
+    const v = JSON.stringify(ans || {});
+    if(noEvict) localStorage.setItem(SYNC_BASE_PREFIX + String(id), v); else safeLocalSet(SYNC_BASE_PREFIX + String(id), v);
+  } catch(_) {}
 }
 function recordWorthSaving(recordId, ans){
   if(hasRealContent(ans)) return true;
@@ -5524,6 +5527,7 @@ async function loadCurrentUserRecords(){
     utiNeo: row.answers && row.answers.__utiNeo === true,
     database: true
   }));
+  let mirrorFull = false;
   records.forEach(record => {
     const matchingLocal = loadHistory().find(local => local.database &&
       String(local.databaseId || local.id) === String(record.databaseId));
@@ -5543,9 +5547,12 @@ async function loadCurrentUserRecords(){
     let localTime = NaN;
     try { const raw = localStorage.getItem(localRecordKey(localId)); if(raw) localTime = Date.parse(JSON.parse(raw).updatedAt || ''); } catch(_) {}
     if(Number.isFinite(localTime) && Number.isFinite(remoteTime) && localTime > remoteTime) return;
-    saveRecordToLocal(localRecord);
-    writeSyncBase(localId, record.answers);
+    if(mirrorFull) return;
+    try { saveRecordToLocal(localRecord, true); }
+    catch(e){ if(isQuotaError(e)){ mirrorFull = true; return; } throw e; }
+    writeSyncBase(localId, record.answers, true);
   });
+  if(mirrorFull) setSaveDatabaseMessage('Espaço do aparelho cheio: só os RNs mais recentes ficam copiados neste celular. Os demais continuam salvos no banco.', false);
   renderHistory();
   renderEvaluatorNameHistory();
   syncEvaluatorNamesWithServer(true);
@@ -5595,17 +5602,42 @@ function isQuotaError(e){ return !!e && (e.name === 'QuotaExceededError' || e.na
 // Armazenamento do aparelho cheio: libera o que é descartável (filas concluídas e versões além das 3 mais recentes).
 function freeLocalSpace(){
   try { compactPendingQueues(); } catch(_) {}
+  try {
+    // cópias de segurança de filas corrompidas ocupam espaço sem uso
+    const junk = [];
+    for(let i = 0; i < localStorage.length; i++){ const k = localStorage.key(i); if(k && k.indexOf(':pending-corrupt:') >= 0) junk.push(k); }
+    junk.forEach(k => localStorage.removeItem(k));
+  } catch(_) {}
   pruneAllVersions().catch(() => {});
+}
+// As cópias locais de RNs já enviados ao banco são só cache (o servidor tem tudo). Remove as mais antigas, em lotes,
+// para dar prioridade ao RN que está sendo preenchido. Nunca remove o RN aberto nem RN com alteração pendente.
+function evictSyncedRecords(batch = 5){
+  try {
+    const cands = loadHistory().filter(r => r && r.database === true && String(r.id) !== String(currentRecordId) &&
+      !readPendingQueue(r.id).some(item => ['queued','running','failed'].includes(item.state)))
+      .sort((x, y) => String(x.updatedAt || '').localeCompare(String(y.updatedAt || '')));
+    const take = cands.slice(0, batch);
+    take.forEach(r => { try { localStorage.removeItem(localRecordKey(r.id)); localStorage.removeItem(SYNC_BASE_PREFIX + String(r.id)); } catch(_) {} });
+    return take.length;
+  } catch(_) { return 0; }
 }
 function safeLocalSet(key, value){
   try { localStorage.setItem(key, value); return; }
   catch(e){ if(!isQuotaError(e)) throw e; }
   freeLocalSpace();
-  localStorage.setItem(key, value); // se ainda falhar, o erro segue para quem chamou
+  try { localStorage.setItem(key, value); return; } catch(e){ if(!isQuotaError(e)) throw e; }
+  let guard = 0;
+  while(guard++ < 40){
+    if(!evictSyncedRecords(5)) break;
+    try { localStorage.setItem(key, value); return; } catch(e){ if(!isQuotaError(e)) throw e; }
+  }
+  localStorage.setItem(key, value); // sem mais o que liberar: o erro segue para quem chamou
 }
-function saveRecordToLocal(record){
+function saveRecordToLocal(record, noEvict){
   if(!record || record.id === undefined || record.id === null) return;
-  safeLocalSet(localRecordKey(record.id), JSON.stringify(record));
+  if(noEvict) localStorage.setItem(localRecordKey(record.id), JSON.stringify(record));
+  else safeLocalSet(localRecordKey(record.id), JSON.stringify(record));
 }
 
 function deleteRecordFromLocal(id){
