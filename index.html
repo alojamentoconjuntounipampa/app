@@ -4524,8 +4524,7 @@ function healMisplacedAnswers(ans){
 const VERSIONS_DB_NAME = 'fichaNeonatalVersoes';
 const VERSIONS_STORE = 'versoes';
 const VERSION_MIN_INTERVAL_MS = 30 * 60 * 1000; // automáticas: no máximo 1 a cada 30 min por RN
-const VERSION_KEEP_AUTO = 8;
-const VERSION_KEEP_PINNED = 15;
+const VERSION_KEEP_TOTAL = 3; // por RN: só as 3 versões mais recentes ficam guardadas
 const SERVER_HISTORY_TABLE = 'registros_neonatais_historico';
 const VERSION_REASON_LABELS = {
   'autosave':'Automática', 'switch-flush':'Ao trocar de RN', 'local-save':'Ao sair/ocultar/imprimir',
@@ -4588,26 +4587,26 @@ async function deleteVersionIds(ids){
     tx.onabort = () => reject(tx.error || new Error('Transação abortada.'));
   });
 }
-async function pruneVersions(recordId, keepAuto = VERSION_KEEP_AUTO){
-  const list = (await listVersions(recordId)).filter(v => !v.deleted);
-  // "Fixa" vale pelo motivo atual (versões antigas gravadas ao sair/trocar de RN agora contam como automáticas).
-  const isPin = v => VERSION_PINNED_REASONS.has(v.reason);
-  const autos = list.filter(v => !isPin(v)), pins = list.filter(isPin);
-  const extra = [...autos.slice(keepAuto), ...pins.slice(VERSION_KEEP_PINNED)];
-  await deleteVersionIds(extra.map(v => v.id));
+async function pruneVersions(recordId, keep = VERSION_KEEP_TOTAL){
+  const list = (await listVersions(recordId)).filter(v => !v.deleted); // já vem da mais recente para a mais antiga
+  await deleteVersionIds(list.slice(keep).map(v => v.id));
+}
+// Limpa o que sobrar de todos os RNs (usada na limpeza única e quando o armazenamento do aparelho enche).
+async function pruneAllVersions(){
+  const db = await openVersionsDb();
+  const all = await new Promise((resolve, reject) => {
+    const req = db.transaction(VERSIONS_STORE, 'readonly').objectStore(VERSIONS_STORE).getAll();
+    req.onsuccess = () => resolve(req.result || []); req.onerror = () => reject(req.error);
+  });
+  const ids = [...new Set(all.map(v => v.recordId))];
+  for(const id of ids) await pruneVersions(id);
 }
 // Limpeza única das versões acumuladas pelas regras antigas.
 async function cleanupAllVersionsOnce(){
   try {
-    if(localStorage.getItem('fichaNeonatalLimpezaVersoes2') === '1') return;
-    const db = await openVersionsDb();
-    const all = await new Promise((resolve, reject) => {
-      const req = db.transaction(VERSIONS_STORE, 'readonly').objectStore(VERSIONS_STORE).getAll();
-      req.onsuccess = () => resolve(req.result || []); req.onerror = () => reject(req.error);
-    });
-    const ids = [...new Set(all.map(v => v.recordId))];
-    for(const id of ids) await pruneVersions(id);
-    localStorage.setItem('fichaNeonatalLimpezaVersoes2', '1');
+    if(localStorage.getItem('fichaNeonatalLimpezaVersoes3') === '1') return;
+    await pruneAllVersions();
+    localStorage.setItem('fichaNeonatalLimpezaVersoes3', '1');
   } catch(_) {}
 }
 setTimeout(cleanupAllVersionsOnce, 8000);
@@ -5112,7 +5111,7 @@ function readPendingQueue(recordId){
   }
 }
 function writePendingQueue(recordId, queue){
-  if(queue.length) localStorage.setItem(queueStorageKey(recordId), JSON.stringify(queue));
+  if(queue.length) safeLocalSet(queueStorageKey(recordId), JSON.stringify(queue));
   else localStorage.removeItem(queueStorageKey(recordId));
   updatePendingStatus();
 }
@@ -5592,9 +5591,21 @@ function localRecordKey(id){
   return HISTORY_RECORD_PREFIX + String(id);
 }
 
+function isQuotaError(e){ return !!e && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED' || e.code === 22 || e.code === 1014 || /quota/i.test(String(e.message || ''))); }
+// Armazenamento do aparelho cheio: libera o que é descartável (filas concluídas e versões além das 3 mais recentes).
+function freeLocalSpace(){
+  try { compactPendingQueues(); } catch(_) {}
+  pruneAllVersions().catch(() => {});
+}
+function safeLocalSet(key, value){
+  try { localStorage.setItem(key, value); return; }
+  catch(e){ if(!isQuotaError(e)) throw e; }
+  freeLocalSpace();
+  localStorage.setItem(key, value); // se ainda falhar, o erro segue para quem chamou
+}
 function saveRecordToLocal(record){
   if(!record || record.id === undefined || record.id === null) return;
-  localStorage.setItem(localRecordKey(record.id), JSON.stringify(record));
+  safeLocalSet(localRecordKey(record.id), JSON.stringify(record));
 }
 
 function deleteRecordFromLocal(id){
