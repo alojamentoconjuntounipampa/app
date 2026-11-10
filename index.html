@@ -3516,6 +3516,32 @@ function getFieldOrder(sec){
   for(let i = 0; i < n; i++) if(!seen.has(i) && !sec.fields[i].hidden) order.push(i);
   return order;
 }
+// Classificação de Kayaba (Kayaba H et al., J Urol 1996;156:1813-5): grau de exposição da glande.
+// No RN, o tipo I (prepúcio não retrátil) é o achado fisiológico esperado.
+const KAYABA_OPTIONS = [
+"Tipo I — nenhuma retração do prepúcio; meato não visível",
+"Tipo II — exposição apenas do meato uretral",
+"Tipo III — exposição de aproximadamente metade da glande",
+"Tipo IV — exposição quase completa da glande, com aderências no sulco coronal",
+"Tipo V — exposição completa e fácil da glande, incluindo o sulco coronal"
+];
+// Valores salvos com a escala antiga (invertida). Apenas o valor-padrão antigo é convertido
+// automaticamente; os demais continuam visíveis como "registro antigo" para reavaliação.
+const KAYABA_LEGACY_DEFAULT = "Grau I — prepúcio retrai facilmente, mas há constrição na base da glande";
+const KAYABA_LEGACY_VALUES = [
+KAYABA_LEGACY_DEFAULT,
+"Grau II — retração parcial; o meato uretral não fica totalmente exposto",
+"Grau III — retração parcial; apenas o meato uretral fica visível",
+"Grau IV — retração mínima; não é possível expor nem o meato uretral",
+"Grau V — não há retração do prepúcio"
+];
+function migrateLegacyAnswers(target){
+  if(!target || typeof target !== 'object') return target;
+  Object.keys(target).forEach(key => {
+    if(target[key] === KAYABA_LEGACY_DEFAULT) target[key] = KAYABA_OPTIONS[0];
+  });
+  return target;
+}
 const DATA = [
 { label: "Ficha de avaliação neonatal — Dados maternos", tabLabel:"Dados da mãe", sections: [
 {title:"Dados da mãe", fields:[
@@ -3757,13 +3783,7 @@ N("FC"),N("FR")
 ], order:[0,11,1,12,2,3,4,5,6,7,8,9,10]},
 {title:"Genitália e ânus", quickNormal:true, fields:[
 Sx(Sn("Testículos tópicos (masc.)",["Sim","Não - criptorquidia"],"Sim"),'M'),
-Sx(Sn("Fimose (Kayaba)",[
-"Grau I — prepúcio retrai facilmente, mas há constrição na base da glande",
-"Grau II — retração parcial; o meato uretral não fica totalmente exposto",
-"Grau III — retração parcial; apenas o meato uretral fica visível",
-"Grau IV — retração mínima; não é possível expor nem o meato uretral",
-"Grau V — não há retração do prepúcio"
-],"Grau I — prepúcio retrai facilmente, mas há constrição na base da glande"),'M'),
+Sx(Sn("Fimose (Kayaba)",KAYABA_OPTIONS,KAYABA_OPTIONS[0]),'M'),
 Sx(Sn("Presença de sinéquia (fem.)",AUSPRES,"Ausente"),'F'),
 Sx(Sn("Saída da uretra",["Tópica","Hipospádia","Epispádia"],"Tópica"),'M'),
 Sx(Sn("Hidrocele / hérnia",["Ausente","Hidrocele","Hérnia inguinal"],"Ausente"),'M'),
@@ -3823,55 +3843,131 @@ const PRINT_GROUPS = [
   {pageClass:'page-alta', label:'Alta hospitalar', parts:[3]}
 ];
 // ==================== EXTENSÃO ADITIVA ====================
-// 1) Percentil do perímetro cefálico (PC) ao nascer — INTERGROWTH-21st
-//    Fonte oficial: Villar J, Cheikh Ismail L, Victora CG, et al. International standards for
-//    newborn weight, length, and head circumference by gestational age and sex: the Newborn
-//    Cross-Sectional Study of the INTERGROWTH-21st Project. Lancet 2014;384(9946):857-68.
-//    Valores por semana+dia de IG (33+0 a 42+6), sexo, em cm. Cada linha: [P3,P5,P10,P50,P90,P95,P97].
-const IG21_HC_MIN_DAYS = 33*7;
-const IG21_HC_MAX_DAYS = 42*7+6;
-const IG21_HC_BOYS = [
-[28.2,28.6,29.1,30.9,32.7,33.3,33.6],[28.4,28.7,29.2,31.0,32.8,33.3,33.7],[28.5,28.8,29.3,31.1,32.9,33.4,33.8],[28.5,28.9,29.4,31.1,32.9,33.5,33.8],[28.6,29.0,29.5,31.2,33.0,33.6,33.9],[28.7,29.1,29.6,31.3,33.1,33.6,34.0],[28.8,29.2,29.7,31.4,33.2,33.7,34.1],
-[28.9,29.3,29.8,31.5,33.2,33.8,34.1],[29.0,29.4,29.9,31.6,33.3,33.8,34.2],[29.1,29.4,29.9,31.6,33.4,33.9,34.3],[29.2,29.5,30.0,31.7,33.5,34.0,34.3],[29.3,29.6,30.1,31.8,33.5,34.0,34.4],[29.4,29.7,30.2,31.9,33.6,34.1,34.5],[29.5,29.8,30.3,31.9,33.7,34.2,34.5],
-[29.6,29.9,30.4,32.0,33.7,34.2,34.6],[29.7,30.0,30.5,32.1,33.8,34.3,34.6],[29.7,30.1,30.5,32.2,33.9,34.4,34.7],[29.8,30.1,30.6,32.2,33.9,34.4,34.8],[29.9,30.2,30.7,32.3,34.0,34.5,34.8],[30.0,30.3,30.8,32.4,34.1,34.6,34.9],[30.1,30.4,30.9,32.5,34.1,34.6,35.0],
-[30.2,30.5,30.9,32.5,34.2,34.7,35.0],[30.2,30.5,31.0,32.6,34.3,34.8,35.1],[30.3,30.6,31.1,32.7,34.3,34.8,35.1],[30.4,30.7,31.2,32.8,34.4,34.9,35.2],[30.5,30.8,31.2,32.8,34.4,34.9,35.3],[30.5,30.9,31.3,32.9,34.5,35.0,35.3],[30.6,30.9,31.4,33.0,34.6,35.1,35.4],
-[30.7,31.0,31.5,33.0,34.6,35.1,35.4],[30.8,31.1,31.5,33.1,34.7,35.2,35.5],[30.8,31.2,31.6,33.2,34.8,35.2,35.6],[30.9,31.2,31.7,33.2,34.8,35.3,35.6],[31.0,31.3,31.7,33.3,34.9,35.3,35.7],[31.1,31.4,31.8,33.3,34.9,35.4,35.7],[31.1,31.4,31.9,33.4,35.0,35.5,35.8],
-[31.2,31.5,32.0,33.5,35.0,35.5,35.8],[31.3,31.6,32.0,33.5,35.1,35.6,35.9],[31.4,31.6,32.1,33.6,35.2,35.6,35.9],[31.4,31.7,32.2,33.7,35.2,35.7,36.0],[31.5,31.8,32.2,33.7,35.3,35.7,36.0],[31.6,31.9,32.3,33.8,35.3,35.8,36.1],[31.6,31.9,32.4,33.8,35.4,35.8,36.2],
-[31.7,32.0,32.4,33.9,35.4,35.9,36.2],[31.8,32.1,32.5,34.0,35.5,36.0,36.3],[31.8,32.1,32.6,34.0,35.5,36.0,36.3],[31.9,32.2,32.6,34.1,35.6,36.1,36.4],[32.0,32.2,32.7,34.1,35.7,36.1,36.4],[32.0,32.3,32.7,34.2,35.7,36.2,36.5],[32.1,32.4,32.8,34.3,35.8,36.2,36.5],
-[32.2,32.4,32.9,34.3,35.8,36.3,36.6],[32.2,32.5,32.9,34.4,35.9,36.3,36.6],[32.3,32.6,33.0,34.4,35.9,36.4,36.7],[32.3,32.6,33.0,34.5,36.0,36.4,36.7],[32.4,32.7,33.1,34.5,36.0,36.5,36.8],[32.5,32.7,33.2,34.6,36.1,36.5,36.8],[32.5,32.8,33.2,34.7,36.1,36.6,36.9],
-[32.6,32.9,33.3,34.7,36.2,36.6,36.9],[32.6,32.9,33.3,34.8,36.2,36.7,37.0],[32.7,33.0,33.4,34.8,36.3,36.7,37.0],[32.8,33.0,33.5,34.9,36.3,36.8,37.1],[32.8,33.1,33.5,34.9,36.4,36.8,37.1],[32.9,33.2,33.6,35.0,36.4,36.9,37.2],[32.9,33.2,33.6,35.0,36.5,36.9,37.2],
-[33.0,33.3,33.7,35.1,36.5,37.0,37.2],[33.1,33.3,33.7,35.1,36.6,37.0,37.3],[33.1,33.4,33.8,35.2,36.6,37.0,37.3],[33.2,33.4,33.8,35.2,36.7,37.1,37.4],[33.2,33.5,33.9,35.3,36.7,37.1,37.4],[33.3,33.6,34.0,35.3,36.8,37.2,37.5],[33.3,33.6,34.0,35.4,36.8,37.2,37.5]
-];
-const IG21_HC_GIRLS = [
-[27.9,28.3,28.8,30.5,32.2,32.8,33.1],[28.0,28.4,28.9,30.6,32.3,32.9,33.2],[28.1,28.5,29.0,30.6,32.4,32.9,33.3],[28.2,28.6,29.1,30.7,32.5,33.0,33.4],[28.3,28.7,29.2,30.8,32.6,33.1,33.4],[28.4,28.8,29.3,30.9,32.6,33.2,33.5],[28.5,28.9,29.4,31.0,32.7,33.2,33.6],
-[28.6,29.0,29.4,31.1,32.8,33.3,33.7],[28.7,29.1,29.5,31.2,32.9,33.4,33.7],[28.8,29.2,29.6,31.2,32.9,33.5,33.8],[28.9,29.2,29.7,31.3,33.0,33.5,33.9],[29.0,29.3,29.8,31.4,33.1,33.6,33.9],[29.1,29.4,29.9,31.5,33.2,33.7,34.0],[29.2,29.5,30.0,31.6,33.2,33.7,34.1],
-[29.3,29.6,30.1,31.6,33.3,33.8,34.1],[29.4,29.7,30.1,31.7,33.4,33.9,34.2],[29.5,29.8,30.2,31.8,33.4,33.9,34.3],[29.5,29.9,30.3,31.9,33.5,34.0,34.3],[29.6,29.9,30.4,31.9,33.6,34.0,34.4],[29.7,30.0,30.5,32.0,33.6,34.1,34.4],[29.8,30.1,30.5,32.1,33.7,34.2,34.5],
-[29.9,30.2,30.6,32.1,33.7,34.2,34.6],[29.9,30.3,30.7,32.2,33.8,34.3,34.6],[30.0,30.3,30.8,32.3,33.9,34.3,34.7],[30.1,30.4,30.8,32.4,33.9,34.4,34.7],[30.2,30.5,30.9,32.4,34.0,34.5,34.8],[30.3,30.6,31.0,32.5,34.0,34.5,34.8],[30.3,30.6,31.1,32.5,34.1,34.6,34.9],
-[30.4,30.7,31.1,32.6,34.2,34.6,34.9],[30.5,30.8,31.2,32.7,34.2,34.7,35.0],[30.5,30.8,31.3,32.7,34.3,34.7,35.1],[30.6,30.9,31.3,32.8,34.3,34.8,35.1],[30.7,31.0,31.4,32.9,34.4,34.8,35.2],[30.7,31.0,31.5,32.9,34.4,34.9,35.2],[30.8,31.1,31.5,33.0,34.5,34.9,35.3],
-[30.9,31.2,31.6,33.0,34.5,35.0,35.3],[30.9,31.2,31.7,33.1,34.6,35.0,35.4],[31.0,31.3,31.7,33.1,34.6,35.1,35.4],[31.1,31.4,31.8,33.2,34.7,35.1,35.4],[31.1,31.4,31.8,33.3,34.7,35.2,35.5],[31.2,31.5,31.9,33.3,34.8,35.2,35.5],[31.3,31.5,32.0,33.4,34.8,35.3,35.6],
-[31.3,31.6,32.0,33.4,34.9,35.3,35.6],[31.4,31.7,32.1,33.5,34.9,35.4,35.7],[31.4,31.7,32.1,33.5,35.0,35.4,35.7],[31.5,31.8,32.2,33.6,35.0,35.5,35.8],[31.6,31.8,32.2,33.6,35.1,35.5,35.8],[31.6,31.9,32.3,33.7,35.1,35.5,35.8],[31.7,31.9,32.3,33.7,35.2,35.6,35.9],
-[31.7,32.0,32.4,33.8,35.2,35.6,35.9],[31.8,32.0,32.4,33.8,35.2,35.7,36.0],[31.8,32.1,32.5,33.9,35.3,35.7,36.0],[31.9,32.1,32.6,33.9,35.3,35.8,36.0],[31.9,32.2,32.6,34.0,35.4,35.8,36.1],[32.0,32.3,32.6,34.0,35.4,35.8,36.1],[32.0,32.3,32.7,34.0,35.4,35.9,36.2],
-[32.1,32.3,32.7,34.1,35.5,35.9,36.2],[32.1,32.4,32.8,34.1,35.5,35.9,36.2],[32.2,32.4,32.8,34.2,35.6,36.0,36.3],[32.2,32.5,32.9,34.2,35.6,36.0,36.3],[32.3,32.5,32.9,34.3,35.6,36.1,36.3],[32.3,32.6,33.0,34.3,35.7,36.1,36.4],[32.4,32.6,33.0,34.3,35.7,36.1,36.4],
-[32.4,32.7,33.1,34.4,35.7,36.2,36.4],[32.5,32.7,33.1,34.4,35.8,36.2,36.5],[32.5,32.8,33.1,34.5,35.8,36.2,36.5],[32.5,32.8,33.2,34.5,35.9,36.3,36.5],[32.6,32.8,33.2,34.5,35.9,36.3,36.6],[32.6,32.9,33.3,34.6,35.9,36.3,36.6],[32.7,32.9,33.3,34.6,36.0,36.4,36.6]
-];
-function ig21HcPercentileText(sexo, gaWeeks, gaDays, pcCm){
-if(!sexo || sexo==='Ambíguo' || gaWeeks==null || pcCm===''||pcCm===undefined||pcCm===null || isNaN(Number(pcCm))) return null;
-const totalDays = gaWeeks*7 + (gaDays||0);
-if(totalDays < IG21_HC_MIN_DAYS || totalDays > IG21_HC_MAX_DAYS){
-return {cls:'info', text:'IG fora da faixa 33+0–42+6 semanas coberta pela tabela INTERGROWTH-21st usada nesta ficha.'};
+// 1) Peso e perímetro cefálico (PC) ao nascer — INTERGROWTH-21st Newborn Size Standards
+//    Fontes: Villar J et al. Lancet 2014;384(9946):857-68 (33+0 a 42+6 semanas) e
+//    Villar J et al. Lancet 2016;387(10021):844-5 (Very Preterm Newborn Size, 24+0 a 32+6 semanas).
+//    O centil é calculado pela própria distribuição do padrão (como na calculadora oficial
+//    intergrowth21.ndog.ox.ac.uk), e não por interpolação entre P3/P10/P50/P90/P97:
+//    • 33+0 a 42+6: GAMLSS skew t tipo 3 (ST3), parâmetros mu/sigma/nu/tau por dia de IG
+//      (planilhas oficiais "Newborn standards parameters", distribuídas pelo pacote gigs/LSHTM).
+//    • 24+0 a 32+6: equações do Very Preterm Newborn Size (peso: log-normal; PC: normal).
+const IG21_MIN_DAYS = 24*7;      // 168 dias
+const IG21_NBS_MIN_DAYS = 33*7;  // 231 dias — início da tabela mu/sigma/nu/tau
+const IG21_MAX_DAYS = 42*7+6;    // 300 dias
+const IG21_NBS_COEFFS = {
+  wfga: {
+    M: {nu:1.095261, tau:17.05299, ms:[[1.905973,0.4027349],[1.945933,0.4024603],[1.985389,0.4021894],[2.024345,0.4019221],[2.062806,0.4016584],[2.100775,0.4013983],[2.138257,0.4011415],[2.175255,0.4008882],[2.211773,0.4006382],[2.247815,0.4003915],[2.283385,0.400148],[2.318488,0.3999076],[2.353126,0.3996704],[2.387302,0.3994362],[2.421021,0.399205],[2.454287,0.3989767],[2.487102,0.3987514],[2.51947,0.3985288],[2.551396,0.3983091],[2.582882,0.3980921],[2.613931,0.3978779],[2.644547,0.3976663],[2.674734,0.3974573],[2.704494,0.3972509],[2.73383,0.397047],[2.762748,0.3968456],[2.791248,0.3966466],[2.819334,0.3964501],[2.847009,0.3962559],[2.874277,0.396064],[2.90114,0.3958745],[2.927602,0.3956872],[2.953666,0.3955021],[2.979333,0.3953192],[3.004608,0.3951384],[3.029493,0.3949598],[3.053991,0.3947832],[3.078104,0.3946087],[3.101837,0.3944363],[3.12519,0.3942658],[3.148168,0.3940972],[3.170772,0.3939306],[3.193005,0.3937659],[3.214871,0.393603],[3.236371,0.393442],[3.257508,0.3932828],[3.278286,0.3931254],[3.298705,0.3929698],[3.318769,0.3928158],[3.33848,0.3926636],[3.357841,0.3925131],[3.376854,0.3923642],[3.395522,0.3922169],[3.413847,0.3920713],[3.431831,0.3919272],[3.449476,0.3917847],[3.466785,0.3916438],[3.483761,0.3915043],[3.500405,0.3913664],[3.516719,0.3912299],[3.532707,0.3910949],[3.54837,0.3909613],[3.56371,0.3908291],[3.578729,0.3906983],[3.59343,0.3905689],[3.607815,0.3904408],[3.621885,0.390314],[3.635644,0.3901886],[3.649092,0.3900645],[3.662232,0.3899416]]},
+    F: {nu:1.126787, tau:19.65738, ms:[[1.795602,0.348924],[1.836325,0.3497515],[1.877048,0.3505792],[1.917184,0.3513983],[1.956738,0.3522089],[1.995713,0.353011],[2.034114,0.3538048],[2.071947,0.3545903],[2.109216,0.3553677],[2.1459260000000002,0.356137],[2.18208,0.3568985],[2.217685,0.3576521],[2.252744,0.358398],[2.28726,0.3591363],[2.321239,0.3598671],[2.354684,0.3605904],[2.387601,0.3613064],[2.419992,0.3620151],[2.451864,0.3627167],[2.483218,0.3634112],[2.514059,0.3640987],[2.544391,0.3647794],[2.574219,0.3654532],[2.603545,0.3661203],[2.632374,0.3667808],[2.660711,0.3674347],[2.688557,0.3680822],[2.715917,0.3687232],[2.742794,0.3693579],[2.769193,0.3699865],[2.795117,0.3706088],[2.820569,0.3712251],[2.845554,0.3718353],[2.870074,0.3724396],[2.894132,0.3730381],[2.917732,0.3736308],[2.940878,0.3742177],[2.963573,0.374799],[2.98582,0.3753747],[3.007622,0.3759449],[3.028983,0.3765097],[3.049906,0.377069],[3.070393,0.3776231],[3.090449,0.3781719],[3.110075,0.3787155],[3.129276,0.3792539],[3.148054,0.3797873],[3.166412,0.3803157],[3.184353,0.3808392],[3.20188,0.3813577],[3.218996,0.3818715],[3.235704,0.3823804],[3.252007,0.3828846],[3.267907,0.3833842],[3.283407,0.3838792],[3.29851,0.3843696],[3.313219,0.3848555],[3.327536,0.385337],[3.341464,0.385814],[3.355006,0.3862867],[3.368165,0.3867552],[3.380942,0.3872194],[3.393341,0.3876793],[3.405363,0.3881352],[3.417013,0.3885869],[3.428291,0.3890346],[3.439201,0.3894783],[3.449745,0.389918],[3.459925,0.3903538],[3.469744,0.3907857]]},
+  },
+  hcfga: {
+    M: {nu:1.033177, tau:26.17975, ms:[[30.82238,1.365932],[30.90986,1.358723],[30.99641,1.351644],[31.08203,1.344692],[31.16674,1.337863],[31.25057,1.331155],[31.33352,1.324565],[31.41562,1.318089],[31.49687,1.311726],[31.57731,1.305472],[31.65693,1.299326],[31.73576,1.293283],[31.81381,1.287343],[31.89109,1.281503],[31.96762,1.275759],[32.04342,1.270111],[32.11849,1.264556],[32.19285,1.259092],[32.26651,1.253717],[32.33949,1.248429],[32.41179,1.243226],[32.48344,1.238105],[32.55443,1.233066],[32.62479,1.228107],[32.69452,1.223226],[32.76364,1.21842],[32.83216,1.213689],[32.90008,1.209032],[32.96743,1.204445],[33.0342,1.199929],[33.10041,1.195481],[33.16607,1.1911],[33.2312,1.186784],[33.29579,1.182533],[33.35986,1.178345],[33.42342,1.174219],[33.48648,1.170153],[33.54904,1.166147],[33.61112,1.162198],[33.67272,1.158306],[33.73386,1.154471],[33.79454,1.15069],[33.85477,1.146962],[33.91455,1.143288],[33.9739,1.139665],[34.03283,1.136092],[34.09134,1.132569],[34.14943,1.129095],[34.20713,1.125669],[34.26442,1.122289],[34.32133,1.118956],[34.37785,1.115667],[34.434,1.112423],[34.48979,1.109222],[34.54521,1.106065],[34.60028,1.102949],[34.65499,1.099874],[34.70937,1.096839],[34.76341,1.093845],[34.81712,1.090889],[34.87051,1.087971],[34.92358,1.085092],[34.97634,1.082249],[35.0288,1.079442],[35.08095,1.076671],[35.13281,1.073935],[35.18439,1.071234],[35.23568,1.068566],[35.28669,1.065932],[35.33743,1.06333]]},
+    F: {nu:1.045915, tau:20.97268, ms:[[30.38709,1.310714],[30.47791,1.30326],[30.56873,1.295806],[30.65829,1.288488],[30.7466,1.281304],[30.8337,1.274251],[30.91959,1.267325],[31.0043,1.260522],[31.08785,1.253841],[31.17026,1.247278],[31.25153,1.240831],[31.3317,1.234495],[31.41078,1.22827],[31.48878,1.222152],[31.56572,1.216138],[31.64162,1.210227],[31.71649,1.204415],[31.79036,1.198701],[31.86323,1.193083],[31.93512,1.187557],[32.00604,1.182123],[32.07602,1.176778],[32.14505,1.171519],[32.21317,1.166346],[32.28038,1.161256],[32.34669,1.156247],[32.41211,1.151318],[32.47667,1.146466],[32.54037,1.141691],[32.60323,1.136991],[32.66525,1.132363],[32.72645,1.127807],[32.78684,1.12332],[32.84644,1.118902],[32.90524,1.114551],[32.96327,1.110266],[33.02054,1.106045],[33.07705,1.101887],[33.13281,1.09779],[33.18785,1.093754],[33.24215,1.089777],[33.29575,1.085859],[33.34864,1.081997],[33.40083,1.07819],[33.45233,1.074439],[33.50316,1.07074],[33.55332,1.067095],[33.60283,1.063501],[33.65168,1.059957],[33.69988,1.056463],[33.74746,1.053017],[33.7944,1.049619],[33.84073,1.046268],[33.88645,1.042963],[33.93157,1.039703],[33.97609,1.036486],[34.02002,1.033314],[34.06337,1.030184],[34.10615,1.027095],[34.14837,1.024048],[34.19002,1.02104],[34.23112,1.018073],[34.27168,1.015144],[34.31169,1.012253],[34.35118,1.0094],[34.39013,1.006584],[34.42857,1.003803],[34.46649,1.001059],[34.50391,0.9983488],[34.54082,0.9956732]]},
+  },
+};
+function ig21LogGamma(x){
+  const g = [76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
+  let y = x, tmp = x + 5.5;
+  tmp -= (x + 0.5) * Math.log(tmp);
+  let ser = 1.000000000190015;
+  for(let j=0;j<6;j++) ser += g[j] / ++y;
+  return -tmp + Math.log(2.5066282746310005 * ser / x);
 }
-const table = sexo==='Masculino' ? IG21_HC_BOYS : IG21_HC_GIRLS;
-const row = table[totalDays - IG21_HC_MIN_DAYS];
-const [p3,p5,p10,p50,p90,p95,p97] = row;
-const pc = Number(pcCm);
-let faixa, cls;
-if(pc < p3){ faixa = '< P3 (possível microcefalia para a IG)'; cls='warning'; }
-else if(pc < p10){ faixa = 'entre P3 e P10'; cls='info'; }
-else if(pc < p50){ faixa = 'entre P10 e P50'; cls='success'; }
-else if(pc < p90){ faixa = 'entre P50 e P90'; cls='success'; }
-else if(pc < p97){ faixa = 'entre P90 e P97'; cls='info'; }
-else { faixa = '≥ P97 (possível macrocefalia para a IG)'; cls='warning'; }
-return {cls, text:'INTERGROWTH-21st · PC ao nascer: '+faixa+' (IG usada: '+gaWeeks+'s'+(gaDays||0)+'d · P50 de referência: '+p50.toFixed(1)+' cm)'};
+function ig21BetaCf(a, b, x){
+  const FPMIN = 1e-300;
+  let qab = a + b, qap = a + 1, qam = a - 1, c = 1, d = 1 - qab * x / qap;
+  if(Math.abs(d) < FPMIN) d = FPMIN;
+  d = 1 / d;
+  let h = d;
+  for(let m=1; m<=300; m++){
+    const m2 = 2 * m;
+    let aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+    d = 1 + aa * d; if(Math.abs(d) < FPMIN) d = FPMIN;
+    c = 1 + aa / c; if(Math.abs(c) < FPMIN) c = FPMIN;
+    d = 1 / d; h *= d * c;
+    aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+    d = 1 + aa * d; if(Math.abs(d) < FPMIN) d = FPMIN;
+    c = 1 + aa / c; if(Math.abs(c) < FPMIN) c = FPMIN;
+    d = 1 / d;
+    const del = d * c; h *= del;
+    if(Math.abs(del - 1) < 1e-14) break;
+  }
+  return h;
+}
+// Beta incompleta regularizada I_x(a,b).
+function ig21IncBeta(x, a, b){
+  if(x <= 0) return 0;
+  if(x >= 1) return 1;
+  const bt = Math.exp(ig21LogGamma(a + b) - ig21LogGamma(a) - ig21LogGamma(b) + a * Math.log(x) + b * Math.log(1 - x));
+  return x < (a + 1) / (a + b + 2) ? bt * ig21BetaCf(a, b, x) / a : 1 - bt * ig21BetaCf(b, a, 1 - x) / b;
+}
+// Função de distribuição da t de Student (gl não inteiro).
+function ig21Pt(t, df){
+  const tail = 0.5 * ig21IncBeta(df / (df + t * t), df / 2, 0.5);
+  return t > 0 ? 1 - tail : tail;
+}
+// Skew t tipo 3 (Fernández & Steel), mesma parametrização de gamlss.dist::pST3/pST3C.
+function ig21PST3(y, mu, sigma, nu, tau){
+  const z = (y - mu) / sigma;
+  const p = z < 0 ? 2 * ig21Pt(nu * z, tau) : 1 + 2 * nu * nu * (ig21Pt(z / nu, tau) - 0.5);
+  return p / (1 + nu * nu);
+}
+function ig21Pnorm(z){
+  return z >= 0 ? 1 - 0.5 * ig21Erfc(z / Math.SQRT2) : 0.5 * ig21Erfc(-z / Math.SQRT2);
+}
+// erfc com erro relativo <1,2e-7 (Numerical Recipes, erfcc).
+function ig21Erfc(x){
+  const t = 1 / (1 + 0.5 * Math.abs(x));
+  const r = t * Math.exp(-x*x - 1.26551223 + t*(1.00002368 + t*(0.37409196 + t*(0.09678418 + t*(-0.18628806 + t*(0.27886807 + t*(-1.13520398 + t*(1.48851587 + t*(-0.82215223 + t*0.17087277)))))))));
+  return x >= 0 ? r : 2 - r;
+}
+// Inversa da normal padrão (Acklam), com um passo de refinamento de Halley.
+function ig21Qnorm(p){
+  if(p <= 0) return -Infinity;
+  if(p >= 1) return Infinity;
+  const a = [-3.969683028665376e+01,2.209460984245205e+02,-2.759285104469687e+02,1.383577518672690e+02,-3.066479806614716e+01,2.506628277459239e+00];
+  const b = [-5.447609879822406e+01,1.615858368580409e+02,-1.556989798598866e+02,6.680131188771972e+01,-1.328068155288572e+01];
+  const c = [-7.784894002430293e-03,-3.223964580411365e-01,-2.400758277161838e+00,-2.549732539343734e+00,4.374664141464968e+00,2.938163982698783e+00];
+  const d = [7.784695709041462e-03,3.224671290700398e-01,2.445134137142996e+00,3.754408661907416e+00];
+  const pl = 0.02425;
+  let x;
+  if(p < pl){ const q = Math.sqrt(-2*Math.log(p)); x = (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  else if(p <= 1 - pl){ const q = p - 0.5, r = q*q; x = (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1); }
+  else { const q = Math.sqrt(-2*Math.log(1-p)); x = -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  const e = ig21Pnorm(x) - p;
+  const u = e * Math.sqrt(2*Math.PI) * Math.exp(x*x/2);
+  return x - u / (1 + x*u/2);
+}
+// Converte uma medida em centil (0–1) e escore Z segundo o INTERGROWTH-21st.
+// acronym: 'wfga' (peso em kg) ou 'hcfga' (PC em cm). Retorna null fora de 24+0–42+6.
+function ig21NewbornCentile(acronym, sexo, totalDays, value){
+  if(!['Masculino','Feminino'].includes(sexo) || !Number.isFinite(value) || value <= 0) return null;
+  if(totalDays < IG21_MIN_DAYS || totalDays > IG21_MAX_DAYS) return null;
+  const male = sexo === 'Masculino';
+  let p, z, standard;
+  if(totalDays >= IG21_NBS_MIN_DAYS){
+    const set = IG21_NBS_COEFFS[acronym][male ? 'M' : 'F'];
+    const [mu, sigma] = set.ms[totalDays - IG21_NBS_MIN_DAYS];
+    p = ig21PST3(value, mu, sigma, set.nu, set.tau);
+    z = ig21Qnorm(p);
+    standard = 'Newborn Size';
+  } else {
+    const gaWeeks = totalDays / 7, sexNum = male ? 1 : 0;
+    if(acronym === 'wfga') z = (Math.log(value) - (-7.00303 + 1.325911 * Math.sqrt(gaWeeks) + 0.0571937 * sexNum)) / Math.sqrt(0.0373218);
+    else z = (value - (0.7866522 + 0.887638 * gaWeeks + 0.2513385 * sexNum)) / Math.sqrt(2.433481);
+    p = ig21Pnorm(z);
+    standard = 'Very Preterm Newborn Size';
+  }
+  return {p, z, standard};
+}
+function ig21FormatCentile(p){
+  const c = p * 100;
+  if(c < 0.1) return '<P0,1';
+  if(c > 99.9) return '>P99,9';
+  return 'P' + c.toFixed(1).replace('.', ',');
+}
+function ig21FormatZ(z){
+  if(!Number.isFinite(z)) return z > 0 ? '>+5' : '<−5';
+  return (z >= 0 ? '+' : '−') + Math.abs(z).toFixed(2).replace('.', ',');
 }
 function getGaForCalc(){
   const igKey = findFieldKey('Dados de nascimento e exame físico da 1ª hora','IG');
@@ -3937,21 +4033,17 @@ function updateNirsevimabEligibility(){
 function ig21HcZInfo(sexo, gaWeeks, gaDays, pcCm){
   if(!sexo || sexo==='Ambíguo' || gaWeeks==null || pcCm==='' || pcCm===undefined || pcCm===null || isNaN(Number(pcCm))) return null;
   const totalDays = gaWeeks*7 + (gaDays||0);
-  if(totalDays < IG21_HC_MIN_DAYS || totalDays > IG21_HC_MAX_DAYS){
-    return {cls:'info', text:'IG fora da faixa 33+0–42+6 semanas da referência INTERGROWTH-21st; não foi possível estimar o Z.'};
+  const result = ig21NewbornCentile('hcfga', sexo, totalDays, Number(pcCm));
+  if(!result){
+    return {cls:'info', text:'IG fora da faixa 24+0–42+6 semanas da referência INTERGROWTH-21st; não foi possível calcular o centil/Z do PC.'};
   }
-  const table = sexo==='Masculino' ? IG21_HC_BOYS : IG21_HC_GIRLS;
-  const [p3,, ,p50,, ,p97] = table[totalDays - IG21_HC_MIN_DAYS];
-  const pc = Number(pcCm);
-  let z;
-  if(pc < p50) z = -2 * (p50 - pc) / (p50 - p3);
-  else z = 2 * (pc - p50) / (p97 - p50);
-  const zText = (z >= 0 ? '+' : '') + z.toFixed(1);
+  const {p, z, standard} = result;
   let classification, cls;
-  if(z < -2){ classification = 'Microcefalia'; cls = 'warning'; }
+  if(z < -3){ classification = 'Microcefalia grave'; cls = 'warning'; }
+  else if(z < -2){ classification = 'Microcefalia'; cls = 'warning'; }
   else if(z > 2){ classification = 'Macrocefalia'; cls = 'warning'; }
   else { classification = 'Normal'; cls = 'success'; }
-  return {cls, text:'PC quantitativo · Z estimado: '+zText+' · '+classification+' (Microcefalia: Z < −2 · Normal: −2 ≤ Z ≤ +2 · Macrocefalia: Z > +2).'};
+  return {cls, text:'INTERGROWTH-21st ('+standard+') · PC ao nascer: '+ig21FormatCentile(p)+' · Z '+ig21FormatZ(z)+' · '+classification+' (IG usada: '+gaWeeks+'s'+(gaDays||0)+'d. Microcefalia: Z < −2 · grave: Z < −3 · Macrocefalia: Z > +2).'};
 }
 
 function normalizeManualGaState(value){
@@ -4008,74 +4100,24 @@ function syncSelectedGaToField(context = createOpContext(currentRecordId)){
   return true;
 }
 
-// 1b) Percentil de peso ao nascer — INTERGROWTH-21st (mesma fonte da tabela de PC acima).
-//     Tabela oficial em kg, por sexo, de 33+0 a 42+6 semanas.
-const IG21_BW_BOYS = [
-[1.18,1.28,1.43,1.95,2.52,2.70,2.82],[1.22,1.32,1.47,1.99,2.56,2.74,2.86],[1.26,1.36,1.51,2.03,2.60,2.77,2.90],[1.30,1.40,1.55,2.07,2.64,2.81,2.93],[1.34,1.44,1.59,2.11,2.67,2.85,2.97],[1.38,1.48,1.63,2.15,2.71,2.89,3.01],[1.42,1.52,1.67,2.18,2.75,2.93,3.05],
-[1.45,1.55,1.71,2.22,2.79,2.96,3.08],[1.49,1.59,1.74,2.26,2.82,3.00,3.12],[1.53,1.63,1.78,2.29,2.86,3.03,3.15],[1.56,1.66,1.82,2.33,2.89,3.07,3.19],[1.60,1.70,1.85,2.36,2.93,3.10,3.22],[1.63,1.73,1.89,2.40,2.96,3.14,3.26],[1.67,1.77,1.92,2.43,3.00,3.17,3.29],
-[1.70,1.80,1.95,2.47,3.03,3.20,3.32],[1.74,1.84,1.99,2.50,3.06,3.24,3.36],[1.77,1.87,2.02,2.53,3.09,3.27,3.39],[1.80,1.90,2.05,2.56,3.13,3.30,3.42],[1.83,1.94,2.09,2.60,3.16,3.33,3.45],[1.87,1.97,2.12,2.63,3.19,3.36,3.48],[1.90,2.00,2.15,2.66,3.22,3.39,3.51],
-[1.93,2.03,2.18,2.69,3.25,3.42,3.54],[1.96,2.06,2.21,2.72,3.28,3.45,3.57],[1.99,2.09,2.24,2.75,3.31,3.48,3.60],[2.02,2.12,2.27,2.78,3.34,3.51,3.63],[2.05,2.15,2.30,2.81,3.37,3.54,3.66],[2.08,2.18,2.33,2.84,3.39,3.57,3.69],[2.11,2.21,2.36,2.86,3.42,3.60,3.72],
-[2.13,2.24,2.38,2.89,3.45,3.62,3.74],[2.16,2.26,2.41,2.92,3.48,3.65,3.77],[2.19,2.29,2.44,2.95,3.50,3.68,3.80],[2.22,2.32,2.47,2.97,3.53,3.70,3.82],[2.24,2.34,2.49,3.00,3.55,3.73,3.85],[2.27,2.37,2.52,3.02,3.58,3.75,3.87],[2.29,2.39,2.54,3.05,3.61,3.78,3.90],
-[2.32,2.42,2.57,3.07,3.63,3.80,3.92],[2.34,2.44,2.59,3.10,3.65,3.83,3.95],[2.37,2.47,2.62,3.12,3.68,3.85,3.97],[2.39,2.49,2.64,3.15,3.70,3.87,3.99],[2.42,2.52,2.67,3.17,3.72,3.90,4.02],[2.44,2.54,2.69,3.19,3.75,3.92,4.04],[2.46,2.56,2.71,3.22,3.77,3.94,4.06],
-[2.49,2.59,2.73,3.24,3.79,3.96,4.08],[2.51,2.61,2.76,3.26,3.81,3.99,4.10],[2.53,2.63,2.78,3.28,3.83,4.01,4.12],[2.55,2.65,2.80,3.30,3.86,4.03,4.15],[2.57,2.67,2.82,3.32,3.88,4.05,4.17],[2.59,2.69,2.84,3.34,3.90,4.07,4.19],[2.61,2.71,2.86,3.36,3.92,4.09,4.21],
-[2.63,2.73,2.88,3.38,3.94,4.11,4.22],[2.65,2.75,2.90,3.40,3.95,4.13,4.24],[2.67,2.77,2.92,3.42,3.97,4.15,4.26],[2.69,2.79,2.94,3.44,3.99,4.16,4.28],[2.71,2.81,2.96,3.46,4.01,4.18,4.30],[2.73,2.83,2.98,3.48,4.03,4.20,4.32],[2.75,2.85,2.99,3.49,4.04,4.22,4.33],
-[2.76,2.86,3.01,3.51,4.06,4.23,4.35],[2.78,2.88,3.03,3.53,4.08,4.25,4.37],[2.80,2.90,3.05,3.55,4.09,4.27,4.38],[2.82,2.91,3.06,3.56,4.11,4.28,4.40],[2.83,2.93,3.08,3.58,4.13,4.30,4.42],[2.85,2.95,3.09,3.59,4.14,4.31,4.43],[2.86,2.96,3.11,3.61,4.16,4.33,4.45],
-[2.88,2.98,3.12,3.62,4.17,4.34,4.46],[2.89,2.99,3.14,3.64,4.19,4.36,4.47],[2.91,3.01,3.15,3.65,4.20,4.37,4.49],[2.92,3.02,3.17,3.67,4.21,4.39,4.50],[2.94,3.04,3.18,3.68,4.23,4.40,4.52],[2.95,3.05,3.20,3.69,4.24,4.41,4.53],[2.96,3.06,3.21,3.71,4.25,4.43,4.54]
-];
-const IG21_BW_GIRLS = [
-[1.20,1.29,1.41,1.86,2.35,2.51,2.61],[1.24,1.33,1.45,1.90,2.40,2.55,2.66],[1.28,1.37,1.49,1.94,2.44,2.59,2.70],[1.32,1.40,1.53,1.98,2.48,2.63,2.74],[1.36,1.44,1.57,2.02,2.52,2.67,2.78],[1.39,1.48,1.61,2.06,2.56,2.72,2.82],[1.43,1.52,1.65,2.09,2.60,2.75,2.86],
-[1.47,1.55,1.68,2.13,2.64,2.79,2.90],[1.50,1.59,1.72,2.17,2.67,2.83,2.94],[1.54,1.62,1.75,2.20,2.71,2.87,2.98],[1.57,1.66,1.79,2.24,2.75,2.91,3.01],[1.61,1.69,1.82,2.28,2.79,2.94,3.05],[1.64,1.73,1.86,2.31,2.82,2.98,3.09],[1.67,1.76,1.89,2.35,2.86,3.02,3.12],
-[1.71,1.79,1.92,2.38,2.89,3.05,3.16],[1.74,1.83,1.96,2.41,2.93,3.09,3.19],[1.77,1.86,1.99,2.45,2.96,3.12,3.23],[1.80,1.89,2.02,2.48,2.99,3.15,3.26],[1.83,1.92,2.05,2.51,3.03,3.19,3.30],[1.86,1.95,2.08,2.54,3.06,3.22,3.33],[1.89,1.98,2.11,2.57,3.09,3.25,3.36],
-[1.92,2.01,2.14,2.60,3.12,3.28,3.39],[1.95,2.04,2.17,2.63,3.15,3.31,3.42],[1.98,2.07,2.20,2.66,3.18,3.34,3.45],[2.00,2.09,2.23,2.69,3.21,3.37,3.48],[2.03,2.12,2.25,2.72,3.24,3.40,3.51],[2.06,2.15,2.28,2.75,3.27,3.43,3.54],[2.08,2.17,2.31,2.77,3.30,3.46,3.57],
-[2.11,2.20,2.33,2.80,3.32,3.49,3.60],[2.14,2.23,2.36,2.83,3.35,3.52,3.63],[2.16,2.25,2.38,2.85,3.38,3.54,3.65],[2.18,2.27,2.41,2.88,3.40,3.57,3.68],[2.21,2.30,2.43,2.90,3.43,3.60,3.71],[2.23,2.32,2.46,2.93,3.46,3.62,3.73],[2.25,2.35,2.48,2.95,3.48,3.65,3.76],
-[2.28,2.37,2.50,2.97,3.51,3.67,3.78],[2.30,2.39,2.53,3.00,3.53,3.69,3.81],[2.32,2.41,2.55,3.02,3.55,3.72,3.83],[2.34,2.43,2.57,3.04,3.58,3.74,3.85],[2.36,2.45,2.59,3.06,3.60,3.76,3.88],[2.38,2.47,2.61,3.09,3.62,3.79,3.90],[2.40,2.50,2.63,3.11,3.64,3.81,3.92],
-[2.42,2.51,2.65,3.13,3.66,3.83,3.94],[2.44,2.53,2.67,3.15,3.68,3.85,3.96],[2.46,2.55,2.69,3.17,3.70,3.87,3.99],[2.48,2.57,2.71,3.19,3.72,3.89,4.01],[2.50,2.59,2.73,3.21,3.74,3.91,4.03],[2.51,2.61,2.74,3.22,3.76,3.93,4.04],[2.53,2.62,2.76,3.24,3.78,3.95,4.06],
-[2.55,2.64,2.78,3.26,3.80,3.97,4.08],[2.56,2.66,2.80,3.28,3.82,3.99,4.10],[2.58,2.67,2.81,3.29,3.84,4.00,4.12],[2.60,2.69,2.83,3.31,3.85,4.02,4.14],[2.61,2.70,2.84,3.33,3.87,4.04,4.15],[2.63,2.72,2.86,3.34,3.89,4.05,4.17],[2.64,2.73,2.87,3.36,3.90,4.07,4.19],
-[2.65,2.75,2.89,3.37,3.92,4.09,4.20],[2.67,2.76,2.90,3.39,3.93,4.10,4.22],[2.68,2.77,2.91,3.40,3.95,4.12,4.23],[2.69,2.79,2.93,3.41,3.96,4.13,4.25],[2.71,2.80,2.94,3.43,3.97,4.15,4.26],[2.72,2.81,2.95,3.44,3.99,4.16,4.27],[2.73,2.82,2.96,3.45,4.00,4.17,4.29],
-[2.74,2.84,2.98,3.46,4.01,4.19,4.30],[2.75,2.85,2.99,3.48,4.03,4.20,4.31],[2.76,2.86,3.00,3.49,4.04,4.21,4.33],[2.77,2.87,3.01,3.50,4.05,4.22,4.34],[2.78,2.88,3.02,3.51,4.06,4.23,4.35],[2.79,2.89,3.03,3.52,4.07,4.24,4.36],[2.80,2.90,3.04,3.53,4.08,4.26,4.37]
-];
+// 1b) Centil de peso ao nascer — INTERGROWTH-21st (mesmo motor de cálculo do PC acima).
+//     PIG < P10 · AIG P10–P90 · GIG > P90.
 function ig21WeightPercentileInfo(sexo, gaWeeks, gaDays, pesoG){
 if(!sexo || sexo==='Ambíguo' || gaWeeks==null || pesoG===''||pesoG===undefined||pesoG===null || !Number.isFinite(Number(pesoG)) || Number(pesoG)<=0) return null;
 const totalDays = gaWeeks*7 + (gaDays||0);
-if(totalDays < IG21_HC_MIN_DAYS || totalDays > IG21_HC_MAX_DAYS){
-return {cls:'info', text:'IG fora da faixa 33+0–42+6 semanas coberta pela tabela INTERGROWTH-21st usada nesta ficha.', suggestedClass:null};
+const result = ig21NewbornCentile('wfga', sexo, totalDays, Number(pesoG)/1000);
+if(!result){
+return {cls:'info', text:'IG fora da faixa 24+0–42+6 semanas coberta pelo INTERGROWTH-21st; classifique PIG/AIG/GIG manualmente.', suggestedClass:null};
 }
-const table = sexo==='Masculino' ? IG21_BW_BOYS : IG21_BW_GIRLS;
-const row = table[totalDays - IG21_HC_MIN_DAYS];
-const percentilePoints = [3,5,10,50,90,95,97];
-const percentileWeights = row;
-const [p3,p5,p10,p50,p90,p95,p97] = row;
-const pesoKg = Number(pesoG)/1000;
-
-// Estima o percentil exato por interpolação linear entre os pontos publicados.
-let percentile;
-if(pesoKg <= percentileWeights[0]) {
-  percentile = 3 * pesoKg / percentileWeights[0];
-} else if(pesoKg >= percentileWeights[percentileWeights.length - 1]) {
-  const last = percentileWeights.length - 1;
-  percentile = 97 + (pesoKg - percentileWeights[last]) /
-    (percentileWeights[last] - percentileWeights[last - 1]) *
-    (percentilePoints[last] - percentilePoints[last - 1]);
-} else {
-  for(let i=1; i<percentileWeights.length; i++) {
-    if(pesoKg <= percentileWeights[i]) {
-      const weightRange = percentileWeights[i] - percentileWeights[i - 1];
-      const percentileRange = percentilePoints[i] - percentilePoints[i - 1];
-      percentile = percentilePoints[i - 1] +
-        ((pesoKg - percentileWeights[i - 1]) / weightRange) * percentileRange;
-      break;
-    }
-  }
-}
-const percentileText = 'P'+percentile.toFixed(1).replace('.', ',');
+const {p, z, standard} = result;
 let faixa, cls, suggestedClass;
-if(pesoKg < p10){ faixa = 'PIG'; cls='warning'; suggestedClass='PIG'; }
-else if(pesoKg > p90){ faixa = 'GIG'; cls='warning'; suggestedClass='GIG'; }
+if(p < 0.10){ faixa = 'PIG'; cls='warning'; suggestedClass='PIG'; }
+else if(p > 0.90){ faixa = 'GIG'; cls='warning'; suggestedClass='GIG'; }
 else { faixa = 'AIG'; cls='success'; suggestedClass='AIG'; }
 let extra = '';
-if(pesoKg < p3) extra = ' · abaixo de P3';
-else if(pesoKg > p97) extra = ' · acima de P97';
-return {cls, text:'INTERGROWTH-21st · Peso ao nascer: '+faixa+' ('+percentileText+')'+extra+' (IG usada: '+gaWeeks+'s'+(gaDays||0)+'d · P50 de referência: '+p50.toFixed(2)+' kg)', suggestedClass};
+if(p < 0.03) extra = ' · abaixo de P3';
+else if(p > 0.97) extra = ' · acima de P97';
+return {cls, text:'INTERGROWTH-21st ('+standard+') · Peso ao nascer: '+faixa+' ('+ig21FormatCentile(p)+')'+extra+' · Z '+ig21FormatZ(z)+' (IG usada: '+gaWeeks+'s'+(gaDays||0)+'d)', suggestedClass, centile:p, z};
 }
 
 // Atualiza caixas derivadas da 1ª hora (percentis, Nirsevimabe) sem recriar a tela e sem perder o foco.
@@ -6066,6 +6108,7 @@ async function loadRecord(id){
   activeSessionToken = createStableId(); recordRevision = 0;
   Object.keys(answers).forEach(key => delete answers[key]);
   Object.assign(answers, record.answers || {});
+  migrateLegacyAnswers(answers);
   // Recoloca respostas salvas em layout antigo no campo certo (evita valor em linha errada).
   const remapped = remapAnswersToCurrentSchema(answers);
   const healed = remapped ? false : healMisplacedAnswers(answers);
@@ -7552,6 +7595,14 @@ if(fieldDef.t === 'select'){
 input = document.createElement('select');
 const blank = document.createElement('option'); blank.value=''; blank.textContent=''; blank.selected = true; input.appendChild(blank);
 fieldDef.o.forEach(o=>{ const opt=document.createElement('option'); opt.value=o; opt.textContent=o; input.appendChild(opt); });
+// Valor salvo com uma escala antiga (ex.: Kayaba invertida): mantém visível para reavaliação.
+const savedValue = answers[key];
+if(savedValue && !fieldDef.o.includes(savedValue) && KAYABA_LEGACY_VALUES.includes(savedValue)){
+  const legacy = document.createElement('option');
+  legacy.value = savedValue;
+  legacy.textContent = '⚠ Escala antiga (reclassificar): ' + savedValue;
+  input.appendChild(legacy);
+}
 } else {
 input = document.createElement('input');
 input.type = fieldDef.t==='number'?'number':(fieldDef.t==='date'?'date':(fieldDef.t==='time'?'time':'text'));
